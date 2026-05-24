@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AK — Adolescentní Knihovna</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --parchment: #ede6d6;
+      --ink: #1a1410;
+      --brown: #6b4c2a;
+      --rust: #b5451b;
+      --gold: #c9a84c;
+      --muted: #8a7968;
+      --card-bg: #faf7f2;
+      --border: #d9cfc0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--ink);
+      color: var(--cream);
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    .logo-ak {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    .logo-full {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .book-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── HERO STRIP ── */
+    .hero {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 3rem 2.5rem 2.5rem;
+      border-bottom: 1px solid #333;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: 'AK';
+      position: absolute;
+      right: -1rem;
+      top: -1.5rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 12rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.03);
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero h1 em {
+      color: var(--gold);
+      font-style: italic;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 0.875rem;
+      letter-spacing: 0.06em;
+      margin-top: 0.75rem;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap {
+      padding: 1.5rem 2.5rem;
+      background: var(--parchment);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.65rem 1rem 0.65rem 2.5rem;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--card-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus { border-color: var(--brown); }
+    .search-input::placeholder { color: var(--muted); }
+
+    .filter-select {
+      padding: 0.65rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--card-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      min-width: 160px;
+    }
+
+    .filter-select:focus { border-color: var(--brown); }
+
+    .filter-select:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .view-toggle {
+      display: flex;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .view-btn {
+      padding: 0.55rem 0.75rem;
+      background: var(--card-bg);
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 1rem;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .view-btn.active {
+      background: var(--ink);
+      color: var(--gold);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      padding: 2rem 2.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .results-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .results-label span {
+      color: var(--brown);
+      font-weight: 500;
+    }
+
+    /* ── BOOK GRID ── */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .books-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* ── BOOK CARD (GRID) ── */
+    .book-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .book-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(26,20,16,0.12);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .book-cover {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+      background: var(--parchment);
+    }
+
+    .cover-placeholder {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: linear-gradient(135deg, var(--ink) 0%, var(--brown) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1rem;
+    }
+
+    .cover-placeholder .stk-badge {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    .cover-placeholder .no-img-label {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .book-info {
+      padding: 0.85rem;
+    }
+
+    .book-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 0.25rem;
+      color: var(--ink);
+    }
+
+    .book-author {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .stk-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+      background: var(--ink);
+      color: var(--gold);
+      padding: 0.2rem 0.5rem;
+      border-radius: 2px;
+    }
+
+    /* ── BOOK CARD (LIST) ── */
+    .book-card-list {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 0.85rem 1.25rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .book-card-list:hover {
+      background: var(--parchment);
+      transform: translateX(4px);
+    }
+
+    .list-cover {
+      width: 44px;
+      height: 62px;
+      object-fit: cover;
+      border-radius: 3px;
+      background: var(--parchment);
+      flex-shrink: 0;
+    }
+
+    .list-cover-placeholder {
+      width: 44px;
+      height: 62px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, var(--ink), var(--brown));
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.5rem;
+      color: var(--gold);
+      text-align: center;
+      padding: 4px;
+    }
+
+    .list-info { flex: 1; min-width: 0; }
+
+    .list-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-author {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    .list-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .list-subject {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── DETAIL MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px);
+      transition: transform 0.25s;
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0);
+    }
+
+    .modal-top {
+      display: flex;
+      gap: 2rem;
+      padding: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-cover {
+      width: 120px;
+      min-width: 120px;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      border-radius: 4px;
+      background: var(--parchment);
+    }
+
+    .modal-cover-placeholder {
+      width: 120px;
+      min-width: 120px;
+      aspect-ratio: 2/3;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--ink), var(--brown));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .modal-cover-placeholder .stk-badge {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    .modal-cover-placeholder .no-img-label {
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    .modal-header { flex: 1; }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      line-height: 1.25;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-author {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-stk {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      font-weight: 500;
+      background: var(--ink);
+      color: var(--gold);
+      padding: 0.25rem 0.65rem;
+      border-radius: 2px;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-meta-row {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .modal-meta-row strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .modal-body {
+      padding: 1.5rem 2rem 2rem;
+    }
+
+    .modal-section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      margin-top: 1.25rem;
+    }
+
+    .modal-section-label:first-child { margin-top: 0; }
+
+    .modal-description {
+      font-size: 0.875rem;
+      line-height: 1.65;
+      color: var(--ink);
+    }
+
+    .modal-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .keyword-chip {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      background: var(--parchment);
+    }
+
+    .modal-contents {
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--ink);
+      color: var(--cream);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal { position: relative; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--muted);
+    }
+
+    .empty-state .big {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      opacity: 0.2;
+      margin-bottom: 1rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 4rem;
+      padding: 1.5rem 2.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    footer strong { color: var(--brown); }
+
+    /* ── STAGGER ANIMATION DELAYS ── */
+    .book-card:nth-child(1), .book-card-list:nth-child(1) { animation-delay: 0.05s; }
+    .book-card:nth-child(2), .book-card-list:nth-child(2) { animation-delay: 0.1s; }
+    .book-card:nth-child(3), .book-card-list:nth-child(3) { animation-delay: 0.15s; }
+    .book-card:nth-child(4), .book-card-list:nth-child(4) { animation-delay: 0.2s; }
+    .book-card:nth-child(5), .book-card-list:nth-child(5) { animation-delay: 0.25s; }
+    .book-card:nth-child(6), .book-card-list:nth-child(6) { animation-delay: 0.3s; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <span class="logo-ak">AK</span>
+      <span class="logo-full">Adolescentní Knihovna</span>
+    </div>
+    <div class="header-right">
+      <span class="book-count" id="headerCount">— knih</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Katalog knih<br><em>školní knihovny</em></h1>
+    <p>Systémem Určený Kód &nbsp;·&nbsp; STK klasifikační systém</p>
+  </div>
+
+  <!-- SEARCH & FILTERS -->
+  <div class="search-wrap">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="Hledat podle názvu, autora, klíčových slov nebo STK..." />
+    </div>
+    <select class="filter-select" id="subjectFilter">
+      <option value="">Všechny předměty</option>
+    </select>
+    <select class="filter-select" id="subcatFilter" disabled>
+      <option value="">Všechny podkategorie</option>
+    </select>
+    <div class="view-toggle">
+      <button class="view-btn active" id="gridBtn" title="Mřížka">⊞</button>
+      <button class="view-btn" id="listBtn" title="Seznam">☰</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+    <div class="results-bar">
+      <span class="results-label" id="resultsLabel">Načítání...</span>
+    </div>
+    <div class="books-grid" id="booksContainer"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <span><strong>AK</strong> — Adolescentní Knihovna</span>
+    <span>STK klasifikační systém</span>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-top" id="modalTop"></div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+  // ── DUMMY DATA (replace with Google Sheet fetch later) ──
+  const SUBJECTS = {
+    "01": { name: "Čeština",    subs: { "01":"Lyrika","02":"Drama","03":"Epika","04":"Mluvnice","05":"Pravopis" } },
+    "02": { name: "Angličtina", subs: { "01":"Literatura","02":"Gramatika","03":"Konverzace","04":"Slovní zásoba" } },
+    "03": { name: "Němčina",    subs: { "01":"Literatura","02":"Gramatika","03":"Konverzace","04":"Slovní zásoba" } },
+    "04": { name: "Španělština",subs: { "01":"Literatura","02":"Gramatika","03":"Konverzace","04":"Slovní zásoba" } },
+    "05": { name: "Matematika", subs: { "01":"Algebra","02":"Geometrie","03":"Aritmetika","04":"Statistika","05":"Analýza" } },
+    "06": { name: "Ekonomika",  subs: { "01":"Účetnictví","02":"Marketing","03":"Management","04":"Finance","05":"Makroekonomie" } },
+    "07": { name: "Fyzika",     subs: { "01":"Mechanika","02":"Elektřina","03":"Optika","04":"Termodynamika","05":"Atomová fyzika" } },
+    "08": { name: "Chemie",     subs: { "01":"Organická","02":"Anorganická","03":"Biochemie","04":"Analytická" } },
+    "09": { name: "Přírodopis", subs: { "01":"Zoologie","02":"Botanika","03":"Ekologie","04":"Geologie","05":"Anatomie" } },
+    "10": { name: "Zeměpis",    subs: { "01":"Fyzická geografie","02":"Politická geografie","03":"Ekonomická geografie","04":"Kartografie","05":"Cestopisy" } },
+    "11": { name: "IT",         subs: { "01":"Programování","02":"Sítě","03":"Databáze","04":"Hardware","05":"Kybernetická bezpečnost" } },
+    "12": { name: "Hudebka",    subs: { "01":"Hudební teorie","02":"Dějiny hudby","03":"Nástroje","04":"Zpěv" } },
+    "13": { name: "Tělocvik",   subs: { "01":"Atletika","02":"Míčové sporty","03":"Gymnastika","04":"Plavání","05":"Zimní sporty" } },
+    "14": { name: "Výtvarka",   subs: { "01":"Kresba","02":"Malba","03":"Sochařství","04":"Dějiny umění","05":"Grafika" } },
+    "15": { name: "Vaření",     subs: { "01":"Studená kuchyně","02":"Teplá kuchyně","03":"Pečivo","04":"Cukrářství","05":"Nápoje" } },
+    "16": { name: "Ostatní",    subs: { "01":"Neurčeno" } },
+    "17": { name: "Historie",   subs: { "01":"Starověk","02":"Středověk","03":"Novověk","04":"Moderní dějiny","05":"České dějiny","06":"Světové dějiny","07":"Válečná história" } },
+  };
+
+  const BOOKS = [
+    { stk:"01-03-KRTB", title:"Máj", author:"Karel Hynek Mácha", isbn:"978-80-0000-001-1", year:"1836", description:"Romantická básnická povídka, jedno z nejvýznamnějších děl české literatury. Příběh lásky, zrady a trestu smrti.", keywords:["romantismus","lyrickoepická báseň","příroda","láska"], cover:"", contents:"" },
+    { stk:"01-02-PLMK", title:"Babička", author:"Božena Němcová", isbn:"978-80-0000-002-2", year:"1855", description:"Klasické dílo české literatury zachycující idylický obraz vesnického života a moudrosti prosté venkovské ženy.", keywords:["realismus","venkov","tradice","rodina"], cover:"", contents:"" },
+    { stk:"02-01-XKZP", title:"Romeo and Juliet", author:"William Shakespeare", isbn:"978-80-0000-003-3", year:"1597", description:"Jedna z nejslavnějších tragédií světové literatury o nešťastné lásce dvou mladých lidí z nepřátelských rodin.", keywords:["tragédie","láska","Verona","renesance"], cover:"", contents:"" },
+    { stk:"07-01-MNTJ", title:"Základy fyziky I", author:"Halliday & Resnick", isbn:"978-80-0000-004-4", year:"2013", description:"Komplexní učebnice fyziky pokrývající mechaniku, vlnění a termodynamiku pro středoškolské a vysokoškolské studenty.", keywords:["mechanika","kinematika","dynamika","síla"], cover:"", contents:"" },
+    { stk:"11-01-BVZQ", title:"Začínáme s Pythonem", author:"Eric Matthes", isbn:"978-80-0000-005-5", year:"2020", description:"Praktický průvodce programováním v Pythonu pro začátečníky. Od základních syntaxí až po tvorbu webových aplikací.", keywords:["python","programování","začátečníci","kód"], cover:"", contents:"" },
+    { stk:"17-04-WQRN", title:"Dějiny 20. století", author:"Eric Hobsbawm", isbn:"978-80-0000-006-6", year:"1994", description:"Monumentální historické dílo mapující klíčové události a přeměny světa ve dvacátém století.", keywords:["dějiny","války","politika","20. století"], cover:"", contents:"" },
+    { stk:"08-01-CHPK", title:"Organická chemie", author:"John McMurry", isbn:"978-80-0000-007-7", year:"2018", description:"Standardní učebnice organické chemie pokrývající strukturu, reakce a syntézu organických sloučenin.", keywords:["uhlík","sloučeniny","reakce","syntéza"], cover:"", contents:"" },
+    { stk:"09-01-ZLQV", title:"Svět živočichů", author:"David Attenborough", isbn:"978-80-0000-008-8", year:"2015", description:"Fascinující průvodce živočišnou říší od nejmenších bezobratlých po největší savce. Bohatě ilustrovaná encyklopedie.", keywords:["zvířata","příroda","evoluce","biologie"], cover:"", contents:"" },
+  ];
+
+  // ── STATE ──
+  let viewMode = 'grid';
+  let activeSubject = '';
+  let activeSubcat = '';
+  let searchQuery = '';
+
+  // ── POPULATE SUBJECT FILTER ──
+  const subjectFilter = document.getElementById('subjectFilter');
+  const subcatFilter  = document.getElementById('subcatFilter');
+
+  Object.entries(SUBJECTS).forEach(([code, data]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = `${code} — ${data.name}`;
+    subjectFilter.appendChild(opt);
+  });
+
+  subjectFilter.addEventListener('change', () => {
+    activeSubject = subjectFilter.value;
+    activeSubcat = '';
+    subcatFilter.innerHTML = '<option value="">Všechny podkategorie</option>';
+    if (activeSubject && SUBJECTS[activeSubject]) {
+      Object.entries(SUBJECTS[activeSubject].subs).forEach(([code, name]) => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = `${code} — ${name}`;
+        subcatFilter.appendChild(opt);
+      });
+      subcatFilter.disabled = false;
+    } else {
+      subcatFilter.disabled = true;
+    }
+    render();
+  });
+
+  subcatFilter.addEventListener('change', () => {
+    activeSubcat = subcatFilter.value;
+    render();
+  });
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value.toLowerCase();
+    render();
+  });
+
+  // ── VIEW TOGGLE ──
+  document.getElementById('gridBtn').addEventListener('click', () => {
+    viewMode = 'grid';
+    document.getElementById('gridBtn').classList.add('active');
+    document.getElementById('listBtn').classList.remove('active');
+    render();
+  });
+
+  document.getElementById('listBtn').addEventListener('click', () => {
+    viewMode = 'list';
+    document.getElementById('listBtn').classList.add('active');
+    document.getElementById('gridBtn').classList.remove('active');
+    render();
+  });
+
+  // ── STK HELPERS ──
+  function parseSTK(stk) {
+    const parts = stk.split('-');
+    return { xx: parts[0], yy: parts[1], zzzz: parts[2] };
+  }
+
+  function subjectName(xx) {
+    return SUBJECTS[xx]?.name || xx;
+  }
+
+  function subcatName(xx, yy) {
+    return SUBJECTS[xx]?.subs[yy] || yy;
+  }
+
+  // ── COVER ELEMENT ──
+  function makeCoverGrid(book) {
+    if (book.cover) {
+      return `<img class="book-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML=makePlaceholderHTML('${book.stk}')"/>`;
+    }
+    return `<div class="cover-placeholder">
+      <span class="stk-badge">${book.stk}</span>
+      <span class="no-img-label">Obrázek<br>nedostupný</span>
+    </div>`;
+  }
+
+  function makeCoverList(book) {
+    if (book.cover) {
+      return `<img class="list-cover" src="${book.cover}" alt="${book.title}"/>`;
+    }
+    return `<div class="list-cover-placeholder">${book.stk}</div>`;
+  }
+
+  // ── FILTER ──
+  function filteredBooks() {
+    return BOOKS.filter(b => {
+      const { xx, yy } = parseSTK(b.stk);
+      if (activeSubject && xx !== activeSubject) return false;
+      if (activeSubcat  && yy !== activeSubcat)  return false;
+      if (searchQuery) {
+        const haystack = [b.title, b.author, b.stk, ...(b.keywords||[])].join(' ').toLowerCase();
+        if (!haystack.includes(searchQuery)) return false;
+      }
+      return true;
+    });
+  }
+
+  // ── RENDER ──
+  function render() {
+    const books = filteredBooks();
+    const container = document.getElementById('booksContainer');
+    const label = document.getElementById('resultsLabel');
+
+    document.getElementById('headerCount').textContent = `${BOOKS.length} knih`;
+    label.innerHTML = `Zobrazeno <span>${books.length}</span> z ${BOOKS.length} knih`;
+
+    container.className = viewMode === 'grid' ? 'books-grid' : 'books-list';
+
+    if (books.length === 0) {
+      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="big">📚</div>
+        <p>Žádné knihy neodpovídají vašemu výběru.</p>
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = books.map((book, i) => {
+      const { xx, yy } = parseSTK(book.stk);
+      if (viewMode === 'grid') {
+        return `<div class="book-card" onclick="openModal('${book.stk}')" style="animation-delay:${i*0.05}s">
+          ${makeCoverGrid(book)}
+          <div class="book-info">
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">${book.author}</div>
+            <span class="stk-tag">${book.stk}</span>
+          </div>
+        </div>`;
+      } else {
+        return `<div class="book-card-list" onclick="openModal('${book.stk}')" style="animation-delay:${i*0.04}s">
+          ${makeCoverList(book)}
+          <div class="list-info">
+            <div class="list-title">${book.title}</div>
+            <div class="list-author">${book.author} · ${book.year}</div>
+          </div>
+          <div class="list-meta">
+            <span class="stk-tag">${book.stk}</span>
+            <span class="list-subject">${subjectName(xx)} / ${subcatName(xx,yy)}</span>
+          </div>
+        </div>`;
+      }
+    }).join('');
+  }
+
+  // ── MODAL ──
+  function openModal(stk) {
+    const book = BOOKS.find(b => b.stk === stk);
+    if (!book) return;
+    const { xx, yy } = parseSTK(book.stk);
+
+    const coverHTML = book.cover
+      ? `<img class="modal-cover" src="${book.cover}" alt="${book.title}"/>`
+      : `<div class="modal-cover-placeholder">
+           <span class="stk-badge">${book.stk}</span>
+           <span class="no-img-label">Obrázek<br>nedostupný</span>
+         </div>`;
+
+    document.getElementById('modalTop').innerHTML = `
+      ${coverHTML}
+      <div class="modal-header">
+        <div class="modal-stk">${book.stk}</div>
+        <div class="modal-title">${book.title}</div>
+        <div class="modal-author">${book.author}</div>
+        <div class="modal-meta-row">
+          <span><strong>Rok:</strong> ${book.year}</span>
+          <span><strong>ISBN:</strong> ${book.isbn}</span>
+        </div>
+        <div class="modal-meta-row" style="margin-top:0.5rem">
+          <span><strong>Předmět:</strong> ${subjectName(xx)}</span>
+          <span><strong>Kategorie:</strong> ${subcatName(xx,yy)}</span>
+        </div>
+      </div>`;
+
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-section-label">Popis</div>
+      <div class="modal-description">${book.description || '—'}</div>
+      <div class="modal-section-label">Klíčová slova</div>
+      <div class="modal-keywords">${(book.keywords||[]).map(k=>`<span class="keyword-chip">${k}</span>`).join('')}</div>
+      ${book.contents ? `<div class="modal-section-label">Strana obsahu</div><img class="modal-contents" src="${book.contents}" alt="Obsah"/>` : ''}
+    `;
+
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  document.getElementById('modalClose').addEventListener('click', () => {
+    document.getElementById('modalOverlay').classList.remove('open');
+  });
+
+  document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modalOverlay')) {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+  });
+
+  // ── INIT ──
+  render();
+</script>
+</body>
+</html>
