@@ -17,9 +17,9 @@
       --card-bg: #faf7f2;
       --border: #d9cfc0;
     }
-
+ 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
     body {
       background-color: var(--cream);
       color: var(--ink);
@@ -27,7 +27,7 @@
       font-weight: 300;
       min-height: 100vh;
     }
-
+ 
     /* ── NOISE TEXTURE OVERLAY ── */
     body::before {
       content: '';
@@ -38,7 +38,7 @@
       z-index: 0;
       opacity: 0.4;
     }
-
+ 
     /* ── HEADER ── */
     header {
       position: sticky;
@@ -53,13 +53,13 @@
       height: 64px;
       border-bottom: 2px solid var(--gold);
     }
-
+ 
     .logo {
       display: flex;
       align-items: baseline;
       gap: 0.75rem;
     }
-
+ 
     .logo-ak {
       font-family: 'Playfair Display', serif;
       font-size: 1.6rem;
@@ -67,7 +67,7 @@
       color: var(--gold);
       letter-spacing: 0.05em;
     }
-
+ 
     .logo-full {
       font-size: 0.75rem;
       font-weight: 300;
@@ -75,19 +75,19 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
-
+ 
     .header-right {
       display: flex;
       align-items: center;
       gap: 1.5rem;
     }
-
+ 
     .book-count {
       font-size: 0.75rem;
       color: var(--muted);
       letter-spacing: 0.08em;
     }
-
+ 
     /* ── HERO STRIP ── */
     .hero {
       background: var(--ink);
@@ -97,7 +97,7 @@
       position: relative;
       overflow: hidden;
     }
-
+ 
     .hero::after {
       content: 'AK';
       position: absolute;
@@ -110,7 +110,7 @@
       pointer-events: none;
       line-height: 1;
     }
-
+ 
     .hero h1 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(2rem, 4vw, 3.2rem);
@@ -118,19 +118,19 @@
       line-height: 1.15;
       margin-bottom: 0.5rem;
     }
-
+ 
     .hero h1 em {
       color: var(--gold);
       font-style: italic;
     }
-
+ 
     .hero p {
       color: var(--muted);
       font-size: 0.875rem;
       letter-spacing: 0.06em;
       margin-top: 0.75rem;
     }
-
+ 
     /* ── SEARCH BAR ── */
     .search-wrap {
       padding: 1.5rem 2.5rem;
@@ -141,13 +141,13 @@
       align-items: center;
       flex-wrap: wrap;
     }
-
+ 
     .search-input-wrap {
       position: relative;
       flex: 1;
       min-width: 220px;
     }
-
+ 
     .search-icon {
       position: absolute;
       left: 1rem;
@@ -156,7 +156,7 @@
       color: var(--muted);
       font-size: 1rem;
     }
-
+ 
     .search-input {
       width: 100%;
       padding: 0.65rem 1rem 0.65rem 2.5rem;
@@ -169,10 +169,10 @@
       outline: none;
       transition: border-color 0.2s;
     }
-
+ 
     .search-input:focus { border-color: var(--brown); }
     .search-input::placeholder { color: var(--muted); }
-
+ 
     .filter-select {
       padding: 0.65rem 1rem;
       border: 1.5px solid var(--border);
@@ -186,21 +186,21 @@
       transition: border-color 0.2s;
       min-width: 160px;
     }
-
+ 
     .filter-select:focus { border-color: var(--brown); }
-
+ 
     .filter-select:disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
-
+ 
     .view-toggle {
       display: flex;
       border: 1.5px solid var(--border);
       border-radius: 4px;
       overflow: hidden;
     }
-
+ 
     .view-btn {
       padding: 0.55rem 0.75rem;
       background: var(--card-bg);
@@ -210,19 +210,19 @@
       font-size: 1rem;
       transition: background 0.15s, color 0.15s;
     }
-
+ 
     .view-btn.active {
       background: var(--ink);
       color: var(--gold);
     }
-
+ 
     /* ── MAIN LAYOUT ── */
     main {
       padding: 2rem 2.5rem;
       max-width: 1400px;
       margin: 0 auto;
     }
-
+ 
     .results-bar {
       display: flex;
       align-items: center;
@@ -231,32 +231,32 @@
       padding-bottom: 0.75rem;
       border-bottom: 1px solid var(--border);
     }
-
+ 
     .results-label {
       font-size: 0.8rem;
       color: var(--muted);
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
-
+ 
     .results-label span {
       color: var(--brown);
       font-weight: 500;
     }
-
+ 
     /* ── BOOK GRID ── */
     .books-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 1.5rem;
     }
-
+ 
     .books-list {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
     }
-
+ 
     /* ── BOOK CARD (GRID) ── */
     .book-card {
       background: var(--card-bg);
@@ -267,17 +267,17 @@
       transition: transform 0.2s, box-shadow 0.2s;
       animation: fadeUp 0.4s ease both;
     }
-
+ 
     .book-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 32px rgba(26,20,16,0.12);
     }
-
+ 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
+ 
     .book-cover {
       width: 100%;
       aspect-ratio: 2/3;
@@ -285,7 +285,7 @@
       display: block;
       background: var(--parchment);
     }
-
+ 
     .cover-placeholder {
       width: 100%;
       aspect-ratio: 2/3;
@@ -297,7 +297,7 @@
       gap: 0.5rem;
       padding: 1rem;
     }
-
+ 
     .cover-placeholder .stk-badge {
       font-family: 'Playfair Display', serif;
       font-size: 1rem;
@@ -305,7 +305,7 @@
       letter-spacing: 0.1em;
       text-align: center;
     }
-
+ 
     .cover-placeholder .no-img-label {
       font-size: 0.6rem;
       color: rgba(255,255,255,0.35);
@@ -313,11 +313,11 @@
       text-transform: uppercase;
       text-align: center;
     }
-
+ 
     .book-info {
       padding: 0.85rem;
     }
-
+ 
     .book-title {
       font-family: 'Playfair Display', serif;
       font-size: 0.95rem;
@@ -326,13 +326,13 @@
       margin-bottom: 0.25rem;
       color: var(--ink);
     }
-
+ 
     .book-author {
       font-size: 0.75rem;
       color: var(--muted);
       margin-bottom: 0.5rem;
     }
-
+ 
     .stk-tag {
       display: inline-block;
       font-size: 0.65rem;
@@ -343,7 +343,7 @@
       padding: 0.2rem 0.5rem;
       border-radius: 2px;
     }
-
+ 
     /* ── BOOK CARD (LIST) ── */
     .book-card-list {
       background: var(--card-bg);
@@ -357,12 +357,12 @@
       transition: background 0.15s, transform 0.15s;
       animation: fadeUp 0.3s ease both;
     }
-
+ 
     .book-card-list:hover {
       background: var(--parchment);
       transform: translateX(4px);
     }
-
+ 
     .list-cover {
       width: 44px;
       height: 62px;
@@ -371,7 +371,7 @@
       background: var(--parchment);
       flex-shrink: 0;
     }
-
+ 
     .list-cover-placeholder {
       width: 44px;
       height: 62px;
@@ -387,9 +387,9 @@
       text-align: center;
       padding: 4px;
     }
-
+ 
     .list-info { flex: 1; min-width: 0; }
-
+ 
     .list-title {
       font-family: 'Playfair Display', serif;
       font-size: 1rem;
@@ -398,13 +398,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
+ 
     .list-author {
       font-size: 0.8rem;
       color: var(--muted);
       margin-top: 0.1rem;
     }
-
+ 
     .list-meta {
       display: flex;
       flex-direction: column;
@@ -412,13 +412,13 @@
       gap: 0.35rem;
       flex-shrink: 0;
     }
-
+ 
     .list-subject {
       font-size: 0.7rem;
       color: var(--muted);
       letter-spacing: 0.06em;
     }
-
+ 
     /* ── DETAIL MODAL ── */
     .modal-overlay {
       position: fixed;
@@ -433,12 +433,12 @@
       pointer-events: none;
       transition: opacity 0.25s;
     }
-
+ 
     .modal-overlay.open {
       opacity: 1;
       pointer-events: all;
     }
-
+ 
     .modal {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -450,18 +450,18 @@
       transform: translateY(20px);
       transition: transform 0.25s;
     }
-
+ 
     .modal-overlay.open .modal {
       transform: translateY(0);
     }
-
+ 
     .modal-top {
       display: flex;
       gap: 2rem;
       padding: 2rem;
       border-bottom: 1px solid var(--border);
     }
-
+ 
     .modal-cover {
       width: 120px;
       min-width: 120px;
@@ -470,7 +470,7 @@
       border-radius: 4px;
       background: var(--parchment);
     }
-
+ 
     .modal-cover-placeholder {
       width: 120px;
       min-width: 120px;
@@ -483,7 +483,7 @@
       justify-content: center;
       gap: 0.4rem;
     }
-
+ 
     .modal-cover-placeholder .stk-badge {
       font-family: 'Playfair Display', serif;
       font-size: 0.85rem;
@@ -491,7 +491,7 @@
       letter-spacing: 0.1em;
       text-align: center;
     }
-
+ 
     .modal-cover-placeholder .no-img-label {
       font-size: 0.55rem;
       color: rgba(255,255,255,0.3);
@@ -499,22 +499,22 @@
       letter-spacing: 0.08em;
       text-align: center;
     }
-
+ 
     .modal-header { flex: 1; }
-
+ 
     .modal-title {
       font-family: 'Playfair Display', serif;
       font-size: 1.5rem;
       line-height: 1.25;
       margin-bottom: 0.4rem;
     }
-
+ 
     .modal-author {
       color: var(--muted);
       font-size: 0.875rem;
       margin-bottom: 1rem;
     }
-
+ 
     .modal-stk {
       display: inline-block;
       font-size: 0.7rem;
@@ -526,23 +526,23 @@
       border-radius: 2px;
       margin-bottom: 0.75rem;
     }
-
+ 
     .modal-meta-row {
       display: flex;
       gap: 1.5rem;
       font-size: 0.78rem;
       color: var(--muted);
     }
-
+ 
     .modal-meta-row strong {
       color: var(--ink);
       font-weight: 500;
     }
-
+ 
     .modal-body {
       padding: 1.5rem 2rem 2rem;
     }
-
+ 
     .modal-section-label {
       font-size: 0.65rem;
       text-transform: uppercase;
@@ -551,21 +551,21 @@
       margin-bottom: 0.4rem;
       margin-top: 1.25rem;
     }
-
+ 
     .modal-section-label:first-child { margin-top: 0; }
-
+ 
     .modal-description {
       font-size: 0.875rem;
       line-height: 1.65;
       color: var(--ink);
     }
-
+ 
     .modal-keywords {
       display: flex;
       flex-wrap: wrap;
       gap: 0.4rem;
     }
-
+ 
     .keyword-chip {
       font-size: 0.7rem;
       padding: 0.2rem 0.6rem;
@@ -574,13 +574,13 @@
       color: var(--muted);
       background: var(--parchment);
     }
-
+ 
     .modal-contents {
       width: 100%;
       border-radius: 4px;
       border: 1px solid var(--border);
     }
-
+ 
     .modal-close {
       position: absolute;
       top: 1rem;
@@ -597,23 +597,23 @@
       align-items: center;
       justify-content: center;
     }
-
+ 
     .modal { position: relative; }
-
+ 
     /* ── EMPTY STATE ── */
     .empty-state {
       text-align: center;
       padding: 5rem 2rem;
       color: var(--muted);
     }
-
+ 
     .empty-state .big {
       font-family: 'Playfair Display', serif;
       font-size: 3rem;
       opacity: 0.2;
       margin-bottom: 1rem;
     }
-
+ 
     /* ── FOOTER ── */
     footer {
       margin-top: 4rem;
@@ -625,9 +625,9 @@
       font-size: 0.75rem;
       color: var(--muted);
     }
-
+ 
     footer strong { color: var(--brown); }
-
+ 
     /* ── STAGGER ANIMATION DELAYS ── */
     .book-card:nth-child(1), .book-card-list:nth-child(1) { animation-delay: 0.05s; }
     .book-card:nth-child(2), .book-card-list:nth-child(2) { animation-delay: 0.1s; }
@@ -638,7 +638,7 @@
   </style>
 </head>
 <body>
-
+ 
   <!-- HEADER -->
   <header>
     <div class="logo">
@@ -649,13 +649,13 @@
       <span class="book-count" id="headerCount">— knih</span>
     </div>
   </header>
-
+ 
   <!-- HERO -->
   <div class="hero">
     <h1>Hledáček knih<br><em>z naši knihovny</em></h1>
     <p>v0.4.7</p>
   </div>
-
+ 
   <!-- SEARCH & FILTERS -->
   <div class="search-wrap">
     <div class="search-input-wrap">
@@ -673,7 +673,7 @@
       <button class="view-btn" id="listBtn" title="Seznam">☰</button>
     </div>
   </div>
-
+ 
   <!-- MAIN -->
   <main>
     <div class="results-bar">
@@ -681,13 +681,13 @@
     </div>
     <div class="books-grid" id="booksContainer"></div>
   </main>
-
+ 
   <!-- FOOTER -->
   <footer>
     <span><strong>verze:</strong> 0.4.7</span>
     <span>2026</span>
   </footer>
-
+ 
   <!-- MODAL -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modal">
@@ -696,7 +696,7 @@
       <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
-
+ 
 <script>
   // ── DUMMY DATA (replace with Google Sheet fetch later) ──
   const SUBJECTS = {
@@ -718,7 +718,7 @@
     "16": { name: "Ostatní",    subs: { "01":"Neurčeno" } },
     "17": { name: "Historie",   subs: { "01":"Starověk","02":"Středověk","03":"Novověk","04":"Moderní dějiny","05":"České dějiny","06":"Světové dějiny","07":"Válečná história" } },
   };
-
+ 
   const BOOKS = [
     { stk:"01-03-KRTB", title:"Máj", author:"Karel Hynek Mácha", isbn:"978-80-0000-001-1", year:"1836", description:"Romantická básnická povídka, jedno z nejvýznamnějších děl české literatury. Příběh lásky, zrady a trestu smrti.", keywords:["romantismus","lyrickoepická báseň","příroda","láska"], cover:"", contents:"" },
     { stk:"01-02-PLMK", title:"Babička", author:"Božena Němcová", isbn:"978-80-0000-002-2", year:"1855", description:"Klasické dílo české literatury zachycující idylický obraz vesnického života a moudrosti prosté venkovské ženy.", keywords:["realismus","venkov","tradice","rodina"], cover:"", contents:"" },
@@ -729,24 +729,24 @@
     { stk:"08-01-CHPK", title:"Organická chemie", author:"John McMurry", isbn:"978-80-0000-007-7", year:"2018", description:"Standardní učebnice organické chemie pokrývající strukturu, reakce a syntézu organických sloučenin.", keywords:["uhlík","sloučeniny","reakce","syntéza"], cover:"", contents:"" },
     { stk:"09-01-ZLQV", title:"Svět živočichů", author:"David Attenborough", isbn:"978-80-0000-008-8", year:"2015", description:"Fascinující průvodce živočišnou říší od nejmenších bezobratlých po největší savce. Bohatě ilustrovaná encyklopedie.", keywords:["zvířata","příroda","evoluce","biologie"], cover:"", contents:"" },
   ];
-
+ 
   // ── STATE ──
   let viewMode = 'grid';
   let activeSubject = '';
   let activeSubcat = '';
   let searchQuery = '';
-
+ 
   // ── POPULATE SUBJECT FILTER ──
   const subjectFilter = document.getElementById('subjectFilter');
   const subcatFilter  = document.getElementById('subcatFilter');
-
+ 
   Object.entries(SUBJECTS).forEach(([code, data]) => {
     const opt = document.createElement('option');
     opt.value = code;
     opt.textContent = `${code} — ${data.name}`;
     subjectFilter.appendChild(opt);
   });
-
+ 
   subjectFilter.addEventListener('change', () => {
     activeSubject = subjectFilter.value;
     activeSubcat = '';
@@ -764,17 +764,17 @@
     }
     render();
   });
-
+ 
   subcatFilter.addEventListener('change', () => {
     activeSubcat = subcatFilter.value;
     render();
   });
-
+ 
   document.getElementById('searchInput').addEventListener('input', (e) => {
     searchQuery = e.target.value.toLowerCase();
     render();
   });
-
+ 
   // ── VIEW TOGGLE ──
   document.getElementById('gridBtn').addEventListener('click', () => {
     viewMode = 'grid';
@@ -782,28 +782,28 @@
     document.getElementById('listBtn').classList.remove('active');
     render();
   });
-
+ 
   document.getElementById('listBtn').addEventListener('click', () => {
     viewMode = 'list';
     document.getElementById('listBtn').classList.add('active');
     document.getElementById('gridBtn').classList.remove('active');
     render();
   });
-
+ 
   // ── STK HELPERS ──
   function parseSTK(stk) {
     const parts = stk.split('-');
     return { xx: parts[0], yy: parts[1], zzzz: parts[2] };
   }
-
+ 
   function subjectName(xx) {
     return SUBJECTS[xx]?.name || xx;
   }
-
+ 
   function subcatName(xx, yy) {
     return SUBJECTS[xx]?.subs[yy] || yy;
   }
-
+ 
   // ── COVER ELEMENT ──
   function makeCoverGrid(book) {
     if (book.cover) {
@@ -814,14 +814,14 @@
       <span class="no-img-label">Obrázek<br>nedostupný</span>
     </div>`;
   }
-
+ 
   function makeCoverList(book) {
     if (book.cover) {
       return `<img class="list-cover" src="${book.cover}" alt="${book.title}"/>`;
     }
     return `<div class="list-cover-placeholder">${book.stk}</div>`;
   }
-
+ 
   // ── FILTER ──
   function filteredBooks() {
     return BOOKS.filter(b => {
@@ -835,26 +835,39 @@
       return true;
     });
   }
-
+ 
   // ── RENDER ──
   function render() {
     const books = filteredBooks();
     const container = document.getElementById('booksContainer');
     const label = document.getElementById('resultsLabel');
-
+ 
     document.getElementById('headerCount').textContent = `${BOOKS.length} knih`;
     label.innerHTML = `Zobrazeno <span>${books.length}</span> z ${BOOKS.length} knih`;
-
+ 
     container.className = viewMode === 'grid' ? 'books-grid' : 'books-list';
-
+ 
     if (books.length === 0) {
+      const emptyMessages = [
+        { emoji: "🔎", text: "Žádné knihy se nenašly. Zkus jiný výraz!" },
+        { emoji: "📭", text: "Prázdno. Tahle kniha asi ještě čeká na svůj STK kód." },
+        { emoji: "🕯️", text: "Tma a ticho... žádná kniha tu není." },
+        { emoji: "🦗", text: "Cvrčci. Nic tu není." },
+        { emoji: "🗺️", text: "Mapa nevede nikam. Zkus jiné klíčové slovo." },
+        { emoji: "📜", text: "Tento svitek je prázdný. Zkus hledat jinak." },
+        { emoji: "🧐", text: "Hmm. To tu nemáme. Ještě." },
+        { emoji: "🚪", text: "Dveře jsou zavřené. Žádná taková kniha tu není." },
+        { emoji: "☁️", text: "Mlha. Nic tu nevidím." },
+        { emoji: "🫙", text: "Prázdná nádoba. Zkus jiný výběr." },
+      ];
+      const pick = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-        <div class="big">🔎</div>
-        <p>Žádné knihy se nenašly :(</p>
+        <div class="big">${pick.emoji}</div>
+        <p>${pick.text}</p>
       </div>`;
       return;
     }
-
+ 
     container.innerHTML = books.map((book, i) => {
       const { xx, yy } = parseSTK(book.stk);
       if (viewMode === 'grid') {
@@ -881,20 +894,20 @@
       }
     }).join('');
   }
-
+ 
   // ── MODAL ──
   function openModal(stk) {
     const book = BOOKS.find(b => b.stk === stk);
     if (!book) return;
     const { xx, yy } = parseSTK(book.stk);
-
+ 
     const coverHTML = book.cover
       ? `<img class="modal-cover" src="${book.cover}" alt="${book.title}"/>`
       : `<div class="modal-cover-placeholder">
            <span class="stk-badge">${book.stk}</span>
            <span class="no-img-label">Obrázek<br>nedostupný</span>
          </div>`;
-
+ 
     document.getElementById('modalTop').innerHTML = `
       ${coverHTML}
       <div class="modal-header">
@@ -910,7 +923,7 @@
           <span><strong>Kategorie:</strong> ${subcatName(xx,yy)}</span>
         </div>
       </div>`;
-
+ 
     document.getElementById('modalBody').innerHTML = `
       <div class="modal-section-label">Popis</div>
       <div class="modal-description">${book.description || '—'}</div>
@@ -918,22 +931,23 @@
       <div class="modal-keywords">${(book.keywords||[]).map(k=>`<span class="keyword-chip">${k}</span>`).join('')}</div>
       ${book.contents ? `<div class="modal-section-label">Strana obsahu</div><img class="modal-contents" src="${book.contents}" alt="Obsah"/>` : ''}
     `;
-
+ 
     document.getElementById('modalOverlay').classList.add('open');
   }
-
+ 
   document.getElementById('modalClose').addEventListener('click', () => {
     document.getElementById('modalOverlay').classList.remove('open');
   });
-
+ 
   document.getElementById('modalOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('modalOverlay')) {
       document.getElementById('modalOverlay').classList.remove('open');
     }
   });
-
+ 
   // ── INIT ──
   render();
 </script>
 </body>
 </html>
+ 
