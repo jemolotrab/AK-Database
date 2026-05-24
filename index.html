@@ -849,16 +849,12 @@
  
     if (books.length === 0) {
       const emptyMessages = [
-        { emoji: "🔎", text: "Žádné knihy se nenašly. Zkus jiný výraz!" },
-        { emoji: "📭", text: "Prázdno. Tahle kniha asi ještě čeká na svůj STK kód." },
-        { emoji: "🕯️", text: "Tma a ticho... žádná kniha tu není." },
-        { emoji: "🦗", text: "Cvrčci. Nic tu není." },
-        { emoji: "🗺️", text: "Mapa nevede nikam. Zkus jiné klíčové slovo." },
-        { emoji: "📜", text: "Tento svitek je prázdný. Zkus hledat jinak." },
-        { emoji: "🧐", text: "Hmm. To tu nemáme. Ještě." },
-        { emoji: "🚪", text: "Dveře jsou zavřené. Žádná taková kniha tu není." },
-        { emoji: "☁️", text: "Mlha. Nic tu nevidím." },
-        { emoji: "🫙", text: "Prázdná nádoba. Zkus jiný výběr." },
+        { emoji: "🔎", text: "Detailista" },
+        { emoji: "📭", text: "Zkouknul bych radši mail" },
+        { emoji: "😏", text: "Nic jsem nenašel" },
+        { emoji: "👀", text: "Jak můžete vidět... já ne!" },
+        { emoji: "💾", text: "Error 404" },
+        { emoji: "🍪", text: "Tak když ne knihy, tak proč bys chtěl sušenky??" },
       ];
       const pick = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
