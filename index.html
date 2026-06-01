@@ -917,17 +917,17 @@
           </div>
           <div class="form-field">
             <label id="loc2-label">Patro</label>
-            <select class="form-select" id="f-loc2"><option value="">— vyber —</option></select>
+            <input class="form-input" id="f-loc2" type="text" placeholder="" />
           </div>
         </div>
         <div class="form-row">
           <div class="form-field">
             <label id="loc3-label">Místnost</label>
-            <select class="form-select" id="f-loc3"><option value="">— vyber —</option></select>
+            <input class="form-input" id="f-loc3" type="text" placeholder="" />
           </div>
           <div class="form-field">
             <label id="loc4-label">Police</label>
-            <select class="form-select" id="f-loc4"><option value="">— vyber —</option></select>
+            <input class="form-input" id="f-loc4" type="text" placeholder="" />
           </div>
         </div>
 
@@ -1241,39 +1241,28 @@
   // ── PASSWORD (change this to whatever you want) ──
   const ADD_BOOK_PASSWORD = "AK2024";
 
-  // ── LOCATION DROPDOWNS ──────────────────────────────────────────────────────
-  // Change the name and options for each of the 4 location fields here.
-  // Add or remove entries from the options arrays as needed.
+  // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
+  // Only the building field is a dropdown. Add or remove buildings as needed.
   const LOCATIONS = {
     loc1: {
       name: "Budova",
       options: ["Budova A", "Budova B", "Budova C"],
     },
-    loc2: {
-      name: "Patro",
-      options: ["Přízemí", "1. patro", "2. patro", "3. patro"],
-    },
-    loc3: {
-      name: "Místnost",
-      options: ["Knihovna", "Třída 1A", "Třída 1B", "Třída 2A", "Sborovna"],
-    },
-    loc4: {
-      name: "Police",
-      options: ["Police 1", "Police 2", "Police 3", "Police 4", "Police 5"],
-    },
+    loc2: { name: "Patro" },
+    loc3: { name: "Místnost" },
+    loc4: { name: "Police" },
   };
   // ────────────────────────────────────────────────────────────────────────────
 
-  // Apply location names and populate dropdowns
+  // Apply location names and populate building dropdown
   Object.entries(LOCATIONS).forEach(([key, data]) => {
     document.getElementById(`${key}-label`).textContent = data.name;
-    const sel = document.getElementById(`f-${key}`);
-    data.options.forEach(opt => {
-      const o = document.createElement('option');
-      o.value = opt;
-      o.textContent = opt;
-      sel.appendChild(o);
-    });
+  });
+  LOCATIONS.loc1.options.forEach(opt => {
+    const o = document.createElement('option');
+    o.value = opt;
+    o.textContent = opt;
+    document.getElementById('f-loc1').appendChild(o);
   });
 
   // ── STK CODE GENERATION ──
@@ -1369,12 +1358,10 @@
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
     // Clear all fields
-    ['f-title','f-author','f-year','f-isbn','f-kw1','f-kw2','f-kw3'].forEach(id => {
+    ['f-title','f-author','f-year','f-isbn','f-loc2','f-loc3','f-loc4','f-kw1','f-kw2','f-kw3'].forEach(id => {
       document.getElementById(id).value = '';
     });
-    ['f-loc1','f-loc2','f-loc3','f-loc4'].forEach(id => {
-      document.getElementById(id).selectedIndex = 0;
-    });
+    document.getElementById('f-loc1').selectedIndex = 0;
     document.getElementById('f-matura').checked = false;
     fSubject.value = '';
     fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
@@ -1410,9 +1397,9 @@
       year,
       location: {
         [LOCATIONS.loc1.name]: document.getElementById('f-loc1').value,
-        [LOCATIONS.loc2.name]: document.getElementById('f-loc2').value,
-        [LOCATIONS.loc3.name]: document.getElementById('f-loc3').value,
-        [LOCATIONS.loc4.name]: document.getElementById('f-loc4').value,
+        [LOCATIONS.loc2.name]: document.getElementById('f-loc2').value.trim(),
+        [LOCATIONS.loc3.name]: document.getElementById('f-loc3').value.trim(),
+        [LOCATIONS.loc4.name]: document.getElementById('f-loc4').value.trim(),
       },
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
