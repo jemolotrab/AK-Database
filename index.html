@@ -635,6 +635,176 @@
     .book-card:nth-child(4), .book-card-list:nth-child(4) { animation-delay: 0.2s; }
     .book-card:nth-child(5), .book-card-list:nth-child(5) { animation-delay: 0.25s; }
     .book-card:nth-child(6), .book-card-list:nth-child(6) { animation-delay: 0.3s; }
+
+    /* ── ADD BOOK BUTTON ── */
+    .add-btn {
+      background: var(--gold);
+      color: var(--ink);
+      border: none;
+      border-radius: 4px;
+      padding: 0.45rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.15s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .add-btn:hover { background: #d4b560; transform: translateY(-1px); }
+
+    /* ── SHARED OVERLAY ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,0.75);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+
+    /* ── PASSWORD MODAL ── */
+    .pw-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      transform: translateY(16px);
+      transition: transform 0.2s;
+    }
+    .overlay.open .pw-box { transform: translateY(0); }
+    .pw-box h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.4rem; }
+    .pw-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.25rem; }
+    .pw-input {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--ink);
+      outline: none;
+      text-align: center;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .pw-input:focus { border-color: var(--brown); }
+    .pw-input.error { border-color: var(--rust); animation: shake 0.3s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+    .pw-error { font-size: 0.75rem; color: var(--rust); margin-bottom: 0.75rem; min-height: 1rem; }
+    .pw-submit {
+      width: 100%;
+      padding: 0.65rem;
+      background: var(--ink);
+      color: var(--gold);
+      border: none;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .pw-submit:hover { background: var(--brown); }
+    .pw-cancel { margin-top: 0.6rem; background: none; border: none; color: var(--muted); font-size: 0.75rem; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: underline; display: block; width: 100%; }
+
+    /* ── ADD BOOK FORM ── */
+    .form-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 92vh;
+      overflow-y: auto;
+      transform: translateY(16px);
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .overlay.open .form-box { transform: translateY(0); }
+    .form-header {
+      padding: 1.25rem 1.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--card-bg);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-header h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; }
+    .form-close { background: var(--ink); color: var(--cream); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+    .form-body { padding: 1.25rem 1.75rem 1.75rem; }
+    .form-section { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin: 1.25rem 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+    .form-section:first-child { margin-top: 0; }
+    .form-row { display: flex; gap: 0.75rem; }
+    .form-field { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; margin-bottom: 0.75rem; }
+    .form-field label { font-size: 0.72rem; color: var(--muted); }
+    .form-field label span { color: var(--rust); margin-left: 2px; }
+    .form-input, .form-select {
+      padding: 0.55rem 0.85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--brown); }
+    .form-select:disabled { opacity: 0.4; cursor: not-allowed; }
+    .stk-preview {
+      background: var(--ink);
+      color: var(--gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .stk-regen { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 0.4rem 0.75rem; font-size: 0.72rem; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; margin-bottom: 0.75rem; }
+    .stk-regen:hover { border-color: var(--brown); color: var(--brown); }
+    .checkbox-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; cursor: pointer; }
+    .checkbox-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--brown); cursor: pointer; flex-shrink: 0; }
+    .checkbox-row label { font-size: 0.875rem; cursor: pointer; }
+    .form-submit { width: 100%; padding: 0.7rem; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; letter-spacing: 0.06em; margin-top: 0.5rem; transition: background 0.15s; }
+    .form-submit:hover { background: var(--brown); }
+
+    /* ── SUCCESS SCREEN ── */
+    .success-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      transform: translateY(16px);
+      transition: transform 0.2s;
+    }
+    .overlay.open .success-box { transform: translateY(0); }
+    .success-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .success-box h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.4rem; }
+    .success-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; }
+    .success-stk { background: var(--ink); color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 0.2em; padding: 0.85rem; border-radius: 4px; margin-bottom: 1rem; }
+    .success-entry { background: var(--parchment); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.7rem; text-align: left; font-family: monospace; color: var(--brown); white-space: pre-wrap; word-break: break-all; margin-bottom: 1rem; max-height: 180px; overflow-y: auto; }
+    .success-close { width: 100%; padding: 0.65rem; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -647,6 +817,7 @@
     </div>
     <div class="header-right">
       <span class="book-count" id="headerCount">— knih</span>
+      <button class="add-btn" id="addBookBtn">＋ Chci přidat knihu!</button>
     </div>
   </header>
  
@@ -697,26 +868,146 @@
     </div>
   </div>
  
+  <!-- PASSWORD OVERLAY -->
+  <div class="overlay" id="pwOverlay">
+    <div class="pw-box">
+      <h2>🔐 Přidat knihu</h2>
+      <p>Tato funkce je chráněna heslem.</p>
+      <input class="pw-input" id="pwInput" type="password" placeholder="········" maxlength="32" />
+      <div class="pw-error" id="pwError"></div>
+      <button class="pw-submit" id="pwSubmit">Potvrdit</button>
+      <button class="pw-cancel" id="pwCancel">Zrušit</button>
+    </div>
+  </div>
+
+  <!-- ADD BOOK FORM OVERLAY -->
+  <div class="overlay" id="formOverlay">
+    <div class="form-box">
+      <div class="form-header">
+        <h2>➕ Nová kniha</h2>
+        <button class="form-close" id="formClose">✕</button>
+      </div>
+      <div class="form-body">
+
+        <div class="form-section">Základní informace</div>
+        <div class="form-field">
+          <label>Název knihy <span>*</span></label>
+          <input class="form-input" id="f-title" type="text" placeholder="Název knihy" />
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Autor <span>*</span></label>
+            <input class="form-input" id="f-author" type="text" placeholder="Jméno Příjmení" />
+          </div>
+          <div class="form-field">
+            <label>Rok vydání <span>*</span></label>
+            <input class="form-input" id="f-year" type="number" placeholder="např. 1998" min="0" max="2099" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label>ISBN <span style="color:var(--muted)">(nepovinné)</span></label>
+          <input class="form-input" id="f-isbn" type="text" placeholder="978-80-..." />
+        </div>
+
+        <div class="form-section">Umístění knihy</div>
+        <div class="form-row">
+          <div class="form-field">
+            <!-- LOCATION NAMES: Change the label text below to rename each field -->
+            <label id="loc1-label">Budova</label>
+            <input class="form-input" id="f-loc1" type="text" placeholder="" />
+          </div>
+          <div class="form-field">
+            <label id="loc2-label">Patro</label>
+            <input class="form-input" id="f-loc2" type="text" placeholder="" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label id="loc3-label">Místnost</label>
+            <input class="form-input" id="f-loc3" type="text" placeholder="" />
+          </div>
+          <div class="form-field">
+            <label id="loc4-label">Police</label>
+            <input class="form-input" id="f-loc4" type="text" placeholder="" />
+          </div>
+        </div>
+
+        <div class="form-section">Klasifikace STK</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Předmět (XX) <span>*</span></label>
+            <select class="form-select" id="f-subject">
+              <option value="">— vyber předmět —</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Kategorie (YY) <span>*</span></label>
+            <select class="form-select" id="f-subcat" disabled>
+              <option value="">— vyber kategorii —</option>
+            </select>
+          </div>
+        </div>
+        <div class="stk-preview" id="stkPreview">??-??-????</div>
+        <button class="stk-regen" id="stkRegen">🔄 Vygenerovat nový kód</button>
+
+        <div class="form-section">Klíčová slova</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Klíčové slovo 1 <span>*</span></label>
+            <input class="form-input" id="f-kw1" type="text" placeholder="např. romance" />
+          </div>
+          <div class="form-field">
+            <label>Klíčové slovo 2 <span>*</span></label>
+            <input class="form-input" id="f-kw2" type="text" placeholder="např. drama" />
+          </div>
+          <div class="form-field">
+            <label>Klíčové slovo 3 <span>*</span></label>
+            <input class="form-input" id="f-kw3" type="text" placeholder="např. 19. století" />
+          </div>
+        </div>
+
+        <div class="form-section">Další</div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="f-matura" />
+          <label for="f-matura">Maturitní četba</label>
+        </div>
+
+        <button class="form-submit" id="formSubmit">Přidat knihu do katalogu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS OVERLAY -->
+  <div class="overlay" id="successOverlay">
+    <div class="success-box">
+      <div class="success-emoji">✅</div>
+      <h2>Kniha přidána!</h2>
+      <p>Níže je vygenerovaný záznam. Zkopíruj ho do souboru knih v repozitáři.</p>
+      <div class="success-stk" id="successStk"></div>
+      <div class="success-entry" id="successEntry"></div>
+      <button class="success-close" id="successClose">Zavřít</button>
+    </div>
+  </div>
+
 <script>
   // ── DUMMY DATA (replace with Google Sheet fetch later) ──
   const SUBJECTS = {
-    "01": { name: "Čeština",    subs: { "01":"Lyrika","02":"Drama","03":"Epika","04":"Mluvnice","05":"Pravopis" } },
-    "02": { name: "Angličtina", subs: { "01":"Literatura","02":"Gramatika","03":"Konverzace","04":"Slovní zásoba" } },
-    "03": { name: "Němčina",    subs: { "01":"Literatura","02":"Gramatika","03":"Konverzace","04":"Slovní zásoba" } },
-    "04": { name: "Španělština",subs: { "01":"Literatura","02":"Gramatika","03":"Konverzace","04":"Slovní zásoba" } },
-    "05": { name: "Matematika", subs: { "01":"Algebra","02":"Geometrie","03":"Aritmetika","04":"Statistika","05":"Analýza" } },
-    "06": { name: "Ekonomika",  subs: { "01":"Účetnictví","02":"Marketing","03":"Management","04":"Finance","05":"Makroekonomie" } },
-    "07": { name: "Fyzika",     subs: { "01":"Mechanika","02":"Elektřina","03":"Optika","04":"Termodynamika","05":"Atomová fyzika" } },
-    "08": { name: "Chemie",     subs: { "01":"Organická","02":"Anorganická","03":"Biochemie","04":"Analytická" } },
-    "09": { name: "Přírodopis", subs: { "01":"Zoologie","02":"Botanika","03":"Ekologie","04":"Geologie","05":"Anatomie" } },
-    "10": { name: "Zeměpis",    subs: { "01":"Fyzická geografie","02":"Politická geografie","03":"Ekonomická geografie","04":"Kartografie","05":"Cestopisy" } },
-    "11": { name: "IT",         subs: { "01":"Programování","02":"Sítě","03":"Databáze","04":"Hardware","05":"Kybernetická bezpečnost" } },
-    "12": { name: "Hudebka",    subs: { "01":"Hudební teorie","02":"Dějiny hudby","03":"Nástroje","04":"Zpěv" } },
-    "13": { name: "Tělocvik",   subs: { "01":"Atletika","02":"Míčové sporty","03":"Gymnastika","04":"Plavání","05":"Zimní sporty" } },
-    "14": { name: "Výtvarka",   subs: { "01":"Kresba","02":"Malba","03":"Sochařství","04":"Dějiny umění","05":"Grafika" } },
-    "15": { name: "Vaření",     subs: { "01":"Studená kuchyně","02":"Teplá kuchyně","03":"Pečivo","04":"Cukrářství","05":"Nápoje" } },
-    "16": { name: "Ostatní",    subs: { "01":"Neurčeno" } },
-    "17": { name: "Historie",   subs: { "01":"Starověk","02":"Středověk","03":"Novověk","04":"Moderní dějiny","05":"České dějiny","06":"Světové dějiny","07":"Válečná história" } },
+    "01": { name: "Čeština",    subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Epika","04":"Lyrika","05":"Drama","06":"Ostatní" } },
+    "02": { name: "Angličtina", subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Literatura","04":"Ostatní" } },
+    "03": { name: "Němčina",     subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Literatura","04":"Ostatní" } },
+    "04": { name: "Španělština", subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Literatura","04":"Ostatní" } },
+    "05": { name: "Matematika",  subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Příjmačky","04":"Maturita","05":"Ostatní" } },
+    "06": { name: "Ekonomie",    subs: { "01":"Účetnictví","02":"Marketing","03":"Finance","04":"Ekonomika","05":"Politika","06":"Ostatní" } },
+    "07": { name: "Fyzika",      subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Experimenty","04":"Ostatní" } },
+    "08": { name: "Chemie",      subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Experimenty","04":"Ostatní" } },
+    "09": { name: "Biologie",    subs: { "01":"Savci","02":"Ptáci","03":"Plazi","04":"Ryby","05":"Rostliny","06":"Hmyz a členovci","07":"Člověk","08":"Encyklopedie","09":"Ostatní" } },
+    "10": { name: "Zeměpis",     subs: { "01":"Zeměpisná geografie","02":"Politická geografie","03":"Ekonomická geografie","04":"Cestopisy","05":"Ostatní" } },
+    "11": { name: "Historie",    subs: { "01":"Literatura","02":"Starověk","03":"Antika","04":"Středověk","05":"Novověk","06":"České dějiny","07":"Světové dějiny","08":"Ostatní" } },
+    "12": { name: "IT",          subs: { "01":"Programování","02":"Bezpečnost","03":"Hardware","04":"Ostatní" } },
+    "13": { name: "Hudebka",     subs: { "01":"Hudební teorie","02":"Texty","03":"Ostatní" } },
+    "14": { name: "Tělocvik",    subs: { "01":"Atletika","02":"Gymnastika","03":"Sporty","04":"Ostatní" } },
+    "15": { name: "Výtvarka",    subs: { "01":"Kresby","02":"Malířství","03":"Historie","04":"Grafika","05":"Ostatní" } },
+    "16": { name: "Vaření",      subs: { "01":"Kuchařka","02":"Ostatní" } },
   };
  
   const BOOKS = [
@@ -943,7 +1234,184 @@
  
   // ── INIT ──
   render();
+
+  // ════════════════════════════════════════
+  // ADD BOOK SYSTEM
+  // ════════════════════════════════════════
+
+  // ── PASSWORD (change this to whatever you want) ──
+  const ADD_BOOK_PASSWORD = "AK2024";
+
+  // ── LOCATION FIELD NAMES (change these 4 values to rename the fields) ──
+  const LOCATION_NAMES = {
+    loc1: "Budova",    // e.g. "Hlavní budova", "Budova A"
+    loc2: "Patro",     // e.g. "1. patro", "Přízemí"
+    loc3: "Místnost",  // e.g. "Knihovna", "Třída 2B"
+    loc4: "Police",    // e.g. "Police č. 3", "Sekce A"
+  };
+
+  // Apply location names to labels
+  document.getElementById('loc1-label').textContent = LOCATION_NAMES.loc1;
+  document.getElementById('loc2-label').textContent = LOCATION_NAMES.loc2;
+  document.getElementById('loc3-label').textContent = LOCATION_NAMES.loc3;
+  document.getElementById('loc4-label').textContent = LOCATION_NAMES.loc4;
+
+  // ── STK CODE GENERATION ──
+  let currentZZZZ = generateZZZZ();
+
+  function generateZZZZ() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let code;
+    do {
+      code = Array.from({length:4}, () => chars[Math.floor(Math.random()*26)]).join('');
+    } while (BOOKS.some(b => b.stk.endsWith('-' + code)));
+    return code;
+  }
+
+  function updateSTKPreview() {
+    const xx = document.getElementById('f-subject').value;
+    const yy = document.getElementById('f-subcat').value;
+    const preview = document.getElementById('stkPreview');
+    preview.textContent = `${xx||'??'}-${yy||'??'}-${currentZZZZ}`;
+  }
+
+  document.getElementById('stkRegen').addEventListener('click', () => {
+    currentZZZZ = generateZZZZ();
+    updateSTKPreview();
+  });
+
+  // ── FORM SUBJECT/SUBCAT CASCADE ──
+  const fSubject = document.getElementById('f-subject');
+  const fSubcat  = document.getElementById('f-subcat');
+
+  Object.entries(SUBJECTS).forEach(([code, data]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = `${code} — ${data.name}`;
+    fSubject.appendChild(opt);
+  });
+
+  fSubject.addEventListener('change', () => {
+    fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
+    if (fSubject.value && SUBJECTS[fSubject.value]) {
+      Object.entries(SUBJECTS[fSubject.value].subs).forEach(([code, name]) => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = `${code} — ${name}`;
+        fSubcat.appendChild(opt);
+      });
+      fSubcat.disabled = false;
+    } else {
+      fSubcat.disabled = true;
+    }
+    updateSTKPreview();
+  });
+
+  fSubcat.addEventListener('change', updateSTKPreview);
+
+  // ── PASSWORD GATE ──
+  document.getElementById('addBookBtn').addEventListener('click', () => {
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwError').textContent = '';
+    document.getElementById('pwInput').classList.remove('error');
+    document.getElementById('pwOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('pwInput').focus(), 100);
+  });
+
+  document.getElementById('pwCancel').addEventListener('click', () => {
+    document.getElementById('pwOverlay').classList.remove('open');
+  });
+
+  document.getElementById('pwSubmit').addEventListener('click', checkPassword);
+  document.getElementById('pwInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  function checkPassword() {
+    const val = document.getElementById('pwInput').value;
+    if (val === ADD_BOOK_PASSWORD) {
+      document.getElementById('pwOverlay').classList.remove('open');
+      openAddForm();
+    } else {
+      const inp = document.getElementById('pwInput');
+      const err = document.getElementById('pwError');
+      inp.classList.remove('error');
+      void inp.offsetWidth; // trigger reflow for animation
+      inp.classList.add('error');
+      err.textContent = 'Špatné heslo. Zkus to znovu.';
+      inp.value = '';
+      inp.focus();
+    }
+  }
+
+  // ── ADD BOOK FORM ──
+  function openAddForm() {
+    currentZZZZ = generateZZZZ();
+    updateSTKPreview();
+    // Clear all fields
+    ['f-title','f-author','f-year','f-isbn','f-loc1','f-loc2','f-loc3','f-loc4','f-kw1','f-kw2','f-kw3'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-matura').checked = false;
+    fSubject.value = '';
+    fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
+    fSubcat.disabled = true;
+    document.getElementById('formOverlay').classList.add('open');
+  }
+
+  document.getElementById('formClose').addEventListener('click', () => {
+    document.getElementById('formOverlay').classList.remove('open');
+  });
+
+  document.getElementById('formSubmit').addEventListener('click', () => {
+    const title   = document.getElementById('f-title').value.trim();
+    const author  = document.getElementById('f-author').value.trim();
+    const year    = document.getElementById('f-year').value.trim();
+    const xx      = fSubject.value;
+    const yy      = fSubcat.value;
+    const kw1     = document.getElementById('f-kw1').value.trim();
+    const kw2     = document.getElementById('f-kw2').value.trim();
+    const kw3     = document.getElementById('f-kw3').value.trim();
+
+    if (!title || !author || !year || !xx || !yy || !kw1 || !kw2 || !kw3) {
+      alert('Vyplň prosím všechna povinná pole (označena *).');
+      return;
+    }
+
+    const stk = `${xx}-${yy}-${currentZZZZ}`;
+    const newBook = {
+      stk,
+      title,
+      author,
+      isbn:     document.getElementById('f-isbn').value.trim() || '',
+      year,
+      location: {
+        [LOCATION_NAMES.loc1]: document.getElementById('f-loc1').value.trim(),
+        [LOCATION_NAMES.loc2]: document.getElementById('f-loc2').value.trim(),
+        [LOCATION_NAMES.loc3]: document.getElementById('f-loc3').value.trim(),
+        [LOCATION_NAMES.loc4]: document.getElementById('f-loc4').value.trim(),
+      },
+      keywords: [kw1, kw2, kw3],
+      matura:   document.getElementById('f-matura').checked,
+      cover:    '',
+      contents: '',
+    };
+
+    // Add to live session data
+    BOOKS.push(newBook);
+    render();
+
+    // Show success screen
+    document.getElementById('formOverlay').classList.remove('open');
+    document.getElementById('successStk').textContent = stk;
+    document.getElementById('successEntry').textContent = JSON.stringify(newBook, null, 2);
+    document.getElementById('successOverlay').classList.add('open');
+  });
+
+  document.getElementById('successClose').addEventListener('click', () => {
+    document.getElementById('successOverlay').classList.remove('open');
+  });
+
 </script>
 </body>
 </html>
- 
