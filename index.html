@@ -912,23 +912,22 @@
         <div class="form-section">Umístění knihy</div>
         <div class="form-row">
           <div class="form-field">
-            <!-- LOCATION NAMES: Change the label text below to rename each field -->
             <label id="loc1-label">Budova</label>
-            <input class="form-input" id="f-loc1" type="text" placeholder="" />
+            <select class="form-select" id="f-loc1"><option value="">— vyber —</option></select>
           </div>
           <div class="form-field">
             <label id="loc2-label">Patro</label>
-            <input class="form-input" id="f-loc2" type="text" placeholder="" />
+            <select class="form-select" id="f-loc2"><option value="">— vyber —</option></select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-field">
             <label id="loc3-label">Místnost</label>
-            <input class="form-input" id="f-loc3" type="text" placeholder="" />
+            <select class="form-select" id="f-loc3"><option value="">— vyber —</option></select>
           </div>
           <div class="form-field">
             <label id="loc4-label">Police</label>
-            <input class="form-input" id="f-loc4" type="text" placeholder="" />
+            <select class="form-select" id="f-loc4"><option value="">— vyber —</option></select>
           </div>
         </div>
 
@@ -1242,19 +1241,40 @@
   // ── PASSWORD (change this to whatever you want) ──
   const ADD_BOOK_PASSWORD = "AK2024";
 
-  // ── LOCATION FIELD NAMES (change these 4 values to rename the fields) ──
-  const LOCATION_NAMES = {
-    loc1: "Budova",    // e.g. "Hlavní budova", "Budova A"
-    loc2: "Patro",     // e.g. "1. patro", "Přízemí"
-    loc3: "Místnost",  // e.g. "Knihovna", "Třída 2B"
-    loc4: "Police",    // e.g. "Police č. 3", "Sekce A"
+  // ── LOCATION DROPDOWNS ──────────────────────────────────────────────────────
+  // Change the name and options for each of the 4 location fields here.
+  // Add or remove entries from the options arrays as needed.
+  const LOCATIONS = {
+    loc1: {
+      name: "Budova",
+      options: ["Budova A", "Budova B", "Budova C"],
+    },
+    loc2: {
+      name: "Patro",
+      options: ["Přízemí", "1. patro", "2. patro", "3. patro"],
+    },
+    loc3: {
+      name: "Místnost",
+      options: ["Knihovna", "Třída 1A", "Třída 1B", "Třída 2A", "Sborovna"],
+    },
+    loc4: {
+      name: "Police",
+      options: ["Police 1", "Police 2", "Police 3", "Police 4", "Police 5"],
+    },
   };
+  // ────────────────────────────────────────────────────────────────────────────
 
-  // Apply location names to labels
-  document.getElementById('loc1-label').textContent = LOCATION_NAMES.loc1;
-  document.getElementById('loc2-label').textContent = LOCATION_NAMES.loc2;
-  document.getElementById('loc3-label').textContent = LOCATION_NAMES.loc3;
-  document.getElementById('loc4-label').textContent = LOCATION_NAMES.loc4;
+  // Apply location names and populate dropdowns
+  Object.entries(LOCATIONS).forEach(([key, data]) => {
+    document.getElementById(`${key}-label`).textContent = data.name;
+    const sel = document.getElementById(`f-${key}`);
+    data.options.forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt;
+      o.textContent = opt;
+      sel.appendChild(o);
+    });
+  });
 
   // ── STK CODE GENERATION ──
   let currentZZZZ = generateZZZZ();
@@ -1349,8 +1369,11 @@
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
     // Clear all fields
-    ['f-title','f-author','f-year','f-isbn','f-loc1','f-loc2','f-loc3','f-loc4','f-kw1','f-kw2','f-kw3'].forEach(id => {
+    ['f-title','f-author','f-year','f-isbn','f-kw1','f-kw2','f-kw3'].forEach(id => {
       document.getElementById(id).value = '';
+    });
+    ['f-loc1','f-loc2','f-loc3','f-loc4'].forEach(id => {
+      document.getElementById(id).selectedIndex = 0;
     });
     document.getElementById('f-matura').checked = false;
     fSubject.value = '';
@@ -1386,10 +1409,10 @@
       isbn:     document.getElementById('f-isbn').value.trim() || '',
       year,
       location: {
-        [LOCATION_NAMES.loc1]: document.getElementById('f-loc1').value.trim(),
-        [LOCATION_NAMES.loc2]: document.getElementById('f-loc2').value.trim(),
-        [LOCATION_NAMES.loc3]: document.getElementById('f-loc3').value.trim(),
-        [LOCATION_NAMES.loc4]: document.getElementById('f-loc4').value.trim(),
+        [LOCATIONS.loc1.name]: document.getElementById('f-loc1').value,
+        [LOCATIONS.loc2.name]: document.getElementById('f-loc2').value,
+        [LOCATIONS.loc3.name]: document.getElementById('f-loc3').value,
+        [LOCATIONS.loc4.name]: document.getElementById('f-loc4').value,
       },
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
