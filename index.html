@@ -910,25 +910,9 @@
         </div>
 
         <div class="form-section">Umístění knihy</div>
-        <div class="form-row">
-          <div class="form-field">
-            <label id="loc1-label">Budova</label>
-            <select class="form-select" id="f-loc1"><option value="">— vyber —</option></select>
-          </div>
-          <div class="form-field">
-            <label id="loc2-label">Patro</label>
-            <input class="form-input" id="f-loc2" type="text" placeholder="" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label id="loc3-label">Místnost</label>
-            <input class="form-input" id="f-loc3" type="text" placeholder="" />
-          </div>
-          <div class="form-field">
-            <label id="loc4-label">Police</label>
-            <input class="form-input" id="f-loc4" type="text" placeholder="" />
-          </div>
+        <div class="form-field">
+          <label id="loc1-label">Budova</label>
+          <select class="form-select" id="f-loc1"><option value="">— vyber —</option></select>
         </div>
 
         <div class="form-section">Klasifikace STK</div>
@@ -1242,22 +1226,16 @@
   const ADD_BOOK_PASSWORD = "AK2024";
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
-  // Only the building field is a dropdown. Add or remove buildings as needed.
+  // Add or remove buildings from the options array as needed.
   const LOCATIONS = {
     loc1: {
       name: "Budova",
       options: ["Budova A", "Budova B", "Budova C"],
     },
-    loc2: { name: "Patro" },
-    loc3: { name: "Místnost" },
-    loc4: { name: "Police" },
   };
   // ────────────────────────────────────────────────────────────────────────────
 
-  // Apply location names and populate building dropdown
-  Object.entries(LOCATIONS).forEach(([key, data]) => {
-    document.getElementById(`${key}-label`).textContent = data.name;
-  });
+  document.getElementById('loc1-label').textContent = LOCATIONS.loc1.name;
   LOCATIONS.loc1.options.forEach(opt => {
     const o = document.createElement('option');
     o.value = opt;
@@ -1358,7 +1336,7 @@
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
     // Clear all fields
-    ['f-title','f-author','f-year','f-isbn','f-loc2','f-loc3','f-loc4','f-kw1','f-kw2','f-kw3'].forEach(id => {
+    ['f-title','f-author','f-year','f-isbn','f-kw1','f-kw2','f-kw3'].forEach(id => {
       document.getElementById(id).value = '';
     });
     document.getElementById('f-loc1').selectedIndex = 0;
@@ -1397,9 +1375,6 @@
       year,
       location: {
         [LOCATIONS.loc1.name]: document.getElementById('f-loc1').value,
-        [LOCATIONS.loc2.name]: document.getElementById('f-loc2').value.trim(),
-        [LOCATIONS.loc3.name]: document.getElementById('f-loc3').value.trim(),
-        [LOCATIONS.loc4.name]: document.getElementById('f-loc4').value.trim(),
       },
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
