@@ -1,10 +1,10 @@
-# AK - Adolescentní Knihovna
+# AK - Adolescentní Knihovna 2026
 
-Vítejte v **online** školní databázi uložených knih, kde se dají najít různé knihy ze školní knihovny.
+Vítejte v **online** školní databázi uložených knih, kde se dají najít různé knihy ze školní knihovny!
 
 #### Malá vsuvka...
 
-Celkový projekt je stále ve vývoji ;)
+Celý projekt je **stále ve vývoji** a tak není perfektní ;)
 
 #### Webovka
 
