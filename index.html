@@ -974,7 +974,7 @@
 
 <script>
   // ── GITHUB CONFIG ──────────────────────────────────────────────────────────
-  const GITHUB_TOKEN = "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";
+  const GITHUB_TOKEN = "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";
   const GITHUB_REPO  = "jemolotrab/ak-arch";
   const GITHUB_FILE  = "books.json";
   // ──────────────────────────────────────────────────────────────────────────
@@ -1018,18 +1018,28 @@
   // ── SAVE BOOKS TO GITHUB ──
   async function saveBooks() {
     const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+
     // Get current SHA (needed to update the file)
     const shaRes = await fetch(apiUrl, {
-      headers: { Authorization: `token ${GITHUB_TOKEN}` }
+      headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
     });
+    if (!shaRes.ok) {
+      const err = await shaRes.json();
+      throw new Error(`SHA fetch failed: ${err.message}`);
+    }
     const shaData = await shaRes.json();
     const sha = shaData.sha;
 
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(BOOKS, null, 2))));
+    // Encode UTF-8 content safely (handles Czech characters)
+    const jsonString = JSON.stringify(BOOKS, null, 2);
+    const bytes = new TextEncoder().encode(jsonString);
+    const binary = Array.from(bytes).map(b => String.fromCharCode(b)).join('');
+    const content = btoa(binary);
+
     const putRes = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -1038,7 +1048,10 @@
         sha,
       }),
     });
-    if (!putRes.ok) throw new Error('Save failed');
+    if (!putRes.ok) {
+      const err = await putRes.json();
+      throw new Error(`Save failed: ${err.message}`);
+    }
   }
 
 
@@ -1435,7 +1448,7 @@
       await saveBooks();
       document.getElementById('successEntry').textContent = 'Kniha byla úspěšně uložena do repozitáře!';
     } catch (e) {
-      document.getElementById('successEntry').textContent = 'Chyba při ukládání na GitHub. Kniha je viditelná jen do obnovení stránky.';
+      document.getElementById('successEntry').textContent = `Chyba: ${e.message}`;
     }
   });
 
