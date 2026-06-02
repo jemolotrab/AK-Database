@@ -4,7 +4,7 @@ Vítejte v **online** školní databázi uložených knih, kde se dají najít r
 
 #### Malá vsuvka...
 
-Celkový projekt je stále ve vývoji :)
+Celkový projekt je stále ve vývoji ;)
 
 #### Webovka
 
