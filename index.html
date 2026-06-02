@@ -823,7 +823,7 @@
  
   <!-- HERO -->
   <div class="hero">
-    <h1>Hledáček knih<br><em>naši knihovny</em></h1>
+    <h1>Hledáček knih<br><em>z naši knihovny</em></h1>
     <p>v0.4.7</p>
   </div>
  
@@ -855,7 +855,7 @@
  
   <!-- FOOTER -->
   <footer>
-    <span><strong>¯\_(ツ)_/¯</strong> nevím co zde napsat</span>
+    <span><strong>verze:</strong> 0.4.7</span>
     <span>2026</span>
   </footer>
  
@@ -871,8 +871,8 @@
   <!-- PASSWORD OVERLAY -->
   <div class="overlay" id="pwOverlay">
     <div class="pw-box">
-      <h2>🔐 Funkce uzamčena!</h2>
-      <p>Tato funkce je velice bezpečně chráněna heslem</p>
+      <h2>🔐 Přidat knihu</h2>
+      <p>Tato funkce je chráněna heslem.</p>
       <input class="pw-input" id="pwInput" type="password" placeholder="········" maxlength="32" />
       <div class="pw-error" id="pwError"></div>
       <button class="pw-submit" id="pwSubmit">Potvrdit</button>
@@ -884,7 +884,7 @@
   <div class="overlay" id="formOverlay">
     <div class="form-box">
       <div class="form-header">
-        <h2>Nová kniha</h2>
+        <h2>➕ Nová kniha</h2>
         <button class="form-close" id="formClose">✕</button>
       </div>
       <div class="form-body">
@@ -931,7 +931,7 @@
           </div>
         </div>
         <div class="stk-preview" id="stkPreview">??-??-????</div>
-        <button class="stk-regen" id="stkRegen">Vygenerovat nový kód</button>
+        <button class="stk-regen" id="stkRegen">🔄 Vygenerovat nový kód</button>
 
         <div class="form-section">Klíčová slova</div>
         <div class="form-row">
@@ -965,7 +965,7 @@
     <div class="success-box">
       <div class="success-emoji">✅</div>
       <h2>Kniha přidána!</h2>
-      <p>Níže je vygenerovaný záznam. Zkopíruj ho do souboru knih v repozitáři.</p>
+      <p>Kniha byla přidána a uložena do katalogu.</p>
       <div class="success-stk" id="successStk"></div>
       <div class="success-entry" id="successEntry"></div>
       <button class="success-close" id="successClose">Zavřít</button>
@@ -973,6 +973,12 @@
   </div>
 
 <script>
+  // ── GITHUB CONFIG ──────────────────────────────────────────────────────────
+  const GITHUB_TOKEN = "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";
+  const GITHUB_REPO  = "jemolotrab/ak-arch";
+  const GITHUB_FILE  = "books.json";
+  // ──────────────────────────────────────────────────────────────────────────
+
   // ── DUMMY DATA (replace with Google Sheet fetch later) ──
   const SUBJECTS = {
     "01": { name: "Čeština",    subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Epika","04":"Lyrika","05":"Drama","06":"Ostatní" } },
@@ -993,16 +999,49 @@
     "16": { name: "Vaření",      subs: { "01":"Kuchařka","02":"Ostatní" } },
   };
  
-  const BOOKS = [
-    { stk:"01-03-KRTB", title:"Máj", author:"Karel Hynek Mácha", isbn:"978-80-0000-001-1", year:"1836", description:"Romantická básnická povídka, jedno z nejvýznamnějších děl české literatury. Příběh lásky, zrady a trestu smrti.", keywords:["romantismus","lyrickoepická báseň","příroda","láska"], cover:"", contents:"" },
-    { stk:"01-02-PLMK", title:"Babička", author:"Božena Němcová", isbn:"978-80-0000-002-2", year:"1855", description:"Klasické dílo české literatury zachycující idylický obraz vesnického života a moudrosti prosté venkovské ženy.", keywords:["realismus","venkov","tradice","rodina"], cover:"", contents:"" },
-    { stk:"02-01-XKZP", title:"Romeo and Juliet", author:"William Shakespeare", isbn:"978-80-0000-003-3", year:"1597", description:"Jedna z nejslavnějších tragédií světové literatury o nešťastné lásce dvou mladých lidí z nepřátelských rodin.", keywords:["tragédie","láska","Verona","renesance"], cover:"", contents:"" },
-    { stk:"07-01-MNTJ", title:"Základy fyziky I", author:"Halliday & Resnick", isbn:"978-80-0000-004-4", year:"2013", description:"Komplexní učebnice fyziky pokrývající mechaniku, vlnění a termodynamiku pro středoškolské a vysokoškolské studenty.", keywords:["mechanika","kinematika","dynamika","síla"], cover:"", contents:"" },
-    { stk:"11-01-BVZQ", title:"Začínáme s Pythonem", author:"Eric Matthes", isbn:"978-80-0000-005-5", year:"2020", description:"Praktický průvodce programováním v Pythonu pro začátečníky. Od základních syntaxí až po tvorbu webových aplikací.", keywords:["python","programování","začátečníci","kód"], cover:"", contents:"" },
-    { stk:"17-04-WQRN", title:"Dějiny 20. století", author:"Eric Hobsbawm", isbn:"978-80-0000-006-6", year:"1994", description:"Monumentální historické dílo mapující klíčové události a přeměny světa ve dvacátém století.", keywords:["dějiny","války","politika","20. století"], cover:"", contents:"" },
-    { stk:"08-01-CHPK", title:"Organická chemie", author:"John McMurry", isbn:"978-80-0000-007-7", year:"2018", description:"Standardní učebnice organické chemie pokrývající strukturu, reakce a syntézu organických sloučenin.", keywords:["uhlík","sloučeniny","reakce","syntéza"], cover:"", contents:"" },
-    { stk:"09-01-ZLQV", title:"Svět živočichů", author:"David Attenborough", isbn:"978-80-0000-008-8", year:"2015", description:"Fascinující průvodce živočišnou říší od nejmenších bezobratlých po největší savce. Bohatě ilustrovaná encyklopedie.", keywords:["zvířata","příroda","evoluce","biologie"], cover:"", contents:"" },
-  ];
+  let BOOKS = [];
+
+  // ── LOAD BOOKS FROM GITHUB ──
+  async function loadBooks() {
+    try {
+      const url = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${GITHUB_FILE}?t=${Date.now()}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Fetch failed');
+      BOOKS = await res.json();
+    } catch (e) {
+      BOOKS = [];
+      document.getElementById('resultsLabel').textContent = 'Chyba při načítání knih.';
+    }
+    render();
+  }
+
+  // ── SAVE BOOKS TO GITHUB ──
+  async function saveBooks() {
+    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+    // Get current SHA (needed to update the file)
+    const shaRes = await fetch(apiUrl, {
+      headers: { Authorization: `token ${GITHUB_TOKEN}` }
+    });
+    const shaData = await shaRes.json();
+    const sha = shaData.sha;
+
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(BOOKS, null, 2))));
+    const putRes = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `Přidána kniha: ${BOOKS[BOOKS.length - 1].title}`,
+        content,
+        sha,
+      }),
+    });
+    if (!putRes.ok) throw new Error('Save failed');
+  }
+
+
  
   // ── STATE ──
   let viewMode = 'grid';
@@ -1123,14 +1162,12 @@
  
     if (books.length === 0) {
       const emptyMessages = [
-        { emoji: "📦", text: "Vaše zásilka nyní není na cestě" },
+        { emoji: "🔎", text: "Detailista" },
         { emoji: "📭", text: "Zkouknul bych radši mail" },
-        { emoji: "⁉️", text: "Co to jako je" },
-        { emoji: "👀", text: "Jak můžete vidět... já ne!" },
+        { emoji: "😏", text: "Nic jsem nenašel" },
+        { emoji: "👀", text: "Jak můžete vidět... já ne" },
         { emoji: "💾", text: "Error 404" },
         { emoji: "🍪", text: "I já mám rád pauzy :)" },
-        { emoji: "😑", text: "Hledat knihy není tak těžký" },
-        { emoji: "💣", text: "3... 2... 1... nic!" },
       ];
       const pick = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
@@ -1218,21 +1255,21 @@
   });
  
   // ── INIT ──
-  render();
+  loadBooks();
 
   // ════════════════════════════════════════
   // ADD BOOK SYSTEM
   // ════════════════════════════════════════
 
-  // ── PASSWORD (to je ale kód co?) ──
-  const ADD_BOOK_PASSWORD = "AK2026";
+  // ── PASSWORD (change this to whatever you want) ──
+  const ADD_BOOK_PASSWORD = "AK2024";
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
   // Add or remove buildings from the options array as needed.
   const LOCATIONS = {
     loc1: {
       name: "Budova",
-      options: ["Dukelská", "Křížovice", "Perlička", "Vojtova"],
+      options: ["Budova A", "Budova B", "Budova C"],
     },
   };
   // ────────────────────────────────────────────────────────────────────────────
@@ -1388,11 +1425,18 @@
     BOOKS.push(newBook);
     render();
 
-    // Show success screen
+    // Save to GitHub
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
-    document.getElementById('successEntry').textContent = JSON.stringify(newBook, null, 2);
+    document.getElementById('successEntry').textContent = 'Ukládám do GitHub...';
     document.getElementById('successOverlay').classList.add('open');
+
+    try {
+      await saveBooks();
+      document.getElementById('successEntry').textContent = 'Kniha byla úspěšně uložena do repozitáře!';
+    } catch (e) {
+      document.getElementById('successEntry').textContent = 'Chyba při ukládání na GitHub. Kniha je viditelná jen do obnovení stránky.';
+    }
   });
 
   document.getElementById('successClose').addEventListener('click', () => {
