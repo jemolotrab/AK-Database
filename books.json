@@ -1,0 +1,41 @@
+[
+  {
+    "stk": "01-03-KRTB",
+    "title": "Máj",
+    "author": "Karel Hynek Mácha",
+    "isbn": "978-80-0000-001-1",
+    "year": "1836",
+    "location": { "Budova": "" },
+    "description": "Romantická básnická povídka, jedno z nejvýznamnějších děl české literatury.",
+    "keywords": ["romantismus", "lyrickoepická báseň", "láska"],
+    "matura": true,
+    "cover": "",
+    "contents": ""
+  },
+  {
+    "stk": "01-02-PLMK",
+    "title": "Babička",
+    "author": "Božena Němcová",
+    "isbn": "978-80-0000-002-2",
+    "year": "1855",
+    "location": { "Budova": "" },
+    "description": "Klasické dílo české literatury zachycující idylický obraz vesnického života.",
+    "keywords": ["realismus", "venkov", "rodina"],
+    "matura": true,
+    "cover": "",
+    "contents": ""
+  },
+  {
+    "stk": "02-01-XKZP",
+    "title": "Romeo and Juliet",
+    "author": "William Shakespeare",
+    "isbn": "978-80-0000-003-3",
+    "year": "1597",
+    "location": { "Budova": "" },
+    "description": "Jedna z nejslavnějších tragédií světové literatury o nešťastné lásce.",
+    "keywords": ["tragédie", "láska", "renesance"],
+    "matura": false,
+    "cover": "",
+    "contents": ""
+  }
+]
