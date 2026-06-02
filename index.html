@@ -1390,7 +1390,7 @@
     document.getElementById('formOverlay').classList.remove('open');
   });
 
-  document.getElementById('formSubmit').addEventListener('click', () => {
+  document.getElementById('formSubmit').addEventListener('click', async () => {
     const title   = document.getElementById('f-title').value.trim();
     const author  = document.getElementById('f-author').value.trim();
     const year    = document.getElementById('f-year').value.trim();
