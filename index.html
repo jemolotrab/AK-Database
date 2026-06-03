@@ -973,10 +973,10 @@
   </div>
 
 <script>
-  // ── GITHUB CONFIG ──────────────────────────────────────────────────────────
-  const GITHUB_TOKEN = "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";
-  const GITHUB_REPO  = "jemolotrab/ak-arch";
-  const GITHUB_FILE  = "books.json";
+  // ── JSONBIN CONFIG ─────────────────────────────────────────────────────────
+  const JSONBIN_API_KEY = "$2a$10$JJqnc9daQc8NuGa5uiLvEOnb7YBRSGm1V23wYM1b4gH6fJggm9xY2";
+  const JSONBIN_BIN_ID  = "6a1fcbc3da38895dfe7f4cf5";
+  const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
   // ──────────────────────────────────────────────────────────────────────────
 
   // ── DUMMY DATA (replace with Google Sheet fetch later) ──
@@ -1001,13 +1001,15 @@
  
   let BOOKS = [];
 
-  // ── LOAD BOOKS FROM GITHUB ──
+  // ── LOAD BOOKS FROM JSONBIN ──
   async function loadBooks() {
     try {
-      const url = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${GITHUB_FILE}?t=${Date.now()}`;
-      const res = await fetch(url);
+      const res = await fetch(JSONBIN_URL + '/latest', {
+        headers: { 'X-Master-Key': JSONBIN_API_KEY }
+      });
       if (!res.ok) throw new Error('Fetch failed');
-      BOOKS = await res.json();
+      const data = await res.json();
+      BOOKS = data.record.books || [];
     } catch (e) {
       BOOKS = [];
       document.getElementById('resultsLabel').textContent = 'Chyba při načítání knih.';
@@ -1015,42 +1017,19 @@
     render();
   }
 
-  // ── SAVE BOOKS TO GITHUB ──
+  // ── SAVE BOOKS TO JSONBIN ──
   async function saveBooks() {
-    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
-
-    // Get current SHA (needed to update the file)
-    const shaRes = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
-    });
-    if (!shaRes.ok) {
-      const err = await shaRes.json();
-      throw new Error(`SHA fetch failed: ${err.message}`);
-    }
-    const shaData = await shaRes.json();
-    const sha = shaData.sha;
-
-    // Encode UTF-8 content safely (handles Czech characters)
-    const jsonString = JSON.stringify(BOOKS, null, 2);
-    const bytes = new TextEncoder().encode(jsonString);
-    const binary = Array.from(bytes).map(b => String.fromCharCode(b)).join('');
-    const content = btoa(binary);
-
-    const putRes = await fetch(apiUrl, {
+    const res = await fetch(JSONBIN_URL, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
         'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY,
       },
-      body: JSON.stringify({
-        message: `Přidána kniha: ${BOOKS[BOOKS.length - 1].title}`,
-        content,
-        sha,
-      }),
+      body: JSON.stringify({ books: BOOKS }),
     });
-    if (!putRes.ok) {
-      const err = await putRes.json();
-      throw new Error(`Save failed: ${err.message}`);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'Save failed');
     }
   }
 
