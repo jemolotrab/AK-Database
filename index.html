@@ -856,7 +856,6 @@
   <!-- FOOTER -->
   <footer>
     <span><strong>¯\_(ツ)_/¯</strong></span>
-    <span id="cakeEgg" style="cursor:pointer;user-select:none;" title="...">🎂</span>
     <span>2026</span>
   </footer>
  
@@ -1185,10 +1184,17 @@
         { emoji: "🎂", text: "Poznáváš tuhle referenci?" },
       ];
       const pick = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
+      const isCake = pick.emoji === "🎂";
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-        <div class="big">${pick.emoji}</div>
+        <div class="big" ${isCake ? 'id="cakeEgg" style="cursor:pointer;user-select:none;"' : ''}>${pick.emoji}</div>
         <p>${pick.text}</p>
       </div>`;
+      if (isCake) {
+        document.getElementById('cakeEgg').addEventListener('click', () => {
+          gladosAudio.currentTime = 0;
+          gladosAudio.play();
+        });
+      }
       return;
     }
  
@@ -1455,12 +1461,8 @@
   // EASTER EGGS
   // ════════════════════════════════════════
 
-  // ── 🎂 CAKE → GLaDOS line ──
+  // ── 🎂 CAKE → GLaDOS line (plays when cake appears in empty state) ──
   const gladosAudio = new Audio('audio/GLaDOS_15_part1_Partyspeech-2.wav');
-  document.getElementById('cakeEgg').addEventListener('click', () => {
-    gladosAudio.currentTime = 0;
-    gladosAudio.play();
-  });
 
   // ── AK LOGO × 47 → CS go go go ──
   const csAudio = new Audio('audio/Legacy_com_go.ogg');
