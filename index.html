@@ -950,6 +950,10 @@
         </div>
 
         <div class="form-section">Další</div>
+        <div class="form-field">
+          <label>Popis <span style="color:var(--muted)">(nepovinné)</span></label>
+          <textarea class="form-input" id="f-desc" rows="3" placeholder="Krátký popis knihy..." style="resize:vertical;"></textarea>
+        </div>
         <div class="checkbox-row">
           <input type="checkbox" id="f-matura" />
           <label for="f-matura">Maturitní četba</label>
@@ -1255,8 +1259,10 @@
       </div>`;
  
     document.getElementById('modalBody').innerHTML = `
-      <div class="modal-section-label">Popis</div>
-      <div class="modal-description">${book.description || '—'}</div>
+      ${book.description ? `<div class="modal-section-label">Popis</div>
+      <div class="modal-description">${book.description}</div>` : ''}
+      <div class="modal-section-label">Umístění</div>
+      <div class="modal-description">${book.location ? Object.entries(book.location).map(([k,v]) => v ? `<strong>${k}:</strong> ${v}` : '').filter(Boolean).join(' &nbsp;·&nbsp; ') || '—' : '—'}</div>
       <div class="modal-section-label">Klíčová slova</div>
       <div class="modal-keywords">${(book.keywords||[]).map(k=>`<span class="keyword-chip">${k}</span>`).join('')}</div>
       ${book.contents ? `<div class="modal-section-label">Strana obsahu</div><img class="modal-contents" src="${book.contents}" alt="Obsah"/>` : ''}
@@ -1396,7 +1402,7 @@
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
     // Clear all fields
-    ['f-title','f-author','f-year','f-isbn','f-kw1','f-kw2','f-kw3'].forEach(id => {
+    ['f-title','f-author','f-year','f-isbn','f-desc','f-kw1','f-kw2','f-kw3'].forEach(id => {
       document.getElementById(id).value = '';
     });
     document.getElementById('f-loc1').selectedIndex = 0;
@@ -1431,8 +1437,9 @@
       stk,
       title,
       author,
-      isbn:     document.getElementById('f-isbn').value.trim() || '',
+      isbn:        document.getElementById('f-isbn').value.trim() || '',
       year,
+      description: document.getElementById('f-desc').value.trim() || '',
       location: {
         [LOCATIONS.loc1.name]: document.getElementById('f-loc1').value,
       },
