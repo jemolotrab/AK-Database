@@ -4,7 +4,7 @@ Vítejte v **online** školní databázi uložených knih, kde se dají najít r
 
 #### Malá vsuvka...
 
-Celý projekt je **stále ve vývoji** a tak není perfektní ;)
+Celý projekt je **stále ve vývoji** a tak není aby se jednotlivé knihy zachovaly na webu, tak musí člověk manuálně procházet soubory ;)
 
 #### Webovka
 
