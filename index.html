@@ -974,7 +974,9 @@
 
 <script>
   // ── GITHUB CONFIG ─────────────────────────────────────────────────────────
-  const GITHUB_RAW = "https://raw.githubusercontent.com/jemolotrab/ak-arch/main/books.json";
+  const GITHUB_REPO = "jemolotrab/ak-arch";
+  const GITHUB_RAW  = `https://raw.githubusercontent.com/${GITHUB_REPO}/main`;
+  const GITHUB_TREE = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1`;
   // ──────────────────────────────────────────────────────────────────────────
 
   // ── DUMMY DATA (replace with Google Sheet fetch later) ──
@@ -999,13 +1001,27 @@
 
   let BOOKS = [];
 
-  // ── LOAD BOOKS FROM GITHUB ──
+  // ── LOAD BOOKS FROM BOOK_FILES FOLDERS ──
   async function loadBooks() {
     try {
-      const res = await fetch(GITHUB_RAW + '?t=' + Date.now());
-      if (!res.ok) throw new Error('Fetch failed');
-      const data = await res.json();
-      BOOKS = data.books || data || [];
+      const treeRes = await fetch(GITHUB_TREE + '&t=' + Date.now());
+      if (!treeRes.ok) throw new Error('Tree fetch failed');
+      const treeData = await treeRes.json();
+
+      const bookFiles = treeData.tree.filter(f =>
+        f.type === 'blob' &&
+        f.path.startsWith('BOOK_FILES/') &&
+        f.path.endsWith('.json')
+      );
+
+      const results = await Promise.all(
+        bookFiles.map(f =>
+          fetch(`${GITHUB_RAW}/${f.path}?t=${Date.now()}`)
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null)
+        )
+      );
+      BOOKS = results.filter(Boolean);
     } catch (e) {
       BOOKS = [];
       document.getElementById('resultsLabel').textContent = 'Chyba při načítání knih.';
@@ -1013,16 +1029,28 @@
     render();
   }
 
-  // ── DOWNLOAD UPDATED books.json ──
-  function downloadBooks() {
-    const json = JSON.stringify({ books: BOOKS }, null, 2);
+  // ── DOWNLOAD SINGLE BOOK FILE ──
+  function downloadBook(book) {
+    const json = JSON.stringify(book, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = 'books.json';
+    a.download = `${book.stk}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // ── GET FOLDER PATH FOR SUBJECT ──
+  function getFolderPath(xx) {
+    const folders = {
+      "01":"01-Cestina","02":"02-Anglictina","03":"03-Nemcina",
+      "04":"04-Spanelstina","05":"05-Matematika","06":"06-Ekonomie",
+      "07":"07-Fyzika","08":"08-Chemie","09":"09-Biologie",
+      "10":"10-Zemepis","11":"11-Historie","12":"12-IT",
+      "13":"13-Hudebka","14":"14-Telocvik","15":"15-Vytvarka","16":"16-Vareni",
+    };
+    return `BOOK_FILES/${folders[xx] || 'BOOK_FILES'}`;
   }
 
 
@@ -1411,9 +1439,10 @@
 
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
-    document.getElementById('successEntry').textContent = 'Kniha přidána! Stáhni aktualizovaný soubor a nahraj ho do GitHub repozitáře.';
+    const folder = getFolderPath(xx);
+    document.getElementById('successEntry').textContent = `Nahraj soubor ${stk}.json do složky:\n${folder}/`;
     document.getElementById('successOverlay').classList.add('open');
-    downloadBooks();
+    downloadBook(newBook);
   });
 
   document.getElementById('successClose').addEventListener('click', () => {
