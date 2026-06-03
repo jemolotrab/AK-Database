@@ -812,7 +812,7 @@
   <!-- HEADER -->
   <header>
     <div class="logo">
-      <span class="logo-ak">AK</span>
+      <span class="logo-ak" id="logoAk">AK</span>
       <span class="logo-full">Adolescentní Knihovna</span>
     </div>
     <div class="header-right">
@@ -856,6 +856,7 @@
   <!-- FOOTER -->
   <footer>
     <span><strong>¯\_(ツ)_/¯</strong></span>
+    <span id="cakeEgg" style="cursor:pointer;user-select:none;" title="...">🎂</span>
     <span>2026</span>
   </footer>
  
@@ -1449,6 +1450,33 @@
 
   document.getElementById('successClose').addEventListener('click', () => {
     document.getElementById('successOverlay').classList.remove('open');
+  });
+  // ════════════════════════════════════════
+  // EASTER EGGS
+  // ════════════════════════════════════════
+
+  // ── 🎂 CAKE → GLaDOS line ──
+  const gladosAudio = new Audio('audio/GLaDOS_15_part1_Partyspeech-2.wav');
+  document.getElementById('cakeEgg').addEventListener('click', () => {
+    gladosAudio.currentTime = 0;
+    gladosAudio.play();
+  });
+
+  // ── AK LOGO × 47 → CS go go go ──
+  const csAudio = new Audio('audio/Legacy_com_go.ogg');
+  let logoClickCount = 0;
+  let logoClickTimer = null;
+  document.getElementById('logoAk').addEventListener('click', () => {
+    logoClickCount++;
+    clearTimeout(logoClickTimer);
+    if (logoClickCount === 47) {
+      csAudio.currentTime = 0;
+      csAudio.play();
+      logoClickCount = 0;
+    } else {
+      // Reset counter after 5 seconds of inactivity
+      logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 5000);
+    }
   });
 
 </script>
