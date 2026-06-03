@@ -973,10 +973,8 @@
   </div>
 
 <script>
-  // ── JSONBIN CONFIG ─────────────────────────────────────────────────────────
-  const JSONBIN_API_KEY = "$2a$10$u6k2xDtjSXkLWXd1u8khXeDcvawR620pMqD1kmVVSmbehCYoQDxCq";
-  const JSONBIN_BIN_ID  = "6a1fcd49da38895dfe7f5216";
-  const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+  // ── GITHUB CONFIG ─────────────────────────────────────────────────────────
+  const GITHUB_RAW = "https://raw.githubusercontent.com/jemolotrab/ak-arch/main/books.json";
   // ──────────────────────────────────────────────────────────────────────────
 
   // ── DUMMY DATA (replace with Google Sheet fetch later) ──
@@ -998,18 +996,16 @@
     "15": { name: "Výtvarka",    subs: { "01":"Kresby","02":"Malířství","03":"Historie","04":"Grafika","05":"Ostatní" } },
     "16": { name: "Vaření",      subs: { "01":"Kuchařka","02":"Ostatní" } },
   };
- 
+
   let BOOKS = [];
 
-  // ── LOAD BOOKS FROM JSONBIN ──
+  // ── LOAD BOOKS FROM GITHUB ──
   async function loadBooks() {
     try {
-      const res = await fetch(JSONBIN_URL + '/latest', {
-        headers: { 'X-Master-Key': JSONBIN_API_KEY }
-      });
+      const res = await fetch(GITHUB_RAW + '?t=' + Date.now());
       if (!res.ok) throw new Error('Fetch failed');
       const data = await res.json();
-      BOOKS = data.record.books || [];
+      BOOKS = data.books || data || [];
     } catch (e) {
       BOOKS = [];
       document.getElementById('resultsLabel').textContent = 'Chyba při načítání knih.';
@@ -1017,20 +1013,16 @@
     render();
   }
 
-  // ── SAVE BOOKS TO JSONBIN ──
-  async function saveBooks() {
-    const res = await fetch(JSONBIN_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_API_KEY,
-      },
-      body: JSON.stringify({ books: BOOKS }),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || 'Save failed');
-    }
+  // ── DOWNLOAD UPDATED books.json ──
+  function downloadBooks() {
+    const json = JSON.stringify({ books: BOOKS }, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'books.json';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
 
@@ -1382,7 +1374,7 @@
     document.getElementById('formOverlay').classList.remove('open');
   });
 
-  document.getElementById('formSubmit').addEventListener('click', async () => {
+  document.getElementById('formSubmit').addEventListener('click', () => {
     const title   = document.getElementById('f-title').value.trim();
     const author  = document.getElementById('f-author').value.trim();
     const year    = document.getElementById('f-year').value.trim();
@@ -1417,18 +1409,11 @@
     BOOKS.push(newBook);
     render();
 
-    // Save to GitHub
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
-    document.getElementById('successEntry').textContent = 'Ukládám do GitHub...';
+    document.getElementById('successEntry').textContent = 'Kniha přidána! Stáhni aktualizovaný soubor a nahraj ho do GitHub repozitáře.';
     document.getElementById('successOverlay').classList.add('open');
-
-    try {
-      await saveBooks();
-      document.getElementById('successEntry').textContent = 'Kniha byla úspěšně uložena do repozitáře!';
-    } catch (e) {
-      document.getElementById('successEntry').textContent = `Chyba: ${e.message}`;
-    }
+    downloadBooks();
   });
 
   document.getElementById('successClose').addEventListener('click', () => {
