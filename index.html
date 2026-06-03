@@ -1262,7 +1262,7 @@
       ${book.description ? `<div class="modal-section-label">Popis</div>
       <div class="modal-description">${book.description}</div>` : ''}
       <div class="modal-section-label">Umístění</div>
-      <div class="modal-description">${book.location ? Object.entries(book.location).map(([k,v]) => v ? `<strong>${k}:</strong> ${v}` : '').filter(Boolean).join(' &nbsp;·&nbsp; ') || '—' : '—'}</div>
+      <div class="modal-description">${book.location ? Object.entries(book.location).map(([k,v]) => v ? `${v}` : '').filter(Boolean).join(' &nbsp;·&nbsp; ') || '—' : '—'}</div>
       <div class="modal-section-label">Klíčová slova</div>
       <div class="modal-keywords">${(book.keywords||[]).map(k=>`<span class="keyword-chip">${k}</span>`).join('')}</div>
       ${book.contents ? `<div class="modal-section-label">Strana obsahu</div><img class="modal-contents" src="${book.contents}" alt="Obsah"/>` : ''}
@@ -1391,7 +1391,7 @@
       inp.classList.remove('error');
       void inp.offsetWidth; // trigger reflow for animation
       inp.classList.add('error');
-      err.textContent = 'Špatné heslo. Zkus to znovu.';
+      err.textContent = 'Špatné heslo. Zkus to znovu!';
       inp.value = '';
       inp.focus();
     }
