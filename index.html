@@ -1065,7 +1065,7 @@
   const subjectFilter = document.getElementById('subjectFilter');
   const subcatFilter  = document.getElementById('subcatFilter');
  
-  Object.entries(SUBJECTS).forEach(([code, data]) => {
+  Object.entries(SUBJECTS).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).forEach(([code, data]) => {
     const opt = document.createElement('option');
     opt.value = code;
     opt.textContent = `${code} — ${data.name}`;
@@ -1077,7 +1077,7 @@
     activeSubcat = '';
     subcatFilter.innerHTML = '<option value="">Všechny podkategorie</option>';
     if (activeSubject && SUBJECTS[activeSubject]) {
-      Object.entries(SUBJECTS[activeSubject].subs).forEach(([code, name]) => {
+      Object.entries(SUBJECTS[activeSubject].subs).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).forEach(([code, name]) => {
         const opt = document.createElement('option');
         opt.value = code;
         opt.textContent = `${code} — ${name}`;
@@ -1331,7 +1331,7 @@
   const fSubject = document.getElementById('f-subject');
   const fSubcat  = document.getElementById('f-subcat');
 
-  Object.entries(SUBJECTS).forEach(([code, data]) => {
+  Object.entries(SUBJECTS).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).forEach(([code, data]) => {
     const opt = document.createElement('option');
     opt.value = code;
     opt.textContent = `${code} — ${data.name}`;
@@ -1341,7 +1341,7 @@
   fSubject.addEventListener('change', () => {
     fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
     if (fSubject.value && SUBJECTS[fSubject.value]) {
-      Object.entries(SUBJECTS[fSubject.value].subs).forEach(([code, name]) => {
+      Object.entries(SUBJECTS[fSubject.value].subs).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).forEach(([code, name]) => {
         const opt = document.createElement('option');
         opt.value = code;
         opt.textContent = `${code} — ${name}`;
