@@ -803,7 +803,7 @@
     .success-box h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.4rem; }
     .success-box p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; }
     .success-stk { background: var(--ink); color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 0.2em; padding: 0.85rem; border-radius: 4px; margin-bottom: 1rem; }
-    .success-entry { background: var(--parchment); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.7rem; text-align: left; font-family: monospace; color: var(--brown); white-space: pre-wrap; word-break: break-all; margin-bottom: 1rem; max-height: 180px; overflow-y: auto; }
+    .success-entry { background: var(--parchment); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.82rem; text-align: left; color: var(--brown); margin-bottom: 1rem; line-height: 1.7; }
     .success-close { width: 100%; padding: 0.65rem; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
   </style>
 </head>
@@ -1036,7 +1036,7 @@
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = `${book.stk}.json`;
+    a.download = `${book.title}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -1440,7 +1440,7 @@
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
     const folder = getFolderPath(xx);
-    document.getElementById('successEntry').textContent = `Nahraj soubor ${stk}.json do složky:\n${folder}/`;
+    document.getElementById('successEntry').innerHTML = `Nahraj soubor <strong>${newBook.title}.json</strong> do složky:<br><strong>${folder}/</strong>`;
     document.getElementById('successOverlay').classList.add('open');
     downloadBook(newBook);
   });
