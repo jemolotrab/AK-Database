@@ -823,7 +823,7 @@
  
   <!-- HERO -->
   <div class="hero">
-    <h1>Hledáček knih<br><em>z naši knihovny</em></h1>
+    <h1>Hledáček knih<br><em>naši knihovny</em></h1>
     <p>v0.4.7</p>
   </div>
  
@@ -855,7 +855,7 @@
  
   <!-- FOOTER -->
   <footer>
-    <span><strong>verze:</strong> 0.4.7</span>
+    <span><strong>¯\_(ツ)_/¯</strong></span>
     <span>2026</span>
   </footer>
  
@@ -871,8 +871,8 @@
   <!-- PASSWORD OVERLAY -->
   <div class="overlay" id="pwOverlay">
     <div class="pw-box">
-      <h2>🔐 Přidat knihu</h2>
-      <p>Tato funkce je chráněna heslem.</p>
+      <h2>🔐 Opravdu přidat knihu?</h2>
+      <p>Tato funkce je chráněna velice bezpečným heslem!</p>
       <input class="pw-input" id="pwInput" type="password" placeholder="········" maxlength="32" />
       <div class="pw-error" id="pwError"></div>
       <button class="pw-submit" id="pwSubmit">Potvrdit</button>
@@ -884,7 +884,7 @@
   <div class="overlay" id="formOverlay">
     <div class="form-box">
       <div class="form-header">
-        <h2>➕ Nová kniha</h2>
+        <h2>Nová kniha...</h2>
         <button class="form-close" id="formClose">✕</button>
       </div>
       <div class="form-body">
@@ -901,7 +901,7 @@
           </div>
           <div class="form-field">
             <label>Rok vydání <span>*</span></label>
-            <input class="form-input" id="f-year" type="number" placeholder="např. 1998" min="0" max="2099" />
+            <input class="form-input" id="f-year" type="number" placeholder="např. 1984" min="0" max="2099" />
           </div>
         </div>
         <div class="form-field">
@@ -931,7 +931,7 @@
           </div>
         </div>
         <div class="stk-preview" id="stkPreview">??-??-????</div>
-        <button class="stk-regen" id="stkRegen">🔄 Vygenerovat nový kód</button>
+        <button class="stk-regen" id="stkRegen">Vygenerovat nový kód</button>
 
         <div class="form-section">Klíčová slova</div>
         <div class="form-row">
@@ -955,7 +955,7 @@
           <label for="f-matura">Maturitní četba</label>
         </div>
 
-        <button class="form-submit" id="formSubmit">Přidat knihu do katalogu</button>
+        <button class="form-submit" id="formSubmit">Zaznamenat knihu!</button>
       </div>
     </div>
   </div>
@@ -964,8 +964,8 @@
   <div class="overlay" id="successOverlay">
     <div class="success-box">
       <div class="success-emoji">✅</div>
-      <h2>Kniha přidána!</h2>
-      <p>Kniha byla přidána a uložena do katalogu.</p>
+      <h2>Kniha byla úspěšně zaznamenána!</h2>
+      <p>Ještě ale zbívá přidat soubor knihy na GitHub!</p>
       <div class="success-stk" id="successStk"></div>
       <div class="success-entry" id="successEntry"></div>
       <button class="success-close" id="successClose">Zavřít</button>
@@ -1174,12 +1174,14 @@
  
     if (books.length === 0) {
       const emptyMessages = [
-        { emoji: "🔎", text: "Detailista" },
+        { emoji: "☹️", text: "Nic tu není" },
         { emoji: "📭", text: "Zkouknul bych radši mail" },
-        { emoji: "😏", text: "Nic jsem nenašel" },
-        { emoji: "👀", text: "Jak můžete vidět... já ne" },
+        { emoji: "😏", text: "Ani nevíš jaká je to nuda nic nenajít!" },
+        { emoji: "👀", text: "Jak můžete vidět... já ne!" },
         { emoji: "💾", text: "Error 404" },
-        { emoji: "🍪", text: "I já mám rád pauzy :)" },
+        { emoji: "⁉️", text: "Co to jako je?" },
+        { emoji: "💣", text: "Tři... dva... jedna!... nic!" },
+        { emoji: "🎂", text: "Stále naživu" },
       ];
       const pick = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
@@ -1274,14 +1276,14 @@
   // ════════════════════════════════════════
 
   // ── PASSWORD (change this to whatever you want) ──
-  const ADD_BOOK_PASSWORD = "AK2024";
+  const ADD_BOOK_PASSWORD = "AK2026";
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
   // Add or remove buildings from the options array as needed.
   const LOCATIONS = {
     loc1: {
       name: "Budova",
-      options: ["Budova A", "Budova B", "Budova C"],
+      options: ["Dukelská", "Křížovice", "Perlička", "Vojtova"],
     },
   };
   // ────────────────────────────────────────────────────────────────────────────
