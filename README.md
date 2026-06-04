@@ -5,7 +5,7 @@ Vítejte v **online** školní databázi uložených knih, kde se dají najít r
 #### Jak postupovat u přidání knihy?
 
 Aby jste mohli přidat knihu, tak musíte kliknout na tlačítko *"+ Chci přidat knihu!"*
-Poté by se mělo objevit okénko, kde aby jste mohli pokračovat **musíte zadat heslo** :)
+Poté by se mělo objevit okénko, kde **zadáte heslo** :)
 
 Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou chcete přidat (Později bude možné i přidat fotky knihy)
 
