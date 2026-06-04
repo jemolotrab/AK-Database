@@ -5,9 +5,12 @@ Vítejte v **online** školní databázi uložených knih, kde se dají najít r
 #### Jak postupovat u přidání knihy?
 
 Aby jste mohli přidat knihu, tak musíte kliknout na tlačítko *`+ Chci přidat knihu!`*
-![til](./app/assets/images/banner.png)
+
+![til](GIFs/ClickItToAddIt.gif)
+
 Poté by se mělo objevit okénko, kde **zadáte heslo** :)
 
+![til](GIFs/WriteItToOpenIt.gif)
 
 Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou chcete přidat (Později bude možné i přidat fotky knihy)
 
