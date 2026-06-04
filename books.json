@@ -1,0 +1,22 @@
+{
+  "books": [
+    {
+      "stk": "01-03-KLHD",
+      "title": "Duna (Zkušební)",
+      "author": "Frank Herbert",
+      "isbn": "",
+      "year": "1965",
+      "location": {
+        "Budova": "Budova B"
+      },
+      "keywords": [
+        "náboženství",
+        "písek",
+        "scifi"
+      ],
+      "matura": true,
+      "cover": "",
+      "contents": ""
+    }
+  ]
+}
