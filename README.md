@@ -42,7 +42,7 @@ Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalo
 
 #### *Malá vsuvka...*.
 
-Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatický. Pokud v tento moment nic neuděláte, tak kniha v se po obnovení webu ztratí a tak musíte váš **.json** soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu.
+Jelikož je projekt stále ve vývoji, a tak ukládání knihy není automatický. Pokud v tento moment nic neuděláte, tak kniha v se po obnovení webu ztratí a tak musíte váš **.json** soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu.
 Po uložení a chvilce strpení by se kniha měla objevit na webu ;)
 
 #### Webovka
