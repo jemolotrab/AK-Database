@@ -42,7 +42,7 @@ Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalo
 
 #### *Malá vsuvka...*.
 
-Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatický. Pokud soubor **.json** nedáte na GitHub, tak kniha v se po obnovení webu ztratí a tak ho musíte přidat do *`BOOK_FILES`* a dále do vybraného předmětu.
+Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **.json** nedáte na GitHub, tak kniha v se po obnovení webu ztratí a tak ho musíte přidat do *`BOOK_FILES`* a dále do vybraného předmětu.
 Po uložení a chvilce strpení by se kniha měla objevit na webu ;)
 
 #### Webovka
