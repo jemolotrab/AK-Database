@@ -10,7 +10,7 @@ Aby jste mohli přidat knihu, tak musíte kliknout na tlačítko *`+ Chci přida
 
 Poté by se mělo objevit okénko, kde **zadáte heslo** :)
 
-![til](GIFs/WriteItToOpenIt.gif)
+![til](Assets/GIFs/WriteItToOpenIt.gif)
 
 Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou chcete přidat (Později by se mělo i přidat možnost k přidání fotek knihy)
 
