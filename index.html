@@ -190,6 +190,7 @@
  
     .filter-select:focus { border-color: var(--brown); }
  
+    .matura-filter { display: flex; align-items: center; gap: 0.4rem; color: var(--ink); white-space: nowrap; }
     .filter-select:disabled {
       opacity: 0.4;
       cursor: not-allowed;
@@ -840,6 +841,10 @@
     <select class="filter-select" id="subcatFilter" disabled>
       <option value="">Všechny podkategorie</option>
     </select>
+    <label class="matura-filter" id="maturaFilterWrap" style="display:none;">
+      <input type="checkbox" id="maturaFilter" style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;" />
+      <span style="font-size:0.8rem;cursor:pointer;">Maturitní četba</span>
+    </label>
     <div class="view-toggle">
       <button class="view-btn active" id="gridBtn" title="Mřížka">⊞</button>
       <button class="view-btn" id="listBtn" title="Seznam">☰</button>
@@ -955,9 +960,11 @@
           <label>Popis <span style="color:var(--muted)">(nepovinné)</span></label>
           <textarea class="form-input" id="f-desc" rows="3" placeholder="Krátký popis knihy..." style="resize:vertical;"></textarea>
         </div>
-        <div class="checkbox-row">
-          <input type="checkbox" id="f-matura" />
-          <label for="f-matura">Maturitní četba</label>
+        <div id="maturaRow" style="display:none;">
+          <div class="checkbox-row">
+            <input type="checkbox" id="f-matura" />
+            <label for="f-matura">Maturitní četba</label>
+          </div>
         </div>
 
         <button class="form-submit" id="formSubmit">Zaznamenat knihu!</button>
@@ -1092,6 +1099,9 @@
     } else {
       subcatFilter.disabled = true;
     }
+    // Show matura filter only for Čeština (01)
+    document.getElementById('maturaFilterWrap').style.display = activeSubject === '01' ? 'flex' : 'none';
+    if (activeSubject !== '01') document.getElementById('maturaFilter').checked = false;
     render();
   });
  
@@ -1104,6 +1114,8 @@
     searchQuery = e.target.value.toLowerCase();
     render();
   });
+
+  document.getElementById('maturaFilter').addEventListener('change', render);
  
   // ── VIEW TOGGLE ──
   document.getElementById('gridBtn').addEventListener('click', () => {
@@ -1154,10 +1166,12 @@
  
   // ── FILTER ──
   function filteredBooks() {
+    const maturaOnly = document.getElementById('maturaFilter').checked;
     return BOOKS.filter(b => {
       const { xx, yy } = parseSTK(b.stk);
       if (activeSubject && xx !== activeSubject) return false;
       if (activeSubcat  && yy !== activeSubcat)  return false;
+      if (maturaOnly && !b.matura) return false;
       if (searchQuery) {
         const haystack = [b.title, b.author, b.stk, ...(b.keywords||[])].join(' ').toLowerCase();
         if (!haystack.includes(searchQuery)) return false;
@@ -1358,6 +1372,9 @@
     } else {
       fSubcat.disabled = true;
     }
+    // Show matura checkbox only for Čeština (01)
+    document.getElementById('maturaRow').style.display = fSubject.value === '01' ? 'block' : 'none';
+    if (fSubject.value !== '01') document.getElementById('f-matura').checked = false;
     updateSTKPreview();
   });
 
