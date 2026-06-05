@@ -47,4 +47,4 @@ Po uložení a chvilce strpení by se kniha měla objevit na webu ;)
 
 ### Webovka
 
-Stačí hopnout na [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/) a začít hledat nebo přidávat knihy...
+[AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/)
