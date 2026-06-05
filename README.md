@@ -46,6 +46,6 @@ Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalo
 
 ### Finální kroky...
 
-Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **.json** nedáte na GitHub, tak kniha v se po obnovení webu ztratí a tak ho musíte přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Podobně je to i u fotek, kde pokud chcete, tak je možné přidat fotku obalu a obsahu ve formátech **.jpg** a **.png**. Tyto fotky pak musíte přidat do *`IMAGES`*
+Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **.json** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak ho musíte přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Podobně je to i u fotek, kde pokud chcete, tak je možné přidat fotku obalu a obsahu ve formátech **.jpg** a **.png**. Tyto fotky pak musíte přidat do *`IMAGES`*
 
 Po uložení a chvilce strpení by se včechno mělo objevit na webu ;)
