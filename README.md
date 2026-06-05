@@ -16,7 +16,7 @@ Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou 
 
 Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalovat soubor typu *`Název knihy.json`*
 
-![til](GIFs/RaiseItToCompleteIt.gif)
+![til](Assets/GIFs/RaiseItToCompleteIt.gif)
 
 **Příklad naistalovaného souboru, který byl vygenerován:**
 ```ruby
