@@ -2,6 +2,10 @@
 
 Vítejte v **online** školní databázi uložených knih, kde se dají najít různé knihy ze školní knihovny!
 
+### Webovka
+
+[AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/)
+
 ### Jak postupovat u přidání knihy?
 
 Aby jste mohli přidat knihu, tak musíte kliknout na tlačítko *`+ Chci přidat knihu!`*
@@ -44,7 +48,3 @@ Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalo
 
 Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **.json** nedáte na GitHub, tak kniha v se po obnovení webu ztratí a tak ho musíte přidat do *`BOOK_FILES`* a dále do vybraného předmětu.
 Po uložení a chvilce strpení by se kniha měla objevit na webu ;)
-
-### Webovka
-
-[AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/)
