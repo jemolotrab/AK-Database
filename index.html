@@ -955,6 +955,21 @@
           </div>
         </div>
 
+        <div class="form-section">Fotografie <span style="color:var(--muted);font-size:0.9em;text-transform:none;letter-spacing:0">(nepovinné)</span></div>
+        <div class="form-field">
+          <label>Název souboru obálky</label>
+          <input class="form-input" id="f-cover" type="text" placeholder="např. Duna.jpg" />
+        </div>
+        <div class="form-field">
+          <label>Název souboru obsahu</label>
+          <input class="form-input" id="f-contents" type="text" placeholder="např. Duna Obsah.jpg" />
+        </div>
+        <p style="font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.5;">
+          Doporučujeme pojmenovat soubory podle názvu knihy.<br>
+          Podporované formáty: <strong>.jpg</strong>, <strong>.png</strong><br>
+          Nahraj soubory do složky <strong>IMAGES/</strong> příslušného předmětu.
+        </p>
+
         <div class="form-section">Další</div>
         <div class="form-field">
           <label>Popis <span style="color:var(--muted)">(nepovinné)</span></label>
@@ -1063,6 +1078,22 @@
       "13":"13-Hudebka","14":"14-Telocvik","15":"15-Vytvarka","16":"16-Vareni",
     };
     return `BOOK_FILES/${folders[xx] || 'BOOK_FILES'}`;
+  }
+
+  function getImageFolder(xx) {
+    const folders = {
+      "01":"01-Cestina","02":"02-Anglictina","03":"03-Nemcina",
+      "04":"04-Spanelstina","05":"05-Matematika","06":"06-Ekonomie",
+      "07":"07-Fyzika","08":"08-Chemie","09":"09-Biologie",
+      "10":"10-Zemepis","11":"11-Historie","12":"12-IT",
+      "13":"13-Hudebka","14":"14-Telocvik","15":"15-Vytvarka","16":"16-Vareni",
+    };
+    return `IMAGES/${folders[xx] || 'IMAGES'}`;
+  }
+
+  function buildImageURL(xx, filename) {
+    if (!filename) return '';
+    return `${GITHUB_RAW}/${getImageFolder(xx)}/${encodeURIComponent(filename)}`;
   }
 
 
@@ -1420,7 +1451,7 @@
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
     // Clear all fields
-    ['f-title','f-author','f-year','f-isbn','f-desc','f-kw1','f-kw2','f-kw3'].forEach(id => {
+    ['f-title','f-author','f-year','f-isbn','f-desc','f-cover','f-contents','f-kw1','f-kw2','f-kw3'].forEach(id => {
       document.getElementById(id).value = '';
     });
     document.getElementById('f-loc1').selectedIndex = 0;
@@ -1463,8 +1494,8 @@
       },
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
-      cover:    '',
-      contents: '',
+      cover:    buildImageURL(xx, document.getElementById('f-cover').value.trim()),
+      contents: buildImageURL(xx, document.getElementById('f-contents').value.trim()),
     };
 
     // Add to live session data
@@ -1474,7 +1505,14 @@
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
     const folder = getFolderPath(xx);
-    document.getElementById('successEntry').innerHTML = `Nahraj soubor <strong>${newBook.title}.json</strong> do složky:<br><strong>${folder}/</strong>`;
+    const imgFolder = getImageFolder(xx);
+    const coverFile = document.getElementById('f-cover').value.trim();
+    const contentsFile = document.getElementById('f-contents').value.trim();
+    let msg = `Nahraj soubor <strong>${newBook.title}.json</strong> do složky:<br><strong>${folder}/</strong>`;
+    if (coverFile || contentsFile) {
+      msg += `<br><br>Nahraj fotografie do složky:<br><strong>${imgFolder}/</strong>`;
+    }
+    document.getElementById('successEntry').innerHTML = msg;
     document.getElementById('successOverlay').classList.add('open');
     downloadBook(newBook);
   });
