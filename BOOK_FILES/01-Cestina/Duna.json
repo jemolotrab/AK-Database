@@ -1,0 +1,19 @@
+{
+  "stk": "01-03-ZVKH",
+  "title": "Duna",
+  "author": "Frank Herbert",
+  "isbn": "",
+  "year": "1965",
+  "description": "",
+  "location": {
+    "Budova": "Dukelská"
+  },
+  "keywords": [
+    "Náboženství",
+    "Písek",
+    "Scifi"
+  ],
+  "matura": true,
+  "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/IMAGES/01-Cestina/DUNA_obal.jpg",
+  "contents": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/IMAGES/01-Cestina/DUNA_obsah.jpg"
+}
