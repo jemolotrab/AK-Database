@@ -12,7 +12,7 @@ Poté by se mělo objevit okénko, kde **zadáte heslo** :)
 
 ![til](GIFs/WriteItToOpenIt.gif)
 
-Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou chcete přidat (Později bude možné i přidat fotky knihy)
+Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou chcete přidat (Později by se mělo i přidat možnost k přidání fotek knihy)
 
 Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalovat soubor typu *`Název knihy.json`*
 
