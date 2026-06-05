@@ -6,7 +6,7 @@ Vítejte v **online** školní databázi uložených knih, kde se dají najít r
 
 Aby jste mohli přidat knihu, tak musíte kliknout na tlačítko *`+ Chci přidat knihu!`*
 
-![til](GIFs/ClickItToAddIt.gif)
+![til](Assets/GIFs/ClickItToAddIt.gif)
 
 Poté by se mělo objevit okénko, kde **zadáte heslo** :)
 
