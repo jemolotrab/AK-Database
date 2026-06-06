@@ -1255,11 +1255,13 @@
             radioLabel.textContent = '♪ Still Alive...';
             portalAudio.currentTime = 0;
             portalAudio.play();
-            portalAudio.onended = () => {
+            setTimeout(() => {
               radioOn = false;
               radioImg.src = radioOff;
               radioLabel.textContent = '...';
-            };
+              portalAudio.pause();
+              portalAudio.currentTime = 0;
+            }, 45000);
           } else {
             radioImg.src = radioOff;
             radioLabel.textContent = '...';
