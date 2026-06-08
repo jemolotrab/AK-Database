@@ -1,0 +1,19 @@
+{
+  "stk": "05-04-ZXKX",
+  "title": "Matematické a fyzikální tabulky",
+  "author": "nevím",
+  "isbn": "123",
+  "year": "2026",
+  "description": "bez toho se neobejdeš",
+  "location": {
+    "Budova": "Dukelská"
+  },
+  "keywords": [
+    "tabulky",
+    "matematika",
+    "fyzika"
+  ],
+  "matura": false,
+  "cover": "",
+  "contents": ""
+}
