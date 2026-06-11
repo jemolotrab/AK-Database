@@ -1,12 +1,12 @@
 # AK - Adolescentní Knihovna 2026
 
-Vítejte v **online** školní databázi uložených knih, kde se dají najít různé knihy ze školní knihovny!
+Vítejte v **online** školní databázi knih, kde se dají najít různé knihy ze školní knihovny!
 
 ### Webovka
 
 [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/)
 
-### Jak postupovat u přidání knihy?
+### Zjednodušený postup pro přidání knihy
 
 Aby jste mohli přidat knihu, tak musíte kliknout na tlačítko *`+ Chci přidat knihu!`*
 
