@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AK — Adolescentní Knihovna</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     :root {
       --cream: #f0f2f5;
@@ -991,17 +992,16 @@
 
         <div class="form-section">Fotografie <span style="color:var(--muted);font-size:0.9em;text-transform:none;letter-spacing:0">(nepovinné)</span></div>
         <div class="form-field">
-          <label>Název souboru obálky</label>
-          <input class="form-input" id="f-cover" type="text" placeholder="např. Duna.jpg" />
+          <label>Obálka knihy</label>
+          <input class="form-input" id="f-cover" type="file" accept=".jpg,.jpeg,.png" />
         </div>
         <div class="form-field">
-          <label>Název souboru obsahu</label>
-          <input class="form-input" id="f-contents" type="text" placeholder="např. Duna Obsah.jpg" />
+          <label>Strana s obsahem</label>
+          <input class="form-input" id="f-contents" type="file" accept=".jpg,.jpeg,.png" />
         </div>
         <p style="font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.5;">
-          Doporučujeme pojmenovat soubory podle názvu knihy.<br>
           Podporované formáty: <strong>.jpg</strong>, <strong>.png</strong><br>
-          Nahraj soubory do složky <strong>IMAGES/</strong> příslušného předmětu.
+          Po odeslání se stáhne <strong>.zip</strong> soubor obsahující složku s knihou — fotky a data jsou už v ní spolu zabalené.
         </p>
 
         <div class="form-section">Další</div>
@@ -1076,11 +1076,12 @@
       );
 
       const results = await Promise.all(
-        bookFiles.map(f =>
-          fetch(`${GITHUB_RAW}/${f.path}?t=${Date.now()}`)
+        bookFiles.map(f => {
+          const encodedPath = f.path.split('/').map(encodeURIComponent).join('/');
+          return fetch(`${GITHUB_RAW}/${encodedPath}?t=${Date.now()}`)
             .then(r => r.ok ? r.json() : null)
-            .catch(() => null)
-        )
+            .catch(() => null);
+        })
       );
       BOOKS = results.filter(Boolean);
     } catch (e) {
@@ -1090,14 +1091,20 @@
     render();
   }
 
-  // ── DOWNLOAD SINGLE BOOK FILE ──
-  function downloadBook(book) {
-    const json = JSON.stringify(book, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
+  // ── BUILD & DOWNLOAD A .ZIP CONTAINING THE BOOK FOLDER ──
+  async function downloadBookZip(book, coverFile, contentsFile) {
+    const zip = new JSZip();
+    const folder = zip.folder(book.title);
+
+    folder.file(`${book.title}.json`, JSON.stringify(book, null, 2));
+    if (coverFile)    folder.file(coverFile.name, coverFile);
+    if (contentsFile) folder.file(contentsFile.name, contentsFile);
+
+    const blob = await zip.generateAsync({ type: 'blob' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = `${book.title}.json`;
+    a.download = `${book.title}.zip`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -1114,20 +1121,18 @@
     return `BOOK_FILES/${folders[xx] || 'BOOK_FILES'}`;
   }
 
-  function getImageFolder(xx) {
-    const folders = {
-      "01":"01-Cestina","02":"02-Anglictina","03":"03-Nemcina",
-      "04":"04-Spanelstina","05":"05-Matematika","06":"06-Ekonomie",
-      "07":"07-Fyzika","08":"08-Chemie","09":"09-Biologie",
-      "10":"10-Zemepis","11":"11-Historie","12":"12-IT",
-      "13":"13-Hudebka","14":"14-Telocvik","15":"15-Vytvarka","16":"16-Vareni",
-    };
-    return `IMAGES/${folders[xx] || 'IMAGES'}`;
+  // Each book gets its own folder (named after the book) inside its subject
+  // folder, e.g. BOOK_FILES/01-Cestina/Duna/ containing Duna.json + images.
+  function getBookFolderPath(xx, title) {
+    return `${getFolderPath(xx)}/${title}`;
   }
 
-  function buildImageURL(xx, filename) {
+  // Build a raw GitHub URL for a file inside the book's own folder,
+  // encoding each path segment safely (handles spaces and Czech characters).
+  function buildFileURL(xx, title, filename) {
     if (!filename) return '';
-    return `${GITHUB_RAW}/${getImageFolder(xx)}/${encodeURIComponent(filename)}`;
+    const path = `${getBookFolderPath(xx, title)}/${filename}`;
+    return `${GITHUB_RAW}/${path.split('/').map(encodeURIComponent).join('/')}`;
   }
 
 
@@ -1521,9 +1526,11 @@
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
     // Clear all fields
-    ['f-title','f-author','f-year','f-isbn','f-desc','f-cover','f-contents','f-kw1','f-kw2','f-kw3'].forEach(id => {
+    ['f-title','f-author','f-year','f-isbn','f-desc','f-kw1','f-kw2','f-kw3'].forEach(id => {
       document.getElementById(id).value = '';
     });
+    document.getElementById('f-cover').value = '';
+    document.getElementById('f-contents').value = '';
     document.getElementById('f-loc1').selectedIndex = 0;
     document.getElementById('f-matura').checked = false;
     fSubject.value = '';
@@ -1536,7 +1543,7 @@
     document.getElementById('formOverlay').classList.remove('open');
   });
 
-  document.getElementById('formSubmit').addEventListener('click', () => {
+  document.getElementById('formSubmit').addEventListener('click', async () => {
     const title   = document.getElementById('f-title').value.trim();
     const author  = document.getElementById('f-author').value.trim();
     const year    = document.getElementById('f-year').value.trim();
@@ -1545,6 +1552,8 @@
     const kw1     = document.getElementById('f-kw1').value.trim();
     const kw2     = document.getElementById('f-kw2').value.trim();
     const kw3     = document.getElementById('f-kw3').value.trim();
+    const coverFile    = document.getElementById('f-cover').files[0]    || null;
+    const contentsFile = document.getElementById('f-contents').files[0] || null;
 
     if (!title || !author || !year || !xx || !yy || !kw1 || !kw2 || !kw3) {
       alert('Vyplň prosím všechna povinná pole (označena *).');
@@ -1564,8 +1573,8 @@
       },
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
-      cover:    buildImageURL(xx, document.getElementById('f-cover').value.trim()),
-      contents: buildImageURL(xx, document.getElementById('f-contents').value.trim()),
+      cover:    buildFileURL(xx, title, coverFile ? coverFile.name : ''),
+      contents: buildFileURL(xx, title, contentsFile ? contentsFile.name : ''),
     };
 
     // Add to live session data
@@ -1575,16 +1584,13 @@
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
     const folder = getFolderPath(xx);
-    const imgFolder = getImageFolder(xx);
-    const coverFile = document.getElementById('f-cover').value.trim();
-    const contentsFile = document.getElementById('f-contents').value.trim();
-    let msg = `Nahraj soubor <strong>${newBook.title}.json</strong> do složky:<br><strong>${folder}/</strong>`;
-    if (coverFile || contentsFile) {
-      msg += `<br><br>Nahraj fotografie do složky:<br><strong>${imgFolder}/</strong>`;
-    }
-    document.getElementById('successEntry').innerHTML = msg;
+    document.getElementById('successEntry').innerHTML =
+      `Stahuji soubor <strong>${title}.zip</strong>...<br><br>` +
+      `Rozbal ho a celou složku <strong>${title}/</strong> přetáhni do:<br>` +
+      `<strong>${folder}/</strong>`;
     document.getElementById('successOverlay').classList.add('open');
-    downloadBook(newBook);
+
+    await downloadBookZip(newBook, coverFile, contentsFile);
   });
 
   document.getElementById('successClose').addEventListener('click', () => {
