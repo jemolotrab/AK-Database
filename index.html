@@ -1094,11 +1094,10 @@
   // ── BUILD & DOWNLOAD A .ZIP CONTAINING THE BOOK FOLDER ──
   async function downloadBookZip(book, coverFile, contentsFile) {
     const zip = new JSZip();
-    const folder = zip.folder(book.title);
 
-    folder.file(`${book.title}.json`, JSON.stringify(book, null, 2));
-    if (coverFile)    folder.file(coverFile.name, coverFile);
-    if (contentsFile) folder.file(contentsFile.name, contentsFile);
+    zip.file(`${book.title}.json`, JSON.stringify(book, null, 2));
+    if (coverFile)    zip.file(coverFile.name, coverFile);
+    if (contentsFile) zip.file(contentsFile.name, contentsFile);
 
     const blob = await zip.generateAsync({ type: 'blob' });
     const url  = URL.createObjectURL(blob);
@@ -1234,7 +1233,7 @@
  
   function makeCoverList(book) {
     if (book.cover) {
-      return `<img class="list-cover" src="${book.cover}" alt="${book.title}"/>`;
+      return `<img class="list-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML='<div class=\\"list-cover-placeholder\\">${book.stk}</div>'"/>`;
     }
     return `<div class="list-cover-placeholder">${book.stk}</div>`;
   }
@@ -1357,7 +1356,7 @@
     const { xx, yy } = parseSTK(book.stk);
  
     const coverHTML = book.cover
-      ? `<img class="modal-cover" src="${book.cover}" alt="${book.title}"/>`
+      ? `<img class="modal-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML='<div class=\\"modal-cover-placeholder\\"><span class=\\"stk-badge\\">${book.stk}</span><span class=\\"no-img-label\\">Obrázek nedostupný</span></div>'"/>`
       : `<div class="modal-cover-placeholder">
            <span class="stk-badge">${book.stk}</span>
            <span class="no-img-label">Obrázek<br>nedostupný</span>
