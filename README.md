@@ -18,34 +18,12 @@ Poté by se mělo objevit okénko, kde **zadáte heslo** :)
 
 Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou chcete přidat.
 
-Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalovat soubor typu *`Název knihy.json`*
+Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalovat soubor typu *`Název knihy.zip`*
 
 ![til](Assets/GIFs/RaiseItToCompleteIt.gif)
 
-**Příklad naistalovaného souboru, který byl vygenerován:**
-```ruby
-{
-  "stk": "01-03-YTDA",
-  "title": "Na západní frontě klid (Též zkušební)",
-  "author": "Erich Maria Remarque",
-  "isbn": "",
-  "year": "1928",
-  "location": {
-    "Budova": "Budova B"
-  },
-  "keywords": [
-    "Válka",
-    "Kamarádi",
-    "Myšlenky"
-  ],
-  "matura": true,
-  "cover": "",
-  "contents": ""
-}
-```
-
 ### Finální kroky...
 
-Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **.json** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak ho musíte kliknout na webu na tlačítko *`GitHub`* a soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Podobně je to i u fotek, kde pokud chcete, tak je možné přidat fotku obalu a obsahu ve formátech **.jpg** a **.png**. Tyto fotky pak musíte přidat do *`IMAGES`*
+Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **název knihy** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak ho musíte na webu kliknout na tlačítko *`GitHub`* a soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Celý soubor **název knihy** obsahuje *'název_knihy.json'* a fotky, které jste nahráli.
 
 Po uložení a chvilce strpení by se všechno mělo objevit na webu ;)
