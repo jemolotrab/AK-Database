@@ -24,6 +24,6 @@ Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalo
 
 ### Finální kroky...
 
-Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **název knihy** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak ho musíte na webu kliknout na tlačítko *`GitHub`* a soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Celý soubor **název knihy** obsahuje *'název_knihy.json'* a fotky, které jste nahráli.
+Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **knihy** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak ho musíte na webu kliknout na tlačítko *`GitHub`* a soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Celý soubor **knihy** obsahuje *`název_knihy.json`* a fotky, které jste nahráli.
 
 Po uložení a chvilce strpení by se všechno mělo objevit na webu ;)
