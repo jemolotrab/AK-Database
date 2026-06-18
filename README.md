@@ -22,8 +22,10 @@ Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalo
 
 ![til](Assets/GIFs/RaiseItToCompleteIt.gif)
 
+*`(v ukázce je naistalován soubor .json, což ignorujte)`*
+
 ### Finální kroky...
 
-Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **knihy** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak ho musíte na webu kliknout na tlačítko *`GitHub`* a soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Celý soubor **knihy** obsahuje *`název_knihy.json`* a fotky, které jste nahráli.
+Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **knihy** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak musíte na webu kliknout na tlačítko *`GitHub`* a soubor přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Celý soubor **knihy** obsahuje *`název_knihy.json`* a fotky, které jste nahráli *`(pro přidání souborů je potřeba mít povolení úpráv tohoto repozitáře)`*.
 
 Po uložení a chvilce strpení by se všechno mělo objevit na webu ;)
