@@ -838,6 +838,56 @@
     .radio-egg img { width: 180px; cursor: pointer; user-select: none; transition: transform 0.2s; }
     .radio-egg img:hover { transform: scale(1.05); }
     .radio-egg p { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.06em; }
+
+    .mc-egg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      grid-column: 1/-1;
+      padding: 3rem 2rem;
+    }
+    .mc-egg img { width: 280px; user-select: none; image-rendering: pixelated; }
+    .mc-splash-wrap {
+      position: relative;
+      width: 280px;
+      height: 0;
+    }
+    .mc-splash {
+      position: absolute;
+      top: -38px;
+      right: 6px;
+      color: #ffff00;
+      text-shadow: 2px 2px 0 #3f3f00;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transform-origin: center;
+      animation: mc-pulse 0.7s ease-in-out infinite alternate;
+      white-space: nowrap;
+    }
+    @keyframes mc-pulse {
+      from { transform: rotate(-4deg) scale(1); }
+      to   { transform: rotate(-4deg) scale(1.12); }
+    }
+    .mc-btn {
+      padding: 0.7rem 1.5rem;
+      background: #6b6b6b;
+      border: 2px solid #2b2b2b;
+      border-top-color: #8b8b8b;
+      border-left-color: #8b8b8b;
+      color: #fff;
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-shadow: 1px 1px 0 #000;
+      transition: background 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .mc-btn:hover { background: #7d9c4a; }
+    .mc-btn:active { background: #5a7a38; }
+
   </style>
 </head>
 <body>
@@ -1186,6 +1236,8 @@
       portalAudio.currentTime = 0;
       radioOn = false;
     }
+    swedenAudio.pause();
+    swedenAudio.currentTime = 0;
     render();
   });
 
@@ -1303,6 +1355,47 @@
             portalAudio.currentTime = 0;
           }
         });
+        return;
+      }
+
+      // ── MINECRAFT MENU EASTER EGG ──
+      if (searchQuery === 'creeper? aww, man') {
+        const splashTexts = [
+          "Vyrobeno z hlíny!",
+          "100% Creeper schválené!",
+          "Sledujte svou výšku!",
+          "Nyní s více TNT!",
+          "Pozor na noc!",
+          "Diamondy se neztratí!",
+          "Také ve verzi Survival!",
+          "Pixely pro každého!",
+        ];
+        const splash = splashTexts[Math.floor(Math.random() * splashTexts.length)];
+        container.innerHTML = `<div class="mc-egg">
+          <div style="position:relative;">
+            <img src="${mcLogo}" alt="Minecraft" />
+            <div class="mc-splash-wrap"><span class="mc-splash">${splash}</span></div>
+          </div>
+          <button class="mc-btn" id="mcPlayBtn">▶ Přehrát Sweden</button>
+        </div>`;
+        const mcBtn = document.getElementById('mcPlayBtn');
+        let swedenPlaying = false;
+        mcBtn.addEventListener('click', () => {
+          swedenPlaying = !swedenPlaying;
+          if (swedenPlaying) {
+            swedenAudio.currentTime = 0;
+            swedenAudio.play();
+            mcBtn.textContent = '■ Zastavit';
+          } else {
+            swedenAudio.pause();
+            swedenAudio.currentTime = 0;
+            mcBtn.textContent = '▶ Přehrát Sweden';
+          }
+        });
+        swedenAudio.onended = () => {
+          swedenPlaying = false;
+          mcBtn.textContent = '▶ Přehrát Sweden';
+        };
         return;
       }
       const emptyMessages = [
@@ -1608,6 +1701,9 @@
   const radioOff   = 'Assets/images/PortalRadioOff.png';   // Portal radio image (off state)
   const radioOnImg = 'Assets/images/PortalRadioOn.png';    // Portal radio image (on state)
   const portalAudio = new Audio('Assets/audio/15. Still Alive (Radio Mix Clean).mp3'); // Portal radio music
+
+  const mcLogo      = 'Assets/images/MinecraftLogo.png';   // Minecraft logo image
+  const swedenAudio = new Audio('Assets/audio/Sweden.mp3'); // C418 - Sweden
   // ──────────────────────────────────────────────────────────────────────────
   let radioOn = false;
 
