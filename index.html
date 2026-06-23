@@ -1360,14 +1360,14 @@
       // ── MINECRAFT MENU EASTER EGG ──
       if (searchQuery === 'creeper? aww, man') {
         const splashTexts = [
-          "Made from dirt!",
-          "100% Creeper approved!",
-          "Watch your step!",
-          "Now with more TNT!",
-          "Beware the night!",
-          "Diamonds never lie!",
-          "Also available in Survival!",
-          "Pixels for everyone!",
+          "C418 <3",
+          "9/10 creepers recommend!",
+          "Notch apple",
+          "Minceraft",
+          "est. 2009",
+          "Minecon 2010!",
+          "Where is Half-Life 3?",
+          "Absolutely no memes!",
         ];
         const splash = splashTexts[Math.floor(Math.random() * splashTexts.length)];
         container.innerHTML = `<div class="mc-egg">
@@ -1375,7 +1375,7 @@
             <img src="${mcLogo}" alt="Minecraft" />
             <div class="mc-splash-wrap"><span class="mc-splash">${splash}</span></div>
           </div>
-          <button class="mc-btn" id="mcPlayBtn">▶ Play Sweden</button>
+          <button class="mc-btn" id="mcPlayBtn">Play Sweden</button>
         </div>`;
         const mcBtn = document.getElementById('mcPlayBtn');
         let swedenPlaying = false;
@@ -1384,16 +1384,16 @@
           if (swedenPlaying) {
             swedenAudio.currentTime = 0;
             swedenAudio.play();
-            mcBtn.textContent = '■ Stop';
+            mcBtn.textContent = 'Stop';
           } else {
             swedenAudio.pause();
             swedenAudio.currentTime = 0;
-            mcBtn.textContent = '▶ Play Sweden';
+            mcBtn.textContent = 'Play Sweden';
           }
         });
         swedenAudio.onended = () => {
           swedenPlaying = false;
-          mcBtn.textContent = '▶ Play Sweden';
+          mcBtn.textContent = 'Play Sweden';
         };
         return;
       }
