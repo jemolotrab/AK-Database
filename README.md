@@ -22,7 +22,7 @@ Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalo
 
 ![til](Assets/GIFs/RaiseItToCompleteIt.gif)
 
-*`(v ukázce je naistalován soubor .json, což prosím ignorujte)`*
+*`(v ukázce je naistalován soubor .json kromě .zip)`*
 
 ### Finální kroky...
 
