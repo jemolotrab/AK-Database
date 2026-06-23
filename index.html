@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AK — Adolescentní Knihovna</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=Press+Start+2P&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     :root {
@@ -847,21 +847,21 @@
       grid-column: 1/-1;
       padding: 3rem 2rem;
     }
-    .mc-egg img { width: 280px; user-select: none; image-rendering: pixelated; }
+    .mc-egg img { width: 420px; user-select: none; image-rendering: pixelated; } /* ← LOGO SIZE: change width here */
     .mc-splash-wrap {
       position: relative;
-      width: 280px;
+      width: 420px;
       height: 0;
     }
     .mc-splash {
       position: absolute;
-      top: -38px;
-      right: 6px;
+      top: -56px;   /* ← vertical position of yellow text (more negative = higher) */
+      right: 30px;  /* ← horizontal position of yellow text (bigger = further left) */
       color: #ffff00;
       text-shadow: 2px 2px 0 #3f3f00;
-      font-family: 'Rubik', sans-serif;
-      font-weight: 700;
-      font-size: 0.95rem;
+      font-family: 'Press Start 2P', monospace;
+      font-weight: 400;
+      font-size: 0.85rem;
       transform-origin: center;
       animation: mc-pulse 0.7s ease-in-out infinite alternate;
       white-space: nowrap;
@@ -871,15 +871,14 @@
       to   { transform: rotate(-4deg) scale(1.12); }
     }
     .mc-btn {
-      padding: 0.7rem 1.5rem;
+      padding: 0.9rem 1.75rem;
       background: #6b6b6b;
       border: 2px solid #2b2b2b;
       border-top-color: #8b8b8b;
       border-left-color: #8b8b8b;
       color: #fff;
-      font-family: 'Rubik', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 500;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.8rem;
       cursor: pointer;
       text-shadow: 1px 1px 0 #000;
       transition: background 0.1s;
@@ -1361,14 +1360,14 @@
       // ── MINECRAFT MENU EASTER EGG ──
       if (searchQuery === 'creeper? aww, man') {
         const splashTexts = [
-          "Vyrobeno z hlíny!",
-          "100% Creeper schválené!",
-          "Sledujte svou výšku!",
-          "Nyní s více TNT!",
-          "Pozor na noc!",
-          "Diamondy se neztratí!",
-          "Také ve verzi Survival!",
-          "Pixely pro každého!",
+          "Made from dirt!",
+          "100% Creeper approved!",
+          "Watch your step!",
+          "Now with more TNT!",
+          "Beware the night!",
+          "Diamonds never lie!",
+          "Also available in Survival!",
+          "Pixels for everyone!",
         ];
         const splash = splashTexts[Math.floor(Math.random() * splashTexts.length)];
         container.innerHTML = `<div class="mc-egg">
@@ -1376,7 +1375,7 @@
             <img src="${mcLogo}" alt="Minecraft" />
             <div class="mc-splash-wrap"><span class="mc-splash">${splash}</span></div>
           </div>
-          <button class="mc-btn" id="mcPlayBtn">▶ Přehrát Sweden</button>
+          <button class="mc-btn" id="mcPlayBtn">▶ Play Sweden</button>
         </div>`;
         const mcBtn = document.getElementById('mcPlayBtn');
         let swedenPlaying = false;
@@ -1385,16 +1384,16 @@
           if (swedenPlaying) {
             swedenAudio.currentTime = 0;
             swedenAudio.play();
-            mcBtn.textContent = '■ Zastavit';
+            mcBtn.textContent = '■ Stop';
           } else {
             swedenAudio.pause();
             swedenAudio.currentTime = 0;
-            mcBtn.textContent = '▶ Přehrát Sweden';
+            mcBtn.textContent = '▶ Play Sweden';
           }
         });
         swedenAudio.onended = () => {
           swedenPlaying = false;
-          mcBtn.textContent = '▶ Přehrát Sweden';
+          mcBtn.textContent = '▶ Play Sweden';
         };
         return;
       }
@@ -1702,8 +1701,8 @@
   const radioOnImg = 'Assets/images/PortalRadioOn.png';    // Portal radio image (on state)
   const portalAudio = new Audio('Assets/audio/15. Still Alive (Radio Mix Clean).mp3'); // Portal radio music
 
-  const mcLogo      = 'Assets/images/Java_Edition.webp';   // Minecraft logo image
-  const swedenAudio = new Audio('Assets/audio/1-18. Sweden.mp3'); // C418 - Sweden <3
+  const mcLogo      = 'Assets/images/MinecraftLogo.png';   // Minecraft logo image
+  const swedenAudio = new Audio('Assets/audio/Sweden.mp3'); // C418 - Sweden
   // ──────────────────────────────────────────────────────────────────────────
   let radioOn = false;
 
