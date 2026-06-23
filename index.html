@@ -1220,24 +1220,32 @@
     return SUBJECTS[xx]?.subs[yy] || yy;
   }
  
+  // ── PLACEHOLDER GENERATORS (global so inline onerror can call them) ──
+  function placeholderGrid(stk) {
+    return `<div class="cover-placeholder"><span class="stk-badge">${stk}</span><span class="no-img-label">Obrázek<br>nedostupný</span></div>`;
+  }
+  function placeholderList(stk) {
+    return `<div class="list-cover-placeholder">${stk}</div>`;
+  }
+  function placeholderModal(stk) {
+    return `<div class="modal-cover-placeholder"><span class="stk-badge">${stk}</span><span class="no-img-label">Obrázek<br>nedostupný</span></div>`;
+  }
+
   // ── COVER ELEMENT ──
   function makeCoverGrid(book) {
     if (book.cover) {
-      return `<img class="book-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML=makePlaceholderHTML('${book.stk}')"/>`;
+      return `<img class="book-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML=placeholderGrid('${book.stk}')"/>`;
     }
-    return `<div class="cover-placeholder">
-      <span class="stk-badge">${book.stk}</span>
-      <span class="no-img-label">Obrázek<br>nedostupný</span>
-    </div>`;
+    return placeholderGrid(book.stk);
   }
- 
+
   function makeCoverList(book) {
     if (book.cover) {
-      return `<img class="list-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML='<div class=\\"list-cover-placeholder\\">${book.stk}</div>'"/>`;
+      return `<img class="list-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML=placeholderList('${book.stk}')"/>`;
     }
-    return `<div class="list-cover-placeholder">${book.stk}</div>`;
+    return placeholderList(book.stk);
   }
- 
+
   // ── FILTER ──
   function filteredBooks() {
     const maturaOnly = document.getElementById('maturaFilter').checked;
@@ -1356,11 +1364,8 @@
     const { xx, yy } = parseSTK(book.stk);
  
     const coverHTML = book.cover
-      ? `<img class="modal-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML='<div class=\\"modal-cover-placeholder\\"><span class=\\"stk-badge\\">${book.stk}</span><span class=\\"no-img-label\\">Obrázek nedostupný</span></div>'"/>`
-      : `<div class="modal-cover-placeholder">
-           <span class="stk-badge">${book.stk}</span>
-           <span class="no-img-label">Obrázek<br>nedostupný</span>
-         </div>`;
+      ? `<img class="modal-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML=placeholderModal('${book.stk}')"/>`
+      : placeholderModal(book.stk);
  
     document.getElementById('modalTop').innerHTML = `
       ${coverHTML}
