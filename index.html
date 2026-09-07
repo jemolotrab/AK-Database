@@ -909,7 +909,7 @@
  
   <!-- HERO -->
   <div class="hero">
-    <h1>Hledáček knih<br><em>naši knihovny</em></h1>
+    <h1>Hledáček knih<br><em>naší knihovny</em></h1>
     <p>v0.4.7</p>
   </div>
  
@@ -945,8 +945,8 @@
  
   <!-- FOOTER -->
   <footer>
-    <span><strong>¯\_(ツ)_/¯</strong></span>
-    <span>2026</span>
+    <span><strong>Nevím co zde napsat, ale vypadá to tu hezky</strong></span>
+    <span>¯\_(ツ)_/¯</span>
   </footer>
  
   <!-- MODAL -->
@@ -961,7 +961,7 @@
   <!-- PASSWORD OVERLAY -->
   <div class="overlay" id="pwOverlay">
     <div class="pw-box">
-      <h2>🔐 Opravdu přidat knihu?</h2>
+      <h2>Opravdu přidat knihu?</h2>
       <p>Tato funkce je chráněna velice bezpečným heslem!</p>
       <input class="pw-input" id="pwInput" type="password" placeholder="········" maxlength="32" />
       <div class="pw-error" id="pwError"></div>
@@ -974,7 +974,7 @@
   <div class="overlay" id="formOverlay">
     <div class="form-box">
       <div class="form-header">
-        <h2>Nová kniha...</h2>
+        <h2>Editor nové knihy...</h2>
         <button class="form-close" id="formClose">✕</button>
       </div>
       <div class="form-body">
@@ -991,7 +991,7 @@
           </div>
           <div class="form-field">
             <label>Rok vydání <span>*</span></label>
-            <input class="form-input" id="f-year" type="number" placeholder="např. 1984" min="0" max="2099" />
+            <input class="form-input" id="f-year" type="number" placeholder="např. 1984" min="0" max="2999" />
           </div>
         </div>
         <div class="form-field">
@@ -1005,7 +1005,7 @@
           <select class="form-select" id="f-loc1"><option value="">— vyber —</option></select>
         </div>
 
-        <div class="form-section">Klasifikace STK</div>
+        <div class="form-section">Klasifikace STK (XX-YY-ZZZZ)</div>
         <div class="form-row">
           <div class="form-field">
             <label>Předmět (XX) <span>*</span></label>
@@ -1021,7 +1021,7 @@
           </div>
         </div>
         <div class="stk-preview" id="stkPreview">??-??-????</div>
-        <button class="stk-regen" id="stkRegen">Vygenerovat nový kód</button>
+        <button class="stk-regen" id="stkRegen">Vygenerovat nový kód (ZZZZ)</button>
 
         <div class="form-section">Klíčová slova</div>
         <div class="form-row">
@@ -1035,7 +1035,7 @@
           </div>
           <div class="form-field">
             <label>Klíčové slovo 3 <span>*</span></label>
-            <input class="form-input" id="f-kw3" type="text" placeholder="např. 19. století" />
+            <input class="form-input" id="f-kw3" type="text" placeholder="např. 17. století" />
           </div>
         </div>
 
@@ -1049,8 +1049,8 @@
           <input class="form-input" id="f-contents" type="file" accept=".jpg,.jpeg,.png" />
         </div>
         <p style="font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.5;">
-          Podporované formáty: <strong>.jpg</strong>, <strong>.png</strong><br>
-          Po odeslání se stáhne <strong>.zip</strong> soubor obsahující složku s knihou — fotky a data jsou už v ní spolu zabalené.
+          Podporované formáty: <strong>.jpg/.jpeg</strong>, <strong>.png</strong><br>
+          !!! Po odeslání se stáhne <strong>.zip</strong> soubor obsahující složku s knihou — fotky a data jsou už v ní spolu zabalené.
         </p>
 
         <div class="form-section">Další</div>
@@ -1084,12 +1084,12 @@
 
 <script>
   // ── GITHUB CONFIG ─────────────────────────────────────────────────────────
-  const GITHUB_REPO = "jemolotrab/AK-Database";
+  const GITHUB_REPO = "jemolotrab/AK-Database"; //Přoč jemolotrab? Bartoloměj obráceně :D
   const GITHUB_RAW  = `https://raw.githubusercontent.com/${GITHUB_REPO}/main`;
   const GITHUB_TREE = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1`;
   // ──────────────────────────────────────────────────────────────────────────
 
-  // ── DUMMY DATA (replace with Google Sheet fetch later) ──
+  // ── DUMMY DATA (replace with Google Sheet fetch later) ── Ne. Asi...
   const SUBJECTS = {
     "01": { name: "Čeština",    subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Epika","04":"Lyrika","05":"Drama","06":"Ostatní" } },
     "02": { name: "Angličtina", subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Literatura","04":"Ostatní" } },
@@ -1107,7 +1107,7 @@
     "14": { name: "Tělocvik",    subs: { "01":"Atletika","02":"Gymnastika","03":"Sporty","04":"Ostatní" } },
     "15": { name: "Výtvarka",    subs: { "01":"Kresby","02":"Malířství","03":"Historie","04":"Grafika","05":"Ostatní" } },
     "16": { name: "Vaření",      subs: { "01":"Kuchařka","02":"Ostatní" } },
-  };
+  }; //Bože já sebe miluju... NA TOHLE UŽ NESAHÁM >:D
 
   let BOOKS = [];
 
@@ -1157,7 +1157,7 @@
     URL.revokeObjectURL(url);
   }
 
-  // ── GET FOLDER PATH FOR SUBJECT ──
+  // ── GET FOLDER PATH FOR SUBJECT ── //Wtf?
   function getFolderPath(xx) {
     const folders = {
       "01":"01-Cestina","02":"02-Anglictina","03":"03-Nemcina",
@@ -1176,7 +1176,7 @@
   }
 
   // Build a raw GitHub URL for a file inside the book's own folder,
-  // encoding each path segment safely (handles spaces and Czech characters).
+  // encoding each path segment safely (handles spaces and Czech characters. Thankfully).
   function buildFileURL(xx, title, filename) {
     if (!filename) return '';
     const path = `${getBookFolderPath(xx, title)}/${filename}`;
@@ -1357,14 +1357,14 @@
         return;
       }
 
-      // ── MINECRAFT MENU EASTER EGG ──
+      // ── MINECRAFT MENU EASTER EGG ── Já prostě miliju Minecraft <3
       if (searchQuery === 'creeper? aww, man') {
         const splashTexts = [
           "C418 <3",
           "9/10 creepers recommend!",
-          "Notch & Bartoloměj",
+          "Bartoloměj was here",
           "Minceraft",
-          "est. 2009",
+          "est. 2009 by Notch",
           "Minecon 2010!",
           "Where is Half-Life 3?",
           "Absolutely no memes!",
@@ -1400,15 +1400,15 @@
       const emptyMessages = [
         { emoji: "☹️", text: "Nic tu není" },
         { emoji: "📭", text: "Zkouknul bych radši mail" },
-        { emoji: "😏", text: "Ani nevíš jaká je to nuda nic nenajít!" },
+        { emoji: "😏", text: "Co mám hledat? Aha." },
         { emoji: "👀", text: "Jak můžete vidět... já ne!" },
-        { emoji: "💾", text: "Error 404" },
+        { emoji: "💾", text: "404 Not Found" },
         { emoji: "⁉️", text: "Co to jako je?" },
         { emoji: "💣", text: "Tři... dva... jedna!... nic!" },
-        { emoji: "🎂", text: "Poznáváš tuhle referenci?" },
+        { emoji: "🎂", text: "Poznáváš tuhle lživou referenci?" },
       ];
       const pick = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
-      const isCake = pick.emoji === "🎂";
+      const isCake = pick.emoji === "🎂"; //Ten dort opravdu je lež. Anebo? *Vsauce hudba v pozadí*
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
         <div class="big" ${isCake ? 'id="cakeEgg" style="cursor:pointer;user-select:none;"' : ''}>${pick.emoji}</div>
         <p>${pick.text}</p>
@@ -1425,7 +1425,7 @@
     container.innerHTML = books.map((book, i) => {
       const { xx, yy } = parseSTK(book.stk);
       if (viewMode === 'grid') {
-        return `<div class="book-card" onclick="openModal('${book.stk}')" style="animation-delay:${i*0.05}s">
+        return `<div class="book-card" onclick="openModal('${book.stk}')" style="animation-delay:${i*0.08}s">
           ${makeCoverGrid(book)}
           <div class="book-info">
             <div class="book-title">${book.title}</div>
@@ -1611,7 +1611,7 @@
       inp.classList.remove('error');
       void inp.offsetWidth; // trigger reflow for animation
       inp.classList.add('error');
-      err.textContent = 'Špatné heslo. Zkus to znovu!';
+      err.textContent = 'Špatné heslo. Zkusil bych to znovu!';
       inp.value = '';
       inp.focus();
     }
@@ -1695,6 +1695,7 @@
   // ════════════════════════════════════════
   // EASTER EGGS
   // ════════════════════════════════════════
+  //Kolik Easter Eggů tam máte? Ano.
 
   // ── FILE PATHS — change these to match your repo ──────────────────────────
   const radioOff   = 'Assets/images/PortalRadioOff.png';   // Portal radio image (off state)
@@ -1706,10 +1707,10 @@
   // ──────────────────────────────────────────────────────────────────────────
   let radioOn = false;
 
-  // ── 🎂 CAKE → GLaDOS line (plays when cake appears in empty state) ──
+  // ── 🎂 CAKE → GLaDOS line (plays when cake appears in empty state) ── Speedy thing comes in. Speedy thing comes out.
   const gladosAudio = new Audio('Assets/audio/GLaDOS_15_part1_Partyspeech-2 (1).wav');
 
-  // ── AK LOGO × 47 → CS go go go ──
+  // ── AK LOGO × 47 → CS go go go ── AK-47
   const csAudio = new Audio('Assets/audio/Legacy_com_go (1).ogg');
   let logoClickCount = 0;
   let logoClickTimer = null;
