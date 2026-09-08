@@ -887,6 +887,61 @@
     .mc-btn:hover { background: #7d9c4a; }
     .mc-btn:active { background: #5a7a38; }
 
+    /* ── MODE TOGGLE ── */
+    .mode-toggle-wrap {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 0.6rem 0.75rem;
+      background: var(--parchment);
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .mode-btn.active {
+      background: var(--ink);
+      color: var(--gold);
+      border-color: var(--ink);
+    }
+    .experimental-badge {
+      font-size: 0.6rem;
+      background: var(--rust);
+      color: #fff;
+      padding: 0.1rem 0.35rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .mode-btn.active .experimental-badge { background: rgba(255,255,255,0.2); }
+    .isbn-fetch-btn {
+      padding: 0.55rem 1rem;
+      background: var(--ink);
+      color: var(--gold);
+      border: none;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-bottom: 0.75rem;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .isbn-fetch-btn:hover { background: var(--brown); }
+    .isbn-fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
   </style>
 </head>
 <body>
@@ -978,6 +1033,25 @@
         <button class="form-close" id="formClose">✕</button>
       </div>
       <div class="form-body">
+
+        <!-- MODE TOGGLE -->
+        <div class="mode-toggle-wrap">
+          <button class="mode-btn active" id="modeManual">✏️ Ruční zadání</button>
+          <button class="mode-btn" id="modeISBN">🔬 Podle ISBN <span class="experimental-badge">Experimentální</span></button>
+        </div>
+
+        <!-- ISBN FETCH PANEL -->
+        <div id="isbnPanel" style="display:none;">
+          <div class="form-section">Vyhledat knihu podle ISBN</div>
+          <div class="form-row" style="align-items:flex-end;">
+            <div class="form-field">
+              <label>ISBN</label>
+              <input class="form-input" id="f-isbn-fetch" type="text" placeholder="978-80-..." />
+            </div>
+            <button class="isbn-fetch-btn" id="isbnFetchBtn">Načíst informace</button>
+          </div>
+          <div id="isbnStatus" style="font-size:0.75rem;margin-bottom:0.75rem;min-height:1.2rem;"></div>
+        </div>
 
         <div class="form-section">Základní informace</div>
         <div class="form-field">
@@ -1634,6 +1708,101 @@
     fSubcat.disabled = true;
     document.getElementById('formOverlay').classList.add('open');
   }
+
+  function openAddForm() {
+    currentZZZZ = generateZZZZ();
+    updateSTKPreview();
+    // Clear all fields
+    ['f-title','f-author','f-year','f-isbn','f-desc','f-kw1','f-kw2','f-kw3'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-cover').value = '';
+    document.getElementById('f-contents').value = '';
+    document.getElementById('f-loc1').selectedIndex = 0;
+    document.getElementById('f-matura').checked = false;
+    fSubject.value = '';
+    fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
+    fSubcat.disabled = true;
+    // Reset to manual mode
+    setMode('manual');
+    document.getElementById('formOverlay').classList.add('open');
+  }
+
+  // ── MODE TOGGLE ──
+  function setMode(mode) {
+    const isISBN = mode === 'isbn';
+    document.getElementById('modeManual').classList.toggle('active', !isISBN);
+    document.getElementById('modeISBN').classList.toggle('active', isISBN);
+    document.getElementById('isbnPanel').style.display = isISBN ? 'block' : 'none';
+    document.getElementById('isbnStatus').textContent = '';
+    if (isISBN) document.getElementById('f-isbn-fetch').value = '';
+  }
+
+  document.getElementById('modeManual').addEventListener('click', () => setMode('manual'));
+  document.getElementById('modeISBN').addEventListener('click',   () => setMode('isbn'));
+
+  // ── ISBN FETCH FROM OPEN LIBRARY ──
+  document.getElementById('isbnFetchBtn').addEventListener('click', async () => {
+    const isbn = document.getElementById('f-isbn-fetch').value.trim().replace(/[-\s]/g, '');
+    const status = document.getElementById('isbnStatus');
+    const btn = document.getElementById('isbnFetchBtn');
+
+    if (!isbn) {
+      status.style.color = 'var(--rust)';
+      status.textContent = 'Zadej prosím ISBN.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Načítám...';
+    status.style.color = 'var(--muted)';
+    status.textContent = 'Hledám v Open Library...';
+
+    try {
+      const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+      const data = await res.json();
+      const key = `ISBN:${isbn}`;
+
+      if (!data[key]) {
+        status.style.color = 'var(--rust)';
+        status.textContent = '❌ Kniha nenalezena. Zkus jiné ISBN nebo ruční zadání.';
+        btn.disabled = false;
+        btn.textContent = 'Načíst informace';
+        return;
+      }
+
+      const book = data[key];
+
+      // Fill in what we got
+      if (book.title)
+        document.getElementById('f-title').value = book.title;
+      if (book.authors?.[0]?.name)
+        document.getElementById('f-author').value = book.authors.map(a => a.name).join(', ');
+      if (book.publish_date)
+        document.getElementById('f-year').value = book.publish_date.match(/\d{4}/)?.[0] || '';
+      document.getElementById('f-isbn').value = isbn;
+
+      // Count what was filled
+      const filled = [book.title, book.authors?.[0], book.publish_date].filter(Boolean).length;
+      status.style.color = 'var(--brown)';
+      status.textContent = `✅ Nalezeno! Vyplněno ${filled}/3 polí. Zbytek dopiš ručně.`;
+
+      // Switch view so user can see and complete the form
+      setMode('manual');
+
+    } catch (e) {
+      status.style.color = 'var(--rust)';
+      status.textContent = '❌ Chyba připojení. Zkus to znovu.';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Načíst informace';
+  });
+
+  // Allow pressing Enter in ISBN field to trigger fetch
+  document.getElementById('f-isbn-fetch').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('isbnFetchBtn').click();
+  });
 
   document.getElementById('formClose').addEventListener('click', () => {
     document.getElementById('formOverlay').classList.remove('open');
