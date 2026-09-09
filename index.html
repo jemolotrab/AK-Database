@@ -1037,15 +1037,15 @@
 
         <!-- MODE TOGGLE -->
         <div class="mode-toggle-wrap">
-          <button class="mode-btn active" id="modeManual">✏️ Ruční zadání</button>
-          <button class="mode-btn" id="modeISBN">🔬 Podle ISBN <span class="experimental-badge">Experimentální</span></button>
+          <button class="mode-btn active" id="modeManual">Ruční zadání informací</button>
+          <button class="mode-btn" id="modeISBN">Zadání informací podle ISBN <span class="experimental-badge">Experimentální</span></button>
         </div>
 
         <!-- ISBN FETCH PANEL -->
         <div id="isbnPanel" style="display:none;">
           <div class="form-section">Vyhledat knihu podle ISBN</div>
           <p style="font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;background:var(--parchment);padding:0.6rem 0.75rem;border-radius:4px;border-left:3px solid var(--rust);">
-            ⚠️ Tato funkce nemusí fungovat pro knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly.
+            Tato funkce nemusí fungovat pro knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly.
           </p>
           <div class="form-row" style="align-items:flex-end;">
             <div class="form-field">
@@ -1753,7 +1753,7 @@
 
     if (!isbn) {
       status.style.color = 'var(--rust)';
-      status.textContent = 'Zadej prosím ISBN.';
+      status.textContent = 'Zadej prosím ISBN!';
       return;
     }
 
@@ -1769,7 +1769,7 @@
 
       if (!data[key]) {
         status.style.color = 'var(--rust)';
-        status.textContent = '❌ Kniha nenalezena. Zkus jiné ISBN nebo ruční zadání.';
+        status.textContent = 'Kniha nenalezena! Zkus jiné ISBN nebo ruční zadání :(';
         btn.disabled = false;
         btn.textContent = 'Načíst informace';
         return;
@@ -1789,14 +1789,14 @@
       // Count what was filled
       const filled = [book.title, book.authors?.[0], book.publish_date].filter(Boolean).length;
       status.style.color = 'var(--brown)';
-      status.textContent = `✅ Nalezeno! Vyplněno ${filled}/3 polí. Zbytek dopiš ručně.`;
+      status.textContent = `Nalezeno! Vyplněno ${filled}/3 polí. Zbytek dopiš ručně :)`;
 
       // Switch view so user can see and complete the form
       setMode('manual');
 
     } catch (e) {
       status.style.color = 'var(--rust)';
-      status.textContent = '❌ Chyba připojení. Zkus to znovu.';
+      status.textContent = 'Chyba připojení! Zkus to znovu.';
     }
 
     btn.disabled = false;
