@@ -1,4 +1,4 @@
-# AK - Adolescentní Knihovna 2026
+# AK - Adolescentní Knihovna 2026 (Outdated)
 
 Vítejte v **online** školní databázi knih, kde se dají najít různé knihy ze školní knihovny!
 
