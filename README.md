@@ -1,4 +1,5 @@
 # AK - Adolescentní Knihovna 2026 (Outdated)
+<!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání/odebrání knihy -->
 
 Vítejte v **online** školní databázi knih, kde se dají najít různé knihy ze školní knihovny!
 
