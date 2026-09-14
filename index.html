@@ -641,7 +641,7 @@
     .book-card:nth-child(4), .book-card-list:nth-child(4) { animation-delay: 0.2s; }
     .book-card:nth-child(5), .book-card-list:nth-child(5) { animation-delay: 0.25s; }
     .book-card:nth-child(6), .book-card-list:nth-child(6) { animation-delay: 0.3s; }
-
+ 
     /* ── ADD BOOK BUTTON ── */
     .add-btn {
       background: var(--gold);
@@ -658,7 +658,7 @@
       white-space: nowrap;
     }
     .add-btn:hover { background: #d4b560; transform: translateY(-1px); }
-
+ 
     .gh-btn {
       display: flex;
       align-items: center;
@@ -676,7 +676,7 @@
       white-space: nowrap;
     }
     .gh-btn:hover { color: var(--cream); border-color: #666; }
-
+ 
     /* ── SHARED OVERLAY ── */
     .overlay {
       position: fixed;
@@ -692,7 +692,7 @@
       transition: opacity 0.2s;
     }
     .overlay.open { opacity: 1; pointer-events: all; }
-
+ 
     /* ── PASSWORD MODAL ── */
     .pw-box {
       background: var(--card-bg);
@@ -742,7 +742,7 @@
     }
     .pw-submit:hover { background: var(--brown); }
     .pw-cancel { margin-top: 0.6rem; background: none; border: none; color: var(--muted); font-size: 0.75rem; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: underline; display: block; width: 100%; }
-
+ 
     /* ── ADD BOOK FORM ── */
     .form-box {
       background: var(--card-bg);
@@ -809,7 +809,7 @@
     .checkbox-row label { font-size: 0.875rem; cursor: pointer; }
     .form-submit { width: 100%; padding: 0.7rem; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; letter-spacing: 0.06em; margin-top: 0.5rem; transition: background 0.15s; }
     .form-submit:hover { background: var(--brown); }
-
+ 
     /* ── SUCCESS SCREEN ── */
     .success-box {
       background: var(--card-bg);
@@ -829,7 +829,7 @@
     .success-stk { background: var(--ink); color: var(--gold); font-family: 'Rubik', sans-serif; font-size: 1.3rem; letter-spacing: 0.2em; padding: 0.85rem; border-radius: 4px; margin-bottom: 1rem; }
     .success-entry { background: var(--parchment); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.82rem; text-align: left; color: var(--brown); margin-bottom: 1rem; line-height: 1.7; }
     .success-close { width: 100%; padding: 0.65rem; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
-
+ 
     .radio-egg {
       display: flex;
       flex-direction: column;
@@ -841,7 +841,7 @@
     .radio-egg img { width: 180px; cursor: pointer; user-select: none; transition: transform 0.2s; }
     .radio-egg img:hover { transform: scale(1.05); }
     .radio-egg p { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.06em; }
-
+ 
     .mc-egg {
       display: flex;
       flex-direction: column;
@@ -889,7 +889,7 @@
     }
     .mc-btn:hover { background: #7d9c4a; }
     .mc-btn:active { background: #5a7a38; }
-
+ 
     /* ── MODE TOGGLE ── */
     .mode-toggle-wrap {
       display: flex;
@@ -944,7 +944,7 @@
     }
     .isbn-fetch-btn:hover { background: var(--brown); }
     .isbn-fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
+ 
   </style>
 </head>
 <body>
@@ -1027,7 +1027,7 @@
       <button class="pw-cancel" id="pwCancel">Zrušit</button>
     </div>
   </div>
-
+ 
   <!-- ADD BOOK FORM OVERLAY -->
   <div class="overlay" id="formOverlay">
     <div class="form-box">
@@ -1036,13 +1036,13 @@
         <button class="form-close" id="formClose">✕</button>
       </div>
       <div class="form-body">
-
+ 
         <!-- MODE TOGGLE -->
         <div class="mode-toggle-wrap">
           <button class="mode-btn active" id="modeManual">Ruční zadání informací</button>
           <button class="mode-btn" id="modeISBN">Zadání podle ISBN <span class="experimental-badge">Experimentální</span></button>
         </div>
-
+ 
         <!-- ISBN FETCH PANEL -->
         <div id="isbnPanel" style="display:none;">
           <div class="form-section">Vyhledat knihu podle ISBN</div>
@@ -1058,7 +1058,7 @@
           </div>
           <div id="isbnStatus" style="font-size:0.75rem;margin-bottom:0.75rem;min-height:1.2rem;"></div>
         </div>
-
+ 
         <div class="form-section">Základní informace</div>
         <div class="form-field">
           <label>Název knihy <span>*</span></label>
@@ -1078,13 +1078,13 @@
           <label>ISBN <span style="color:var(--muted)">(nepovinné)</span></label>
           <input class="form-input" id="f-isbn" type="text" placeholder="978-80-..." />
         </div>
-
+ 
         <div class="form-section">Umístění knihy</div>
         <div class="form-field">
           <label id="loc1-label">Budova</label>
           <select class="form-select" id="f-loc1"><option value="">— vyber —</option></select>
         </div>
-
+ 
         <div class="form-section">Klasifikace STK (XX-YY-ZZZZ)</div>
         <div class="form-row">
           <div class="form-field">
@@ -1102,7 +1102,7 @@
         </div>
         <div class="stk-preview" id="stkPreview">??-??-????</div>
         <button class="stk-regen" id="stkRegen">Vygenerovat nový kód (ZZZZ)</button>
-
+ 
         <div class="form-section">Klíčová slova</div>
         <div class="form-row">
           <div class="form-field">
@@ -1118,7 +1118,7 @@
             <input class="form-input" id="f-kw3" type="text" placeholder="např. 17. století" />
           </div>
         </div>
-
+ 
         <div class="form-section">Fotografie <span style="color:var(--muted);font-size:0.9em;text-transform:none;letter-spacing:0">(nepovinné)</span></div>
         <div class="form-field">
           <label>Obálka knihy</label>
@@ -1132,7 +1132,7 @@
           Podporované formáty: <strong>.jpg/.jpeg</strong>, <strong>.png</strong><br>
           !!! Po odeslání se stáhne <strong>.zip</strong> soubor obsahující složku s knihou — fotky a data jsou už v ní spolu zabalené.
         </p>
-
+ 
         <div class="form-section">Další</div>
         <div class="form-field">
           <label>Popis <span style="color:var(--muted)">(nepovinné)</span></label>
@@ -1144,12 +1144,12 @@
             <label for="f-matura">Maturitní četba</label>
           </div>
         </div>
-
+ 
         <button class="form-submit" id="formSubmit">Zaznamenat knihu!</button>
       </div>
     </div>
   </div>
-
+ 
   <!-- SUCCESS OVERLAY -->
   <div class="overlay" id="successOverlay">
     <div class="success-box">
@@ -1161,14 +1161,14 @@
       <button class="success-close" id="successClose">Zavřít</button>
     </div>
   </div>
-
+ 
 <script>
   // ── GITHUB CONFIG ─────────────────────────────────────────────────────────
   const GITHUB_REPO = "jemolotrab/AK-Database"; //Přoč jemolotrab? Bartoloměj obráceně :D
   const GITHUB_RAW  = `https://raw.githubusercontent.com/${GITHUB_REPO}/main`;
   const GITHUB_TREE = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1`;
   // ──────────────────────────────────────────────────────────────────────────
-
+ 
   // ── DUMMY DATA (replace with Google Sheet fetch later) ── Ne. Asi...
   const SUBJECTS = {
     "01": { name: "Čeština",    subs: { "01":"Učebnice","02":"Pracovní sešit","03":"Epika","04":"Lyrika","05":"Drama","06":"Ostatní" } },
@@ -1188,22 +1188,22 @@
     "15": { name: "Výtvarka",    subs: { "01":"Kresby","02":"Malířství","03":"Historie","04":"Grafika","05":"Ostatní" } },
     "16": { name: "Vaření",      subs: { "01":"Kuchařka","02":"Ostatní" } },
   }; //Bože já sebe miluju... NA TOHLE UŽ NESAHÁM >:D
-
+ 
   let BOOKS = [];
-
+ 
   // ── LOAD BOOKS FROM BOOK_FILES FOLDERS ──
   async function loadBooks() {
     try {
       const treeRes = await fetch(GITHUB_TREE + '&t=' + Date.now());
       if (!treeRes.ok) throw new Error('Tree fetch failed');
       const treeData = await treeRes.json();
-
+ 
       const bookFiles = treeData.tree.filter(f =>
         f.type === 'blob' &&
         f.path.startsWith('BOOK_FILES/') &&
         f.path.endsWith('.json')
       );
-
+ 
       const results = await Promise.all(
         bookFiles.map(f => {
           const encodedPath = f.path.split('/').map(encodeURIComponent).join('/');
@@ -1219,15 +1219,15 @@
     }
     render();
   }
-
+ 
   // ── BUILD & DOWNLOAD A .ZIP CONTAINING THE BOOK FOLDER ──
   async function downloadBookZip(book, coverFile, contentsFile) {
     const zip = new JSZip();
-
+ 
     zip.file(`${book.title}.json`, JSON.stringify(book, null, 2));
     if (coverFile)    zip.file(coverFile.name, coverFile);
     if (contentsFile) zip.file(contentsFile.name, contentsFile);
-
+ 
     const blob = await zip.generateAsync({ type: 'blob' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
@@ -1236,7 +1236,7 @@
     a.click();
     URL.revokeObjectURL(url);
   }
-
+ 
   // ── GET FOLDER PATH FOR SUBJECT ── //Wtf?
   function getFolderPath(xx) {
     const folders = {
@@ -1248,13 +1248,13 @@
     };
     return `BOOK_FILES/${folders[xx] || 'BOOK_FILES'}`;
   }
-
+ 
   // Each book gets its own folder (named after the book) inside its subject
   // folder, e.g. BOOK_FILES/01-Cestina/Duna/ containing Duna.json + images.
   function getBookFolderPath(xx, title) {
     return `${getFolderPath(xx)}/${title}`;
   }
-
+ 
   // Build a raw GitHub URL for a file inside the book's own folder,
   // encoding each path segment safely (handles spaces and Czech characters. Thankfully).
   function buildFileURL(xx, title, filename) {
@@ -1262,8 +1262,8 @@
     const path = `${getBookFolderPath(xx, title)}/${filename}`;
     return `${GITHUB_RAW}/${path.split('/').map(encodeURIComponent).join('/')}`;
   }
-
-
+ 
+ 
  
   // ── STATE ──
   let viewMode = 'grid';
@@ -1319,7 +1319,7 @@
     swedenAudio.currentTime = 0;
     render();
   });
-
+ 
   document.getElementById('maturaFilter').addEventListener('change', render);
  
   // ── VIEW TOGGLE ──
@@ -1361,7 +1361,7 @@
   function placeholderModal(stk) {
     return `<div class="modal-cover-placeholder"><span class="stk-badge">${stk}</span><span class="no-img-label">Obrázek<br>nedostupný</span></div>`;
   }
-
+ 
   // ── COVER ELEMENT ──
   function makeCoverGrid(book) {
     if (book.cover) {
@@ -1369,14 +1369,14 @@
     }
     return placeholderGrid(book.stk);
   }
-
+ 
   function makeCoverList(book) {
     if (book.cover) {
       return `<img class="list-cover" src="${book.cover}" alt="${book.title}" onerror="this.outerHTML=placeholderList('${book.stk}')"/>`;
     }
     return placeholderList(book.stk);
   }
-
+ 
   // ── FILTER ──
   function filteredBooks() {
     const maturaOnly = document.getElementById('maturaFilter').checked;
@@ -1436,7 +1436,7 @@
         });
         return;
       }
-
+ 
       // ── MINECRAFT MENU EASTER EGG ── Já prostě miliju Minecraft <3
       if (searchQuery === 'creeper? aww, man') {
         const splashTexts = [
@@ -1580,14 +1580,14 @@
  
   // ── INIT ──
   loadBooks();
-
+ 
   // ════════════════════════════════════════
   // ADD BOOK SYSTEM
   // ════════════════════════════════════════
-
+ 
   // ── PASSWORD (change this to whatever you want) ──
   const ADD_BOOK_PASSWORD = "AK2026";
-
+ 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
   // Add or remove buildings from the options array as needed.
   const LOCATIONS = {
@@ -1597,7 +1597,7 @@
     },
   };
   // ────────────────────────────────────────────────────────────────────────────
-
+ 
   document.getElementById('loc1-label').textContent = LOCATIONS.loc1.name;
   LOCATIONS.loc1.options.forEach(opt => {
     const o = document.createElement('option');
@@ -1605,10 +1605,10 @@
     o.textContent = opt;
     document.getElementById('f-loc1').appendChild(o);
   });
-
+ 
   // ── STK CODE GENERATION ──
   let currentZZZZ = generateZZZZ();
-
+ 
   function generateZZZZ() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let code;
@@ -1617,30 +1617,30 @@
     } while (BOOKS.some(b => b.stk.endsWith('-' + code)));
     return code;
   }
-
+ 
   function updateSTKPreview() {
     const xx = document.getElementById('f-subject').value;
     const yy = document.getElementById('f-subcat').value;
     const preview = document.getElementById('stkPreview');
     preview.textContent = `${xx||'??'}-${yy||'??'}-${currentZZZZ}`;
   }
-
+ 
   document.getElementById('stkRegen').addEventListener('click', () => {
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
   });
-
+ 
   // ── FORM SUBJECT/SUBCAT CASCADE ──
   const fSubject = document.getElementById('f-subject');
   const fSubcat  = document.getElementById('f-subcat');
-
+ 
   Object.entries(SUBJECTS).sort((a,b) => parseInt(a[0]) - parseInt(b[0])).forEach(([code, data]) => {
     const opt = document.createElement('option');
     opt.value = code;
     opt.textContent = `${code} — ${data.name}`;
     fSubject.appendChild(opt);
   });
-
+ 
   fSubject.addEventListener('change', () => {
     fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
     if (fSubject.value && SUBJECTS[fSubject.value]) {
@@ -1659,9 +1659,9 @@
     if (fSubject.value !== '01') document.getElementById('f-matura').checked = false;
     updateSTKPreview();
   });
-
+ 
   fSubcat.addEventListener('change', updateSTKPreview);
-
+ 
   // ── PASSWORD GATE ──
   document.getElementById('addBookBtn').addEventListener('click', () => {
     document.getElementById('pwInput').value = '';
@@ -1670,16 +1670,16 @@
     document.getElementById('pwOverlay').classList.add('open');
     setTimeout(() => document.getElementById('pwInput').focus(), 100);
   });
-
+ 
   document.getElementById('pwCancel').addEventListener('click', () => {
     document.getElementById('pwOverlay').classList.remove('open');
   });
-
+ 
   document.getElementById('pwSubmit').addEventListener('click', checkPassword);
   document.getElementById('pwInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') checkPassword();
   });
-
+ 
   function checkPassword() {
     const val = document.getElementById('pwInput').value;
     if (val === ADD_BOOK_PASSWORD) {
@@ -1696,7 +1696,7 @@
       inp.focus();
     }
   }
-
+ 
   // ── ADD BOOK FORM ──
   function openAddForm() {
     currentZZZZ = generateZZZZ();
@@ -1714,7 +1714,7 @@
     fSubcat.disabled = true;
     document.getElementById('formOverlay').classList.add('open');
   }
-
+ 
   function openAddForm() {
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
@@ -1733,7 +1733,7 @@
     setMode('manual');
     document.getElementById('formOverlay').classList.add('open');
   }
-
+ 
   // ── MODE TOGGLE ──
   function setMode(mode) {
     const isISBN = mode === 'isbn';
@@ -1743,32 +1743,32 @@
     document.getElementById('isbnStatus').textContent = '';
     if (isISBN) document.getElementById('f-isbn-fetch').value = '';
   }
-
+ 
   document.getElementById('modeManual').addEventListener('click', () => setMode('manual'));
   document.getElementById('modeISBN').addEventListener('click',   () => setMode('isbn'));
-
+ 
   // ── ISBN FETCH FROM OPEN LIBRARY ──
   document.getElementById('isbnFetchBtn').addEventListener('click', async () => {
     const isbn = document.getElementById('f-isbn-fetch').value.trim().replace(/[-\s]/g, '');
     const status = document.getElementById('isbnStatus');
     const btn = document.getElementById('isbnFetchBtn');
-
+ 
     if (!isbn) {
       status.style.color = 'var(--rust)';
       status.textContent = 'Zadej prosím ISBN!';
       return;
     }
-
+ 
     btn.disabled = true;
     btn.textContent = 'Načítám...';
     status.style.color = 'var(--muted)';
     status.textContent = 'Hledám v Open Library...';
-
+ 
     try {
       const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
       const data = await res.json();
       const key = `ISBN:${isbn}`;
-
+ 
       if (!data[key]) {
         status.style.color = 'var(--rust)';
         status.textContent = 'Kniha nenalezena! Zkus jiné ISBN nebo ruční zadání :(';
@@ -1776,9 +1776,9 @@
         btn.textContent = 'Načíst informace';
         return;
       }
-
+ 
       const book = data[key];
-
+ 
       // Fill in what we got
       if (book.title)
         document.getElementById('f-title').value = book.title;
@@ -1787,33 +1787,50 @@
       if (book.publish_date)
         document.getElementById('f-year').value = book.publish_date.match(/\d{4}/)?.[0] || '';
       document.getElementById('f-isbn').value = isbn;
-
+ 
+      // Description — can be a string or an object with a value field
+      if (book.notes) {
+        const desc = typeof book.notes === 'string' ? book.notes : book.notes?.value || '';
+        if (desc) document.getElementById('f-desc').value = desc.slice(0, 300);
+      }
+ 
+      // Keywords — take first 3 subjects if available
+      if (book.subjects?.length) {
+        const kws = book.subjects.slice(0, 3).map(s => s.name || s);
+        if (kws[0]) document.getElementById('f-kw1').value = kws[0];
+        if (kws[1]) document.getElementById('f-kw2').value = kws[1];
+        if (kws[2]) document.getElementById('f-kw3').value = kws[2];
+      }
+ 
       // Count what was filled
-      const filled = [book.title, book.authors?.[0], book.publish_date].filter(Boolean).length;
+      const filled = [
+        book.title, book.authors?.[0], book.publish_date,
+        book.notes, book.subjects?.length
+      ].filter(Boolean).length;
       status.style.color = 'var(--brown)';
-      status.textContent = `Nalezeno! Vyplněno ${filled}/3 polí. Zbytek dopiš ručně :)`;
-
+      status.textContent = `Nalezeno! Vyplněno ${filled}/5 polí. Zbytek dopiš ručně :)`;
+ 
       // Switch view so user can see and complete the form
       setMode('manual');
-
+ 
     } catch (e) {
       status.style.color = 'var(--rust)';
       status.textContent = 'Chyba připojení! Zkus to znovu.';
     }
-
+ 
     btn.disabled = false;
     btn.textContent = 'Načíst informace';
   });
-
+ 
   // Allow pressing Enter in ISBN field to trigger fetch
   document.getElementById('f-isbn-fetch').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('isbnFetchBtn').click();
   });
-
+ 
   document.getElementById('formClose').addEventListener('click', () => {
     document.getElementById('formOverlay').classList.remove('open');
   });
-
+ 
   document.getElementById('formSubmit').addEventListener('click', async () => {
     const title   = document.getElementById('f-title').value.trim();
     const author  = document.getElementById('f-author').value.trim();
@@ -1825,12 +1842,12 @@
     const kw3     = document.getElementById('f-kw3').value.trim();
     const coverFile    = document.getElementById('f-cover').files[0]    || null;
     const contentsFile = document.getElementById('f-contents').files[0] || null;
-
+ 
     if (!title || !author || !year || !xx || !yy || !kw1 || !kw2 || !kw3) {
       alert('Vyplň prosím všechna povinná pole (označena *).');
       return;
     }
-
+ 
     const stk = `${xx}-${yy}-${currentZZZZ}`;
     const newBook = {
       stk,
@@ -1847,11 +1864,11 @@
       cover:    buildFileURL(xx, title, coverFile ? coverFile.name : ''),
       contents: buildFileURL(xx, title, contentsFile ? contentsFile.name : ''),
     };
-
+ 
     // Add to live session data
     BOOKS.push(newBook);
     render();
-
+ 
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
     const folder = getFolderPath(xx);
@@ -1860,10 +1877,10 @@
       `Rozbal ho a celou složku <strong>${title}/</strong> přetáhni do:<br>` +
       `<strong>${folder}/</strong>`;
     document.getElementById('successOverlay').classList.add('open');
-
+ 
     await downloadBookZip(newBook, coverFile, contentsFile);
   });
-
+ 
   document.getElementById('successClose').addEventListener('click', () => {
     document.getElementById('successOverlay').classList.remove('open');
   });
@@ -1871,20 +1888,20 @@
   // EASTER EGGS
   // ════════════════════════════════════════
   //Kolik Easter Eggů tam máte? Ano.
-
+ 
   // ── FILE PATHS — change these to match your repo ──────────────────────────
   const radioOff   = 'Assets/images/PortalRadioOff.png';   // Portal radio image (off state)
   const radioOnImg = 'Assets/images/PortalRadioOn.png';    // Portal radio image (on state)
   const portalAudio = new Audio('Assets/audio/15. Still Alive (Radio Mix Clean).mp3'); // Portal radio music
-
+ 
   const mcLogo      = 'Assets/images/Java_Edition.webp';   // Minecraft logo image
   const swedenAudio = new Audio('Assets/audio/1-18. Sweden.mp3'); // C418 - Sweden
   // ──────────────────────────────────────────────────────────────────────────
   let radioOn = false;
-
+ 
   // ── 🎂 CAKE → GLaDOS line (plays when cake appears in empty state) ── Speedy thing comes in. Speedy thing comes out.
   const gladosAudio = new Audio('Assets/audio/GLaDOS_15_part1_Partyspeech-2 (1).wav');
-
+ 
   // ── AK LOGO × 47 → CS go go go ── AK-47
   const csAudio = new Audio('Assets/audio/Legacy_com_go (1).ogg');
   let logoClickCount = 0;
@@ -1901,7 +1918,8 @@
       logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 5000);
     }
   });
-
+ 
 </script>
 </body>
 </html>
+ 
