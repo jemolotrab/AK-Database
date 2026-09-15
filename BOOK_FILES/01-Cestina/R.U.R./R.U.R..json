@@ -1,0 +1,19 @@
+{
+  "stk": "01-05-SUDY",
+  "title": "R.U.R.",
+  "author": "Karel Čapek",
+  "isbn": "978-80-7390-062-5",
+  "year": "2020",
+  "description": "Tahle kniha je druhá v testování s Cloudflare, ale s fotkami",
+  "location": {
+    "Budova": "Vojtova"
+  },
+  "keywords": [
+    "Robot",
+    "Emoce",
+    "Technika"
+  ],
+  "matura": true,
+  "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/R.U.R./IMG20260915094740.jpg",
+  "contents": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/R.U.R./IMG20260915094822.jpg"
+}
