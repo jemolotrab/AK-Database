@@ -893,6 +893,22 @@
     .mc-btn:hover { background: #7d9c4a; }
     .mc-btn:active { background: #5a7a38; }
 
+    /* ── DVD SCREENSAVER ── */
+    #dvdOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 99999;
+      cursor: none;
+    }
+    #dvdLogo {
+      position: absolute;
+      width: 180px;
+      user-select: none;
+      pointer-events: none;
+    }
+
     /* ── MODE TOGGLE ── */
     .mode-toggle-wrap {
       display: flex;
@@ -1163,6 +1179,11 @@
       <div class="success-entry" id="successEntry"></div>
       <button class="success-close" id="successClose">Zavřít</button>
     </div>
+  </div>
+
+  <!-- DVD SCREENSAVER -->
+  <div id="dvdOverlay">
+    <img id="dvdLogo" src="Assets/images/DVD_VIDEO_logo.png" alt="DVD" />
   </div>
 
 <script>
@@ -1948,6 +1969,94 @@
       logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 5000);
     }
   });
+  // ── DVD SCREENSAVER ──────────────────────────────────────────────────────
+  const DVD_COLORS = ['#ff4444','#44ff44','#4444ff','#ffff44','#ff44ff','#44ffff','#ff8844','#ffffff'];
+  const DVD_INACTIVITY_MS = 90000; // 1.5 minutes — change this to adjust delay
+  const dvdOverlay = document.getElementById('dvdOverlay');
+  const dvdLogo    = document.getElementById('dvdLogo');
+
+  let dvdTimer = null;
+  let dvdAnimFrame = null;
+  let dvdActive = false;
+  let dvdX, dvdY, dvdDX, dvdDY, dvdColorIndex;
+
+  function startDVD() {
+    dvdActive = true;
+    dvdOverlay.style.display = 'block';
+    dvdX  = Math.random() * (window.innerWidth  - dvdLogo.width);
+    dvdY  = Math.random() * (window.innerHeight - dvdLogo.height);
+    dvdDX = (Math.random() > 0.5 ? 1 : -1) * 2.5;
+    dvdDY = (Math.random() > 0.5 ? 1 : -1) * 2.5;
+    dvdColorIndex = 0;
+    dvdLogo.style.filter = `drop-shadow(0 0 8px ${DVD_COLORS[0]}) hue-rotate(0deg)`;
+    animateDVD();
+  }
+
+  function animateDVD() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const lw = dvdLogo.width  || 180;
+    const lh = dvdLogo.height || 90;
+    let hitCorner = false;
+
+    dvdX += dvdDX;
+    dvdY += dvdDY;
+
+    if (dvdX <= 0)       { dvdX = 0;      dvdDX = Math.abs(dvdDX);  changeColor(); }
+    if (dvdX >= w - lw)  { dvdX = w - lw; dvdDX = -Math.abs(dvdDX); changeColor(); }
+    if (dvdY <= 0)       { dvdY = 0;      dvdDY = Math.abs(dvdDY);  changeColor(); }
+    if (dvdY >= h - lh)  { dvdY = h - lh; dvdDY = -Math.abs(dvdDY); changeColor(); }
+
+    // Check corner hit (within 5px of any corner)
+    if ((dvdX <= 5 || dvdX >= w - lw - 5) && (dvdY <= 5 || dvdY >= h - lh - 5)) {
+      hitCorner = true;
+    }
+
+    dvdLogo.style.left = dvdX + 'px';
+    dvdLogo.style.top  = dvdY + 'px';
+
+    if (hitCorner) {
+      // Corner hit! Flash white briefly
+      dvdLogo.style.filter = 'brightness(10)';
+      setTimeout(() => {
+        if (dvdActive) dvdLogo.style.filter = `drop-shadow(0 0 8px ${DVD_COLORS[dvdColorIndex]})`;
+      }, 150);
+    }
+
+    dvdAnimFrame = requestAnimationFrame(animateDVD);
+  }
+
+  function changeColor() {
+    dvdColorIndex = (dvdColorIndex + 1) % DVD_COLORS.length;
+    dvdLogo.style.filter = `drop-shadow(0 0 8px ${DVD_COLORS[dvdColorIndex]})`;
+  }
+
+  function stopDVD() {
+    dvdActive = false;
+    dvdOverlay.style.display = 'none';
+    cancelAnimationFrame(dvdAnimFrame);
+    resetInactivityTimer();
+  }
+
+  function resetInactivityTimer() {
+    clearTimeout(dvdTimer);
+    if (!dvdActive) dvdTimer = setTimeout(startDVD, DVD_INACTIVITY_MS);
+  }
+
+  // Start timer on any user activity
+  ['mousemove','mousedown','keydown','scroll','touchstart'].forEach(evt => {
+    document.addEventListener(evt, () => {
+      if (dvdActive) stopDVD();
+      else resetInactivityTimer();
+    });
+  });
+
+  // Dismiss on click too
+  dvdOverlay.addEventListener('click', stopDVD);
+
+  // Start the inactivity timer on load
+  resetInactivityTimer();
+  // ──────────────────────────────────────────────────────────────────────────
 
 </script>
 </body>
