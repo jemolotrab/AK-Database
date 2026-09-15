@@ -1,0 +1,19 @@
+{
+  "stk": "01-04-BRKA",
+  "title": "Dvojitá tma",
+  "author": "Jíří Orten",
+  "isbn": "978-80-7407-438-7",
+  "year": "2019",
+  "description": "Tož wonderful",
+  "location": {
+    "Budova": "Vojtova"
+  },
+  "keywords": [
+    "Sbírka",
+    "Smrt",
+    "Příroda"
+  ],
+  "matura": true,
+  "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Dvojit%C3%A1%20tma/IMG20260915103304.jpg",
+  "contents": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Dvojit%C3%A1%20tma/IMG20260915103404.jpg"
+}
