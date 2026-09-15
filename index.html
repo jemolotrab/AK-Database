@@ -40,7 +40,7 @@
       z-index: 9999;
       opacity: 0.314;
       mix-blend-mode: multiply;
-      transform: rotate(17deg);
+      transform: rotate(var(--noise-rotation, 17deg));
     }
  
     /* ── HEADER ── */
@@ -282,6 +282,9 @@
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
  
     .book-cover {
@@ -1835,6 +1838,11 @@
   const WORKER_URL = 'https://ak-knihovna.bartolomej-profant.workers.dev';
   // ──────────────────────────────────────────────────────────────────────────
 
+  // ── RANDOM NOISE ROTATION ──
+  document.documentElement.style.setProperty(
+    '--noise-rotation', `${Math.floor(Math.random() * 360)}deg`
+  );
+
   document.getElementById('formSubmit').addEventListener('click', async () => {
     const title   = document.getElementById('f-title').value.trim();
     const author  = document.getElementById('f-author').value.trim();
@@ -1869,36 +1877,38 @@
       contents: buildFileURL(xx, title, contentsFile ? contentsFile.name : ''),
     };
 
-    // Show success screen with loading state
+    // Close form and show success screen immediately with spinner
     document.getElementById('formOverlay').classList.remove('open');
     document.getElementById('successStk').textContent = stk;
-    document.getElementById('successEntry').innerHTML = '⏳ Ukládám do databáze...';
+    document.getElementById('successEntry').innerHTML = `
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <div style="width:16px;height:16px;border:2px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;"></div>
+        Ukládám do databáze...
+      </div>`;
     document.getElementById('successOverlay').classList.add('open');
 
-    // Submit to Cloudflare Worker
-    try {
-      const formData = new FormData();
-      formData.append('book', JSON.stringify(newBook));
-      if (coverFile)    formData.append('cover', coverFile);
-      if (contentsFile) formData.append('contents', contentsFile);
+    // Submit to Worker in the background
+    const formData = new FormData();
+    formData.append('book', JSON.stringify(newBook));
+    if (coverFile)    formData.append('cover', coverFile);
+    if (contentsFile) formData.append('contents', contentsFile);
 
-      const res = await fetch(WORKER_URL, { method: 'POST', body: formData });
-      const result = await res.json();
-
-      if (result.success) {
-        // Add to live session data
-        BOOKS.push(newBook);
-        render();
+    fetch(WORKER_URL, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          BOOKS.push(newBook);
+          render();
+          document.getElementById('successEntry').innerHTML = '✅ Kniha byla úspěšně uložena do databáze!';
+        } else {
+          document.getElementById('successEntry').innerHTML =
+            `❌ Chyba: ${result.error}<br><br>Zkus to znovu nebo kontaktuj správce.`;
+        }
+      })
+      .catch(e => {
         document.getElementById('successEntry').innerHTML =
-          `✅ Kniha byla úspěšně uložena do databáze!`;
-      } else {
-        document.getElementById('successEntry').innerHTML =
-          `❌ Chyba: ${result.error}<br><br>Zkus to znovu nebo kontaktuj správce.`;
-      }
-    } catch (e) {
-      document.getElementById('successEntry').innerHTML =
-        `❌ Chyba připojení: ${e.message}<br><br>Zkontroluj připojení k internetu a zkus to znovu.`;
-    }
+          `❌ Chyba připojení: ${e.message}<br><br>Zkontroluj připojení k internetu a zkus to znovu.`;
+      });
   });
 
   document.getElementById('successClose').addEventListener('click', () => {
