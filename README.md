@@ -28,6 +28,20 @@ Cloudflare ušetří manuální ukládání na GitHub a tedy postup je pro uživ
 > [!CAUTION]
 > ***Někdy se může stát, že spojení s Cloudflare vypadne a nedovolí knize se uložit na GitHub***
 
+> [!IMPORTANT]
+> ## Postup u přidání knihy
+Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko + Chci přidat knihu!. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo, aby jste mohli pokračovat. Po zadání hesla by se mněl objevit editor, kde o knize napíšete veškeré nutné (i nenutné) informace.
+
+### Manuální zadání / Zadání podle ISBN
+Hned po otevření editora je možné si povšimnout dvou horních tlačítek, které dávají možnost informace zadat ručně nebo automaticky. I přesto, že se rozhodnete zadat informace podle ISBN, tak je velice pravděpodobné, že se žádné informace neobjeví. To je způsobené tím, že knihovna (Open Library) ze které jsou informace čerpány obsahují převážně knihy vydané v angličtině a tedy běžné české knihy musí mít plně manuálně napsané informace.\
+Pokud tedy si vyberete vyplnit informace polde ISBN, tak je furt doporučeno informace zkontrolovat a případně poupravit a kdyžtak doplnit.
+
+### STK (Systémově tříděný kód)
+Aby se knihy dokázaly jednoduše třídit a také aby vyhledávání bylo co nejednoduší, tak je potřeba zadané knihy nějak očíslovat nebo označit. Proto každá kniha je tříděna podle předmětu (čeština, matematika, němčina atd.), kategorie předmětu (například v češtině jsou kategorie román, epika, učebnice atd.) a dále na čtyři náhodná písmena, která zajistí, aby každá kniha měla svůj vlastní kód. Celkově se kód tedy STK staví na XX-YY-ZZZZ, kdy "XX" je předmět, "YY" je kategorie předmětu a "ZZZZ" jsou ty naše čtyři náhodně zvolená písmena.
+
+### Fotky
+
+
 ## (Níže je starý popis) :)
 
 ### Zjednodušený postup pro přidání knihy
