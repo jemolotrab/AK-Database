@@ -893,7 +893,7 @@
     .mc-btn:hover { background: #7d9c4a; }
     .mc-btn:active { background: #5a7a38; }
 
-    /* ── DVD SCREENSAVER ── */
+    /* ── idle screensaver ── */
     #dvdOverlay {
       display: none;
       position: fixed;
@@ -908,6 +908,32 @@
       user-select: none;
       pointer-events: none;
     }
+    #rickOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 100000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    #rickOverlay img {
+      max-height: 85vh;
+      max-width: 90vw;
+      object-fit: contain;
+      user-select: none;
+    }
+    #rickDismiss {
+      position: absolute;
+      bottom: 2rem;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+      animation: fadeIn 3s ease 3s both;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* ── MODE TOGGLE ── */
     .mode-toggle-wrap {
@@ -1181,9 +1207,15 @@
     </div>
   </div>
 
-  <!-- DVD SCREENSAVER -->
+  <!-- idle screensaver -->
   <div id="dvdOverlay">
     <img id="dvdLogo" src="Assets/images/DVD_VIDEO_logo.png" alt="DVD" />
+  </div>
+
+  <!-- corner surprise -->
+  <div id="rickOverlay">
+    <img src="Assets/images/SuccessCornerImage.jpg" alt="" />
+    <span id="rickDismiss">klikni pro zavření</span>
   </div>
 
 <script>
@@ -1429,7 +1461,7 @@
     container.className = viewMode === 'grid' ? 'books-grid' : 'books-list';
  
     if (books.length === 0) {
-      // ── PORTAL RADIO EASTER EGG ──
+      // search result display handler
       if (searchQuery === 'aperture science enrichment center') {
         container.innerHTML = `<div class="radio-egg">
           <img id="portalRadio" src="${radioOff}" alt="Portal Radio" />
@@ -1461,7 +1493,7 @@
         return;
       }
 
-      // ── MINECRAFT MENU EASTER EGG ── Já prostě miliju Minecraft <3
+      // alternative search result handler
       if (searchQuery === 'creeper? aww, man') {
         const splashTexts = [
           "C418 <3",
@@ -1519,8 +1551,8 @@
       </div>`;
       if (isCake) {
         document.getElementById('cakeEgg').addEventListener('click', () => {
-          gladosAudio.currentTime = 0;
-          gladosAudio.play();
+          responseAudio.currentTime = 0;
+          responseAudio.play();
         });
       }
       return;
@@ -1610,7 +1642,7 @@
   // ════════════════════════════════════════
 
   // ── PASSWORD (change this to whatever you want) ──
-  const ADD_BOOK_PASSWORD = "AK2026";
+  const ADD_BOOK_PASSWORD = "AK2026"; //Velmi skrytý kód :D
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
   // Add or remove buildings from the options array as needed.
@@ -1935,43 +1967,34 @@
   document.getElementById('successClose').addEventListener('click', () => {
     document.getElementById('successOverlay').classList.remove('open');
   });
-  // ════════════════════════════════════════
-  // EASTER EGGS
-  // ════════════════════════════════════════
-  //Kolik Easter Eggů tam máte? Ano.
 
-  // ── FILE PATHS — change these to match your repo ──────────────────────────
-  const radioOff   = 'Assets/images/PortalRadioOff.png';   // Portal radio image (off state)
-  const radioOnImg = 'Assets/images/PortalRadioOn.png';    // Portal radio image (on state)
-  const portalAudio = new Audio('Assets/audio/15. Still Alive (Radio Mix Clean).mp3'); // Portal radio music
-
-  const mcLogo      = 'Assets/images/Java_Edition.webp';   // Minecraft logo image
-  const swedenAudio = new Audio('Assets/audio/1-18. Sweden.mp3'); // C418 - Sweden
-  // ──────────────────────────────────────────────────────────────────────────
+  const radioOff   = 'Assets/images/PortalRadioOff.png';
+  const radioOnImg = 'Assets/images/PortalRadioOn.png';
+  const portalAudio = new Audio('Assets/audio/15. Still Alive (Radio Mix Clean).mp3');
+  const mcLogo      = 'Assets/images/Java_Edition.webp';
+  const swedenAudio = new Audio('Assets/audio/1-18. Sweden.mp3');
+  const cornerAudio   = new Audio('Assets/audio/SuccessCornerSound.mp3');
   let radioOn = false;
 
-  // ── 🎂 CAKE → GLaDOS line (plays when cake appears in empty state) ── Speedy thing comes in. Speedy thing comes out.
-  const gladosAudio = new Audio('Assets/audio/GLaDOS_15_part1_Partyspeech-2 (1).wav');
+  const responseAudio = new Audio('Assets/audio/GLaDOS_15_part1_Partyspeech-2 (1).wav');
 
-  // ── AK LOGO × 47 → CS go go go ── AK-47
-  const csAudio = new Audio('Assets/audio/Legacy_com_go (1).ogg');
+  const clickAudio = new Audio('Assets/audio/Legacy_com_go (1).ogg');
   let logoClickCount = 0;
   let logoClickTimer = null;
   document.getElementById('logoAk').addEventListener('click', () => {
     logoClickCount++;
     clearTimeout(logoClickTimer);
     if (logoClickCount === 47) {
-      csAudio.currentTime = 0;
-      csAudio.play();
+      clickAudio.currentTime = 0;
+      clickAudio.play();
       logoClickCount = 0;
     } else {
-      // Reset counter after 5 seconds of inactivity
       logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 5000);
     }
   });
-  // ── DVD SCREENSAVER ──────────────────────────────────────────────────────
+
   const DVD_COLORS = ['#ff4444','#44ff44','#4444ff','#ffff44','#ff44ff','#44ffff','#ff8844','#ffffff'];
-  const DVD_INACTIVITY_MS = 90000; // 1.5 minutes — change this to adjust delay
+  const DVD_INACTIVITY_MS = 60000;
   const dvdOverlay = document.getElementById('dvdOverlay');
   const dvdLogo    = document.getElementById('dvdLogo');
 
@@ -2007,7 +2030,6 @@
     if (dvdY <= 0)       { dvdY = 0;      dvdDY = Math.abs(dvdDY);  changeColor(); }
     if (dvdY >= h - lh)  { dvdY = h - lh; dvdDY = -Math.abs(dvdDY); changeColor(); }
 
-    // Check corner hit (within 5px of any corner)
     if ((dvdX <= 5 || dvdX >= w - lw - 5) && (dvdY <= 5 || dvdY >= h - lh - 5)) {
       hitCorner = true;
     }
@@ -2016,10 +2038,12 @@
     dvdLogo.style.top  = dvdY + 'px';
 
     if (hitCorner) {
-      // Corner hit! Flash white briefly
       dvdLogo.style.filter = 'brightness(10)';
       setTimeout(() => {
-        if (dvdActive) dvdLogo.style.filter = `drop-shadow(0 0 8px ${DVD_COLORS[dvdColorIndex]})`;
+        if (dvdActive) {
+          stopDVD();
+          triggerCornerEffect();
+        }
       }, 150);
     }
 
@@ -2038,12 +2062,28 @@
     resetInactivityTimer();
   }
 
+  function triggerCornerEffect() {
+    const overlay = document.getElementById('rickOverlay');
+    overlay.style.display = 'flex';
+    cornerAudio.currentTime = 0;
+    cornerAudio.play();
+    let rickTimer = setTimeout(dismissRick, 8000);
+    function dismissRick() {
+      overlay.style.display = 'none';
+      cornerAudio.pause();
+      cornerAudio.currentTime = 0;
+      clearTimeout(rickTimer);
+      resetInactivityTimer();
+    }
+    overlay.onclick = dismissRick;
+    document.addEventListener('keydown', dismissRick, { once: true });
+  }
+
   function resetInactivityTimer() {
     clearTimeout(dvdTimer);
     if (!dvdActive) dvdTimer = setTimeout(startDVD, DVD_INACTIVITY_MS);
   }
 
-  // Start timer on any user activity
   ['mousemove','mousedown','keydown','scroll','touchstart'].forEach(evt => {
     document.addEventListener(evt, () => {
       if (dvdActive) stopDVD();
@@ -2051,12 +2091,8 @@
     });
   });
 
-  // Dismiss on click too
   dvdOverlay.addEventListener('click', stopDVD);
-
-  // Start the inactivity timer on load
   resetInactivityTimer();
-  // ──────────────────────────────────────────────────────────────────────────
 
 </script>
 </body>
