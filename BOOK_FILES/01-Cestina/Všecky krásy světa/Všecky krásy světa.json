@@ -1,0 +1,19 @@
+{
+  "stk": "01-06-AICO",
+  "title": "Všecky krásy světa",
+  "author": "Jaroslav Seifert",
+  "isbn": "",
+  "year": "1985",
+  "description": "Nejsem si jistý, jestli tato kniha je správně nastavená, ale je to tu kvůli testu z jiného zařízení a tak dále.",
+  "location": {
+    "Budova": "Vojtova"
+  },
+  "keywords": [
+    "Příběhy",
+    "Vzpomínky",
+    "Povídky"
+  ],
+  "matura": true,
+  "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/V%C5%A1ecky%20kr%C3%A1sy%20sv%C4%9Bta/1000021969.jpg",
+  "contents": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/V%C5%A1ecky%20kr%C3%A1sy%20sv%C4%9Bta/1000021970.jpg"
+}
