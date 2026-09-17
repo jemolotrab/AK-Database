@@ -40,6 +40,7 @@ Pokud tedy si vyberete vyplnit informace polde ISBN, tak je furt doporučeno inf
 Aby se knihy dokázaly jednoduše třídit a také aby vyhledávání bylo co nejednoduší, tak je potřeba zadané knihy nějak očíslovat nebo označit. Proto každá kniha je tříděna podle předmětu (čeština, matematika, němčina atd.), kategorie předmětu (například v češtině jsou kategorie román, epika, učebnice atd.) a dále na čtyři náhodná písmena, která zajistí, aby každá kniha měla svůj vlastní kód. Celkově se kód tedy STK staví na XX-YY-ZZZZ, kdy "XX" je předmět, "YY" je kategorie předmětu a "ZZZZ" jsou ty naše čtyři náhodně zvolená písmena.
 
 ### Fotky
+Všechny knihy mají možnost přidání fotek (obalu) knihy a jejího obsahu, což zjednodušuje vyhledávání a uživatel si může i předem ověřit, zda kniha obsahuje informace co právě hledá a tím si ušetřit čas a lépe naplánovat jakou knihu uživatel potřebuje. Podporované formáty souborů fotek jsou .png a .jpg/.jpeg.
 
 
 ## (Níže je starý popis) :)
