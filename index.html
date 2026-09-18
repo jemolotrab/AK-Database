@@ -1768,23 +1768,6 @@
     fSubject.value = '';
     fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
     fSubcat.disabled = true;
-    document.getElementById('formOverlay').classList.add('open');
-  }
-
-  function openAddForm() {
-    currentZZZZ = generateZZZZ();
-    updateSTKPreview();
-    // Clear all fields
-    ['f-title','f-author','f-year','f-isbn','f-desc','f-kw1','f-kw2','f-kw3'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.getElementById('f-cover').value = '';
-    document.getElementById('f-contents').value = '';
-    document.getElementById('f-loc1').selectedIndex = 0;
-    document.getElementById('f-matura').checked = false;
-    fSubject.value = '';
-    fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
-    fSubcat.disabled = true;
     // Reset to manual mode
     setMode('manual');
     document.getElementById('formOverlay').classList.add('open');
