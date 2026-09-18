@@ -1092,7 +1092,7 @@
         <div id="isbnPanel" style="display:none;">
           <div class="form-section">Vyhledat knihu podle ISBN</div>
           <p style="font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;background:var(--parchment);padding:0.6rem 0.75rem;border-radius:4px;border-left:3px solid var(--rust);">
-            Tato funkce nemusí fungovat pro knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly.
+            Tato funkce nemusí fungovat pro všechny knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly. Využívá Google Books.
           </p>
           <div class="form-row" style="align-items:flex-end;">
             <div class="form-field">
@@ -1214,7 +1214,7 @@
 
   <!-- corner surprise -->
   <div id="rickOverlay">
-    <img src="Assets/images/SuccessCornerImage.jpg" alt="" />
+    <img src="Assets/images/SuccessCornerImage.png" alt="" />
     <span id="rickDismiss">klikni pro zavření</span>
   </div>
 
@@ -1642,7 +1642,7 @@
   // ════════════════════════════════════════
 
   // ── PASSWORD (change this to whatever you want) ──
-  const ADD_BOOK_PASSWORD = "AK2026"; //Velmi skrytý kód :D
+  const ADD_BOOK_PASSWORD = "AK2026";
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
   // Add or remove buildings from the options array as needed.
@@ -1803,7 +1803,81 @@
   document.getElementById('modeManual').addEventListener('click', () => setMode('manual'));
   document.getElementById('modeISBN').addEventListener('click',   () => setMode('isbn'));
 
-  // ── ISBN FETCH FROM OPEN LIBRARY ──
+  // ── ISBN FETCH FROM GOOGLE BOOKS ──
+
+  // Smart subject/category mapping from Google Books categories to STK codes
+  const SUBJECT_MAP = [
+    { keywords: ['czech','čeština','česká','czech literature','bohemian'], xx:'01' },
+    { keywords: ['english','anglická','english literature','british','american literature'], xx:'02' },
+    { keywords: ['german','němčina','německá','german literature'], xx:'03' },
+    { keywords: ['spanish','španělština','španělská','spanish literature'], xx:'04' },
+    { keywords: ['math','matematika','algebra','geometry','calculus','arithmetic'], xx:'05' },
+    { keywords: ['economics','ekonomie','business','finance','marketing','accounting'], xx:'06' },
+    { keywords: ['physics','fyzika','mechanics','thermodynamics','electromagnetism'], xx:'07' },
+    { keywords: ['chemistry','chemie','organic','inorganic','biochemistry'], xx:'08' },
+    { keywords: ['biology','biologie','zoology','botany','anatomy','ecology'], xx:'09' },
+    { keywords: ['geography','zeměpis','geografie','travel','cartography'], xx:'10' },
+    { keywords: ['history','historie','dějiny','historical','ancient','medieval','world war'], xx:'11' },
+    { keywords: ['computer','it','programming','software','hardware','network','cybersecurity'], xx:'12' },
+    { keywords: ['music','hudba','musical','theory of music'], xx:'13' },
+    { keywords: ['sport','tělocvik','athletics','gymnastics','physical education'], xx:'14' },
+    { keywords: ['art','výtvarka','drawing','painting','sculpture','graphic'], xx:'15' },
+    { keywords: ['cooking','vaření','cookbook','recipes','culinary'], xx:'16' },
+  ];
+
+  const SUBCAT_MAP = {
+    '01': [ // Čeština
+      { keywords: ['poetry','lyric','poem','báseň','lyrika'], yy:'04' },
+      { keywords: ['drama','play','divadlo','theatre'], yy:'05' },
+      { keywords: ['novel','fiction','prose','epika','story','tales'], yy:'03' },
+      { keywords: ['grammar','gramatika','pravopis','učebnice','textbook','workbook'], yy:'01' },
+    ],
+    '02': [ { keywords: ['textbook','učebnice','grammar'], yy:'01' }, { keywords: ['fiction','novel','literature'], yy:'03' } ],
+    '03': [ { keywords: ['textbook','učebnice','grammar'], yy:'01' }, { keywords: ['fiction','novel','literature'], yy:'03' } ],
+    '04': [ { keywords: ['textbook','učebnice','grammar'], yy:'01' }, { keywords: ['fiction','novel','literature'], yy:'03' } ],
+    '05': [ { keywords: ['algebra'], yy:'01' }, { keywords: ['geometry'], yy:'02' }, { keywords: ['entrance','příjmačky'], yy:'03' }, { keywords: ['maturita'], yy:'04' } ],
+    '06': [ { keywords: ['accounting','účetnictví'], yy:'01' }, { keywords: ['marketing'], yy:'02' }, { keywords: ['finance'], yy:'03' }, { keywords: ['economics','ekonomika'], yy:'04' }, { keywords: ['politics','politika'], yy:'05' } ],
+    '07': [ { keywords: ['experiment'], yy:'03' }, { keywords: ['textbook'], yy:'01' } ],
+    '08': [ { keywords: ['experiment'], yy:'03' }, { keywords: ['organic'], yy:'01' }, { keywords: ['inorganic'], yy:'02' }, { keywords: ['textbook'], yy:'01' } ],
+    '09': [ { keywords: ['mammal','savci'], yy:'01' }, { keywords: ['bird','ptáci'], yy:'02' }, { keywords: ['reptile','plazi'], yy:'03' }, { keywords: ['fish','ryby'], yy:'04' }, { keywords: ['plant','botany','rostliny'], yy:'05' }, { keywords: ['insect','hmyz'], yy:'06' }, { keywords: ['human','anatomy','člověk'], yy:'07' } ],
+    '10': [ { keywords: ['travel','cestopis'], yy:'04' }, { keywords: ['political'], yy:'02' }, { keywords: ['economic'], yy:'03' } ],
+    '11': [ { keywords: ['ancient','starověk'], yy:'02' }, { keywords: ['antika','antique'], yy:'03' }, { keywords: ['medieval','středověk'], yy:'04' }, { keywords: ['modern','novověk'], yy:'05' }, { keywords: ['czech','české'], yy:'06' }, { keywords: ['world','světové'], yy:'07' } ],
+    '12': [ { keywords: ['programming','code'], yy:'01' }, { keywords: ['security','bezpečnost'], yy:'02' }, { keywords: ['hardware'], yy:'03' } ],
+    '13': [ { keywords: ['theory'], yy:'01' }, { keywords: ['lyrics','texty'], yy:'02' } ],
+    '14': [ { keywords: ['athletics','atletika'], yy:'01' }, { keywords: ['gymnastics','gymnastika'], yy:'02' } ],
+    '15': [ { keywords: ['drawing','kresba'], yy:'01' }, { keywords: ['painting','malba'], yy:'02' }, { keywords: ['history'], yy:'03' }, { keywords: ['graphic'], yy:'04' } ],
+    '16': [ { keywords: ['cook','recipe'], yy:'01' } ],
+  };
+
+  function detectSubject(categories, title, description) {
+    const haystack = [...(categories||[]), title||'', description||''].join(' ').toLowerCase();
+    for (const entry of SUBJECT_MAP) {
+      if (entry.keywords.some(k => haystack.includes(k))) return entry.xx;
+    }
+    return null;
+  }
+
+  function detectSubcat(xx, categories, title, description) {
+    if (!xx || !SUBCAT_MAP[xx]) return null;
+    const haystack = [...(categories||[]), title||'', description||''].join(' ').toLowerCase();
+    for (const entry of SUBCAT_MAP[xx]) {
+      if (entry.keywords.some(k => haystack.includes(k))) return entry.yy;
+    }
+    return null;
+  }
+
+  function applySubjectToForm(xx, yy) {
+    if (!xx) return;
+    fSubject.value = xx;
+    fSubject.dispatchEvent(new Event('change'));
+    if (yy) {
+      setTimeout(() => {
+        fSubcat.value = yy;
+        updateSTKPreview();
+      }, 50);
+    }
+  }
+
   document.getElementById('isbnFetchBtn').addEventListener('click', async () => {
     const isbn = document.getElementById('f-isbn-fetch').value.trim().replace(/[-\s]/g, '');
     const status = document.getElementById('isbnStatus');
@@ -1818,60 +1892,68 @@
     btn.disabled = true;
     btn.textContent = 'Načítám...';
     status.style.color = 'var(--muted)';
-    status.textContent = 'Hledám v Open Library...';
+    status.textContent = 'Hledám v Google Books...';
 
     try {
-      const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
       const data = await res.json();
-      const key = `ISBN:${isbn}`;
 
-      if (!data[key]) {
+      if (!data.items?.length) {
         status.style.color = 'var(--rust)';
-        status.textContent = 'Kniha nenalezena! Zkus jiné ISBN nebo ruční zadání :(';
+        status.textContent = '❌ Kniha nenalezena. Zkus jiné ISBN nebo ruční zadání.';
         btn.disabled = false;
         btn.textContent = 'Načíst informace';
         return;
       }
 
-      const book = data[key];
+      const info = data.items[0].volumeInfo;
+      const filled = [];
 
-      // Fill in what we got
-      if (book.title)
-        document.getElementById('f-title').value = book.title;
-      if (book.authors?.[0]?.name)
-        document.getElementById('f-author').value = book.authors.map(a => a.name).join(', ');
-      if (book.publish_date)
-        document.getElementById('f-year').value = book.publish_date.match(/\d{4}/)?.[0] || '';
+      if (info.title) {
+        document.getElementById('f-title').value = info.title;
+        filled.push('název');
+      }
+      if (info.authors?.length) {
+        document.getElementById('f-author').value = info.authors.join(', ');
+        filled.push('autor');
+      }
+      if (info.publishedDate) {
+        document.getElementById('f-year').value = info.publishedDate.match(/\d{4}/)?.[0] || '';
+        filled.push('rok');
+      }
       document.getElementById('f-isbn').value = isbn;
 
-      // Description — can be a string or an object with a value field
-      if (book.notes) {
-        const desc = typeof book.notes === 'string' ? book.notes : book.notes?.value || '';
-        if (desc) document.getElementById('f-desc').value = desc.slice(0, 300);
+      if (info.description) {
+        document.getElementById('f-desc').value = info.description.replace(/<[^>]+>/g,'').slice(0, 300);
+        filled.push('popis');
       }
 
-      // Keywords — take first 3 subjects if available
-      if (book.subjects?.length) {
-        const kws = book.subjects.slice(0, 3).map(s => s.name || s);
-        if (kws[0]) document.getElementById('f-kw1').value = kws[0];
-        if (kws[1]) document.getElementById('f-kw2').value = kws[1];
-        if (kws[2]) document.getElementById('f-kw3').value = kws[2];
+      // Keywords from categories
+      if (info.categories?.length) {
+        const kws = info.categories.flatMap(c => c.split('/')).map(s => s.trim()).slice(0, 3);
+        if (kws[0]) { document.getElementById('f-kw1').value = kws[0]; }
+        if (kws[1]) { document.getElementById('f-kw2').value = kws[1]; }
+        if (kws[2]) { document.getElementById('f-kw3').value = kws[2]; }
+        if (kws.length) filled.push('klíčová slova');
       }
 
-      // Count what was filled
-      const filled = [
-        book.title, book.authors?.[0], book.publish_date,
-        book.notes, book.subjects?.length
-      ].filter(Boolean).length;
+      // Smart subject/category detection
+      const detectedXX = detectSubject(info.categories, info.title, info.description);
+      const detectedYY = detectSubcat(detectedXX, info.categories, info.title, info.description);
+      if (detectedXX) {
+        applySubjectToForm(detectedXX, detectedYY);
+        filled.push('předmět');
+        if (detectedYY) filled.push('kategorie');
+      }
+
       status.style.color = 'var(--brown)';
-      status.textContent = `Nalezeno! Vyplněno ${filled}/5 polí. Zbytek dopiš ručně :)`;
+      status.textContent = `✅ Nalezeno! Vyplněno: ${filled.join(', ')}. Zkontroluj a dopiš zbytek.`;
 
-      // Switch view so user can see and complete the form
       setMode('manual');
 
     } catch (e) {
       status.style.color = 'var(--rust)';
-      status.textContent = 'Chyba připojení! Zkus to znovu.';
+      status.textContent = '❌ Chyba připojení. Zkus to znovu.';
     }
 
     btn.disabled = false;
@@ -1882,6 +1964,7 @@
   document.getElementById('f-isbn-fetch').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('isbnFetchBtn').click();
   });
+
 
   document.getElementById('formClose').addEventListener('click', () => {
     document.getElementById('formOverlay').classList.remove('open');
