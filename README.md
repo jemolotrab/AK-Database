@@ -51,8 +51,10 @@ Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže z
 > ## Úprava a smazaní knihy
 Pokud víte, že jste buď něco špatně napsali, nebo dali knihu do špatného předmětu nebo kategorie, tak jediný způsob jak knihu opravit nebo smazat je mít plný přístup k tomuto repositáři "AK-Database". Pokud přístup nemáte, tak stačí kontaktovat člena repositáře, který by mohl buď knihu upravit nebo případně smazat.
 
-## Fotka pro porozumění propojení webu
-![til](Assets/images/SuccessCornerImage.jpg)
+> [!WARNING]
+> ## Poslední informace
+Celá knihovna je volně přístupná jak z hlediska webu, tak i kódu, což může znamenat pár problémů. Jako například, že kód si může kdokoliv stáhnout a použít k vlastním účelům, s čímž nemůžu nic dělat. Dále by bylo dobré zmínit pro ty, kteří mají k tomuto repositáři přístup a mohou tedy upravovat i kód a samotné soubory knih, tak NIC NEUPRAVUJTE A NEMĚŇTE, POKUD JSTE SI VY A OSTATNÍ JISTÍ, ŽE TO OPRAVDU ZPŮSOBUJE PROBLEMY.
+
 
 ## (Níže je starý popis) :)
 
