@@ -32,8 +32,16 @@ Cloudflare ušetří manuální ukládání na GitHub a tedy postup je pro uživ
 > ## Postup u přidání knihy
 Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko + Chci přidat knihu!. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo, aby jste mohli pokračovat. Po zadání hesla by se mněl objevit editor, kde o knize napíšete veškeré nutné (i nenutné) informace.
 
+**Tlačítko přidání knihy**\
+![til](Assets/GIFs/KliknoutNaPřidáníKnihy.gif)\
+**Okénko pro zadání kódu**\
+![til](Assets/GIFs/PřídatKnihu_Editor.gif)
+
 ### Manuální zadání / Zadání podle ISBN
 Hned po otevření editora je možné si povšimnout dvou horních tlačítek, které dávají možnost informace zadat ručně nebo automaticky. I přesto, že se rozhodnete zadat informace podle ISBN, tak je velice pravděpodobné, že se žádné informace neobjeví. To je způsobené tím, že knihovna (Open Library) ze které jsou informace čerpány obsahují převážně knihy vydané v angličtině a tedy běžné české knihy musí mít plně manuálně napsané informace.
+
+**Okénko pro zadání kódu**\
+![til](Assets/GIFs/PřídatKnihu_Editor.gif)
 
 > [!CAUTION]
 > ***Pokud tedy si vyberete možnost automaticky vyplnit informace podle ISBN, tak informace zkontrolujte, doupravte a kdyžtak i doplňte.***
