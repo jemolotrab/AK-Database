@@ -47,7 +47,7 @@ Všechny knihy mají možnost přidání fotek (obalu) knihy a jejího obsahu, c
 ### Upload knihy
 Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne. Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. Ve složce knihy se dále vyskytuje soubor "název_knihy.json" a podle veškerých informací roztřídí knihu do správného repositáře na GitHub a také pochopí, jaké fotky patří k dané knize. Po chvilce strpení by es kniha měla objevit na webu.
 
-### Ukázka souboru knihy (Duna.json, lehce upravena)
+### Ukázka souboru knihy (Half-Life 2_ Raising the Bar.json, lehce upravena)
 ```
 {
   "stk": "11-03-GMAN",
