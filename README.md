@@ -47,9 +47,27 @@ Všechny knihy mají možnost přidání fotek (obalu) knihy a jejího obsahu, c
 ### Upload knihy
 Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne. Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. Ve složce knihy se dále vyskytuje soubor "název_knihy.json" a podle veškerých informací roztřídí knihu do správného repositáře na GitHub a také pochopí, jaké fotky patří k dané knize. Po chvilce strpení by es kniha měla objevit na webu.
 
-### Ukázkový soubor knihy
+### Ukázka souboru knihy (Duna.json, lehce upravena)
 ```
-
+{
+  "stk": "11-03-VRKT",
+  "title": "Half-Life 2: Raising the Bar",
+  "author": "David Hodgson",
+  "isbn": "9780761543640",
+  "year": "2004",
+  "description": "Dílo pojednává o zvedání laťky",
+  "location": {
+    "Budova": "Perlička"
+  },
+  "keywords": [
+    "Fyzika",
+    "Hratelnost",
+    "Příběh"
+  ],
+  "matura": true,
+  "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/11-Historie/Half-Life 2: Raising the Bar/IMG30260506092229.jpg",
+  "contents": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/11-Historie/Half-Life 2: Raising the Bar/IMG30260506092235.jpg"
+}
 ```
 
 > [!WARNING]
