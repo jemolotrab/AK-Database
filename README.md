@@ -47,6 +47,9 @@ Všechny knihy mají možnost přidání fotek (obalu) knihy a jejího obsahu, c
 ### Upload knihy
 Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne. Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. Ve složce knihy se dále vyskytuje soubor "název_knihy.json" a podle veškerých informací roztřídí knihu do správného repositáře na GitHub a také pochopí, jaké fotky patří k dané knize. Po chvilce strpení by es kniha měla objevit na webu.
 
+### Ukázkový soubor knihy
+*`
+
 > [!WARNING]
 > ## Úprava a smazaní knihy
 Pokud víte, že jste buď něco špatně napsali, nebo dali knihu do špatného předmětu nebo kategorie, tak jediný způsob jak knihu opravit nebo smazat je mít plný přístup k tomuto repositáři "AK-Database". Pokud přístup nemáte, tak stačí kontaktovat člena repositáře, který by mohl buď knihu upravit nebo případně smazat.
