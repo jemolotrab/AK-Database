@@ -18,8 +18,8 @@ Jelikož tento projekt je převážně tvořen přes GitHub, tak je důležité 
 Celý projekt je stavěn na jednom principu, a to ukládání knih se základními informacemi. GitHub je perfektně stavěn na ukládání projektů jak pro osobní účely, tak i pro veřejnost, což se dá v našem případě velmi využít. V našem repositáři vytvoříme web za pomocí programovacího jayzka HTML (soubor pojmenovaný index.html) a dále můžeme přidat složky s jmény předmětů, kde se knihy budou ukládat.\
 I přesto že GitHub nám dovoluje si jak ukládat knihy, tak i běžet funkční web, tak nám nedovoluje ukládat a přidat knihy do repositáře automaticky. Vždy je potřeba pro uživatele vzít nainstalovaný soubor .zip, extrahovat ho a manuálně ho přidat do správné složky, což může být problém pro uživatele, kteří s GitHub neumí nebo s ním nijak v minulosti nepracovali. Naštěstí existuje jednoduché řešení, které celý proces zautomatizuje.
 
-![til](Assets/GIFs/PřídatKnihu_Editor.gif)\
-![til](Assets/GIFs/PřídatKnihu_Editor.gif)
+![](Assets/GIFs/25231.png)\
+![](Assets/GIFs/3029911.webp)
 
 ### Propojení GitHub s Cloudflare
 Abychom mohli vůbec pochopit, jak nám Cloudflare pomůže s automatizací, tak je dobré si krátce říct o Cloudflare a jeho možnostech.\
