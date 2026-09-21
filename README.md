@@ -50,7 +50,7 @@ Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže z
 ### Ukázka souboru knihy (Duna.json, lehce upravena)
 ```
 {
-  "stk": "11-03-VRKT",
+  "stk": "11-03-GMAN",
   "title": "Half-Life 2: Raising the Bar",
   "author": "David Hodgson",
   "isbn": "9780761543640",
