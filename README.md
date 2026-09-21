@@ -18,6 +18,9 @@ Jelikož tento projekt je převážně tvořen přes GitHub, tak je důležité 
 Celý projekt je stavěn na jednom principu, a to ukládání knih se základními informacemi. GitHub je perfektně stavěn na ukládání projektů jak pro osobní účely, tak i pro veřejnost, což se dá v našem případě velmi využít. V našem repositáři vytvoříme web za pomocí programovacího jayzka HTML (soubor pojmenovaný index.html) a dále můžeme přidat složky s jmény předmětů, kde se knihy budou ukládat.\
 I přesto že GitHub nám dovoluje si jak ukládat knihy, tak i běžet funkční web, tak nám nedovoluje ukládat a přidat knihy do repositáře automaticky. Vždy je potřeba pro uživatele vzít nainstalovaný soubor .zip, extrahovat ho a manuálně ho přidat do správné složky, což může být problém pro uživatele, kteří s GitHub neumí nebo s ním nijak v minulosti nepracovali. Naštěstí existuje jednoduché řešení, které celý proces zautomatizuje.
 
+![til](Assets/GIFs/PřídatKnihu_Editor.gif)\
+![til](Assets/GIFs/PřídatKnihu_Editor.gif)
+
 ### Propojení GitHub s Cloudflare
 Abychom mohli vůbec pochopit, jak nám Cloudflare pomůže s automatizací, tak je dobré si krátce říct o Cloudflare a jeho možnostech.\
 Pokud člověk chce automatizovat nějaký proces v GitHub, tak musí vytvořit takzvaný token, což je klíč který dává přístup k repositáři a můžete v něm cokoli upravovat. Tento token ale nemůžeme dát do našeho kódu webu (index.html), protože je ten kód volně viditelný každým kdo si kód otevře a taky i ho sám GitHub zachytí a zabrání jeho použití. Proto na scénu přichází Cloudflare.\
@@ -40,8 +43,8 @@ Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo
 ### Manuální zadání / Zadání podle ISBN
 Hned po otevření editora je možné si povšimnout dvou horních tlačítek, které dávají možnost informace zadat ručně nebo automaticky. I přesto, že se rozhodnete zadat informace podle ISBN, tak je velice pravděpodobné, že se žádné informace neobjeví. To je způsobené tím, že knihovna (Open Library) ze které jsou informace čerpány obsahují převážně knihy vydané v angličtině a tedy běžné české knihy musí mít plně manuálně napsané informace.
 
-**Okénko pro zadání kódu**\
-![til](Assets/GIFs/PřídatKnihu_Editor.gif)
+**Okénko Editora s výběrem možnosti vyplnění**\
+![til](Assets/GIFs/VybráníZadání_Editor.gif)
 
 > [!CAUTION]
 > ***Pokud tedy si vyberete možnost automaticky vyplnit informace podle ISBN, tak informace zkontrolujte, doupravte a kdyžtak i doplňte.***
