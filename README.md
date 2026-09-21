@@ -48,7 +48,9 @@ Všechny knihy mají možnost přidání fotek (obalu) knihy a jejího obsahu, c
 Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne. Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. Ve složce knihy se dále vyskytuje soubor "název_knihy.json" a podle veškerých informací roztřídí knihu do správného repositáře na GitHub a také pochopí, jaké fotky patří k dané knize. Po chvilce strpení by es kniha měla objevit na webu.
 
 ### Ukázkový soubor knihy
-*`
+```
+
+```
 
 > [!WARNING]
 > ## Úprava a smazaní knihy
