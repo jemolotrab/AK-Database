@@ -14,12 +14,12 @@ Vítejte ve školní **online databázi knih**! Kde si pro svůj projekt můžet
 ## Informace o projektu a jak to *(zhruba)* funguje
 Jelikož tento projekt je převážně tvořen přes GitHub, tak je důležité si objasnit proč je tato databáze tvořená právě přes něj a jaké to má výhody a nevýhody.
 
-### Proč GitHub?
+### Proč GitHub? <img src="Assets/images/25231.png" width="16" height="16"/>
 Celý projekt je stavěn na jednom principu, a to ukládání knih se základními informacemi. GitHub je perfektně stavěn na ukládání projektů jak pro osobní účely, tak i pro veřejnost, což se dá v našem případě velmi využít. V našem repositáři vytvoříme web za pomocí programovacího jayzka HTML (soubor pojmenovaný index.html) a dále můžeme přidat složky s jmény předmětů, kde se knihy budou ukládat.\
 I přesto že GitHub nám dovoluje si jak ukládat knihy, tak i běžet funkční web, tak nám nedovoluje ukládat a přidat knihy do repositáře automaticky. Vždy je potřeba pro uživatele vzít nainstalovaný soubor .zip, extrahovat ho a manuálně ho přidat do správné složky, což může být problém pro uživatele, kteří s GitHub neumí nebo s ním nijak v minulosti nepracovali. Naštěstí existuje jednoduché řešení, které celý proces zautomatizuje.
 
-![](Assets/GIFs/25231.png)\
-![](Assets/GIFs/3029911.webp)
+\
+![](Assets/images/3029911.webp)
 
 ### Propojení GitHub s Cloudflare
 Abychom mohli vůbec pochopit, jak nám Cloudflare pomůže s automatizací, tak je dobré si krátce říct o Cloudflare a jeho možnostech.\
