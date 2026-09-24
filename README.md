@@ -63,7 +63,7 @@ Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže z
   "author": "David Hodgson",
   "isbn": "9780761543640",
   "year": "2004",
-  "description": "Dílo pojednává o zvedání laťky",
+  "description": "Dílo pojednává o zvedání laťky a posouvání limitů počítačů",
   "location": {
     "Budova": "Perlička"
   },
