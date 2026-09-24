@@ -1738,19 +1738,18 @@
 
   function checkPassword() {
     const val = document.getElementById('pwInput').value;
-    if (val === ADD_BOOK_PASSWORD) {
-      document.getElementById('pwOverlay').classList.remove('open');
-      openAddForm();
-    } else {
+    if (!val.trim()) {
       const inp = document.getElementById('pwInput');
       const err = document.getElementById('pwError');
       inp.classList.remove('error');
-      void inp.offsetWidth; // trigger reflow for animation
+      void inp.offsetWidth;
       inp.classList.add('error');
-      err.textContent = 'Špatné heslo. Zkusil bych to znovu!';
-      inp.value = '';
+      err.textContent = 'Zadej prosím heslo.';
       inp.focus();
+      return;
     }
+    document.getElementById('pwOverlay').classList.remove('open');
+    openAddForm();
   }
 
   // ── ADD BOOK FORM ──
