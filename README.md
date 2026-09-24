@@ -10,12 +10,14 @@ Vítejte ve školní **online databázi knih**! Kde si pro svůj projekt můžet
 > [!NOTE]
 > **Stránka webu** ↴\
 > [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/)
+>
+> **Na webu se kdyžtak vpravo nahoře vyskytuje tlačítko *`GitHub`*, které váš přemístí zpět zde na Github**
 
 ## Informace o projektu a jak to *(zhruba)* funguje
 Jelikož tento projekt je převážně tvořen přes GitHub, tak je důležité si objasnit proč je tato databáze tvořená právě přes něj a jaké to má výhody a nevýhody.
 
 ### Proč GitHub? <img src="Assets/images/25231.png" width="16" height="16"/>
-Celý projekt je stavěn na jednom principu, a to ukládání knih se základními informacemi. GitHub je perfektně stavěn na ukládání projektů jak pro osobní účely, tak i pro veřejnost, což se dá v našem případě velmi využít. V našem repositáři vytvoříme web za pomocí programovacího jayzka HTML (soubor pojmenovaný index.html) a dále můžeme přidat složky s jmény předmětů, kde se knihy budou ukládat.\
+Celý projekt je stavěn na jednom principu, a to ukládání knih se základními informacemi o ní. GitHub je perfektně stavěn na ukládání projektů jak pro osobní účely, tak i pro veřejnost, což se dá v našem případě velmi využít. V našem repositáři vytvoříme web za pomocí programovacího jayzka HTML (soubor pojmenovaný index.html) a dále můžeme přidat složky s jmény předmětů, kde se knihy budou ukládat.\
 I přesto že GitHub nám dovoluje si jak ukládat knihy, tak i běžet funkční web, tak nám nedovoluje ukládat a přidat knihy do repositáře automaticky. Vždy je potřeba pro uživatele vzít nainstalovaný soubor .zip, extrahovat ho a manuálně ho přidat do správné složky, což může být problém pro uživatele, kteří s GitHub neumí nebo s ním nijak v minulosti nepracovali. Naštěstí existuje jednoduché řešení, které celý proces zautomatizuje.
 
 ### Propojení GitHub s Cloudflare <img src="Assets/images/cloudflare-logo-png_seeklogo-294312.png" width="16" height="16"/>
@@ -26,11 +28,11 @@ Cloudflare nám dovoluje si vytvořit takzvané "Workers", kteří dovolují pou
 Cloudflare ušetří manuální ukládání na GitHub a tedy postup je pro uživatele jednodušší. Jakmile uživatel uloží knihu na našem webu, tak se stáhne složka na Cloudflare, kde náš "Worker" vezme veškeré soubory co se v něm nachází a převede je na GitHub plně automaticky bez pomoci uživatele. Finální kniha by se měla na webu objevit během několika sekund.
 
 > [!CAUTION]
-> ***Někdy se může stát, že spojení s Cloudflare vypadne a nedovolí knize se uložit na GitHub***
+> ***Málokrát do roka se může stát, že spojení s Cloudflare vypadne a nedovolí knize se uložit na GitHub! Pokud se tak stane, tak kontaktujte členy repositáře!***
 
 > [!IMPORTANT]
 > ## Postup u přidání knihy
-Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko + Chci přidat knihu!. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo, aby jste mohli pokračovat. Po zadání hesla by se mněl objevit editor, kde o knize napíšete veškeré nutné (i nenutné) informace.
+Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko ***`+ Chci přidat knihu!`***. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo, aby jste mohli pokračovat. Po zadání hesla by se měl objevit editor knihy, kde o knize napíšete veškeré nutné i vedlejší informace.
 
 **Tlačítko přidání knihy**\
 ![til](Assets/GIFs/KliknoutNaPřidáníKnihy.gif)\
@@ -38,22 +40,22 @@ Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo
 ![til](Assets/GIFs/PřídatKnihu_Editor.gif)
 
 ### Manuální zadání / Zadání podle ISBN
-Hned po otevření editora je možné si povšimnout dvou horních tlačítek, které dávají možnost informace zadat ručně nebo automaticky. I přesto, že se rozhodnete zadat informace podle ISBN, tak je velice pravděpodobné, že se žádné informace neobjeví. To je způsobené tím, že knihovna (Open Library) ze které jsou informace čerpány obsahují převážně knihy vydané v angličtině a tedy běžné české knihy musí mít plně manuálně napsané informace.
+Hned po otevření editora je možné si povšimnout dvou horních tlačítek (***`Ruční zadání informací`*, *`Zadání podle ISBN`***), které dávají možnost informace zadat ručně nebo automaticky. Pokud si zvolíte možnost zadání informací podle ISBN, tak se kniha vyplní dvěma způsoby, a to že buď ISBN napíšete celé ručně nebo ho naskenujete. Po chvilce strpení by se informace měly vyplnit. Je dobré brát na vědomí, že automatické vyplnění nemusí vždy plně fungovat a taky je velice pravděpodobné, že se žádné informace vůbec nevyplní. To je způsobené tím, že knihovna (Open Library) ze které jsou informace čerpány obsahují převážně knihy vydané v angličtině a tedy běžné české knihy musí mít plně manuálně napsané informace.
 
 **Okénko Editora s výběrem možnosti vyplnění**\
 ![til](Assets/GIFs/VybráníZadání_Editor.gif)
 
 > [!CAUTION]
-> ***Pokud tedy si vyberete možnost automaticky vyplnit informace podle ISBN, tak informace zkontrolujte, doupravte a kdyžtak i doplňte.***
+> ***Pokud si tedy vyberete možnost automaticky vyplnit informace podle ISBN, tak informace zkontrolujte, doupravte a kdyžtak i doplňte!***
 
 ### STK (Systémově tříděný kód)
-Aby se knihy dokázaly jednoduše třídit a také aby vyhledávání bylo co nejednoduší, tak je potřeba zadané knihy nějak očíslovat nebo označit. Proto každá kniha je tříděna podle předmětu (čeština, matematika, němčina atd.), kategorie předmětu (například v češtině jsou kategorie román, epika, učebnice atd.) a dále na čtyři náhodná písmena, která zajistí, aby každá kniha měla svůj vlastní kód. Celkově se kód STK staví na XX-YY-ZZZZ, kdy "XX" je předmět, "YY" je kategorie předmětu a "ZZZZ" jsou ty naše čtyři náhodně generovaná písmena (z anglické abecedy, tedy 26 písmen), které nám dovolují uložit **456 976 knih** do jednoho předmětu.
+Když už se knihy ukládají automaticky a chceme aby se lehce třídily a vyhledávaly, tak je potřeba zadané knihy nějak očíslovat nebo označit vlastním kódem. Pro naše účely můžeme třídit knihy podle jednoduchých pravidel, kde každá kniha je tříděna podle předmětu (čeština, matematika, němčina atd.), kategorie předmětu (například v češtině jsou kategorie román, epika, učebnice atd.) a dále na čtyři náhodná písmena, která zajistí to, aby každá kniha měla svůj vlastní kód a aby se kódy neopakovaly. Tento systém můžeme pojmenovat jako Systémově Tříděný Kód (STK) a celkově se kód staví na XX-YY-ZZZZ, kdy "XX" je předmět, "YY" je kategorie předmětu a "ZZZZ" jsou ty čtyři náhodně generovaná písmena (tedy 26 písmen), což nám dovoluje mít jedinečných **456 976 knih** v jedné kategorii předmětu.
 
 ### Fotky
-Všechny knihy mají možnost přidání fotek (obalu) knihy a jejího obsahu, což zjednodušuje vyhledávání a uživatel si může i předem ověřit, zda kniha obsahuje informace co právě hledá a tím si ušetřit čas a lépe naplánovat jakou knihu uživatel potřebuje. Podporované formáty souborů fotek jsou .png a .jpg/.jpeg.
+Všechny knihy mají možnost přidání fotek obalu knihy a jejího obsahu, což zjednodušuje vyhledávání a uživatel si může i předem ověřit, zda kniha obsahuje informace co právě hledá a tím si ušetřit čas a lépe naplánovat jakou knihu potřebuje. Podporované formáty souborů fotek jsou .png a .jpg/.jpeg.
 
 ### Upload knihy
-Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne. Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. Ve složce knihy se dále vyskytuje soubor "název_knihy.json" a podle veškerých informací roztřídí knihu do správného repositáře na GitHub a také pochopí, jaké fotky patří k dané knize. Po chvilce strpení by es kniha měla objevit na webu.
+Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne (a tím pádem ztracena). Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. GitHub bude obsahovat složku se jménem knihy knihy, ve kterém se vyskytuje soubor ve formátu .json a fotky, které jste nahrály. Po chvilce strpení by se kniha měla objevit na webu.
 
 ### Ukázka souboru knihy (Half-Life 2_ Raising the Bar.json)
 ```
@@ -65,7 +67,7 @@ Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže z
   "year": "2004",
   "description": "Dílo pojednává o zvedání laťky a posouvání limitů počítačů",
   "location": {
-    "Budova": "Perlička"
+    "Budova": "Perlička (Hlaváčova)"
   },
   "keywords": [
     "Fyzika",
@@ -84,7 +86,7 @@ Pokud víte, že jste buď něco špatně napsali, nebo dali knihu do špatného
 
 > [!WARNING]
 > ## Poslední informace
-Celá knihovna je volně přístupná jak z hlediska webu, tak i celého kódu co jen tvoří! Tedy kód si může kdokoliv stáhnout a použít k vlastním účelům, s čímž nemůžu nic dělat. Dále by bylo dobré zmínit pro ty, kteří mají k tomuto repositáři přístup a mohou tedy upravovat i kód a samotné soubory knih, tak NIC NEUPRAVUJTE A NEMĚŇTE, POKUD JSTE SI VY A OSTATNÍ JISTÍ, ŽE TO OPRAVDU ZPŮSOBUJE PROBLEMY.
+Celá knihovna je volně přístupná jak z hlediska webu, tak i celého kódu co jej tvoří! Tedy kód si může kdokoliv stáhnout a použít k vlastním účelům, s čímž nemůžu nic dělat. Dále by bylo dobré zmínit pro ty, kteří mají k tomuto repositáři přístup a mohou tedy upravovat i kód a samotné soubory knih, tak NIC NEUPRAVUJTE A NEMĚŇTE, DOKUĎ JSTE SI VY A OSTATNÍ JISTÍ, ŽE TO OPRAVDU ZPŮSOBUJE PROBLEMY!
 
 
 ## (Níže je starý popis) :)
