@@ -1733,23 +1733,35 @@
 
   document.getElementById('pwSubmit').addEventListener('click', checkPassword);
   document.getElementById('pwInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') checkPassword();
+  if (e.key === 'Enter') checkPassword();
   });
 
-  function checkPassword() {
+    async function checkPassword() {
     const val = document.getElementById('pwInput').value;
-    if (!val.trim()) {
-      const inp = document.getElementById('pwInput');
-      const err = document.getElementById('pwError');
-      inp.classList.remove('error');
-      void inp.offsetWidth;
-      inp.classList.add('error');
-      err.textContent = 'Zadej prosím heslo.';
-      inp.focus();
-      return;
+    if (!val.trim()) return;
+  
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Action': 'verify-password' },
+        body: JSON.stringify({ password: val })
+      });
+      const result = await res.json();
+      if (result.valid) {
+        document.getElementById('pwOverlay').classList.remove('open');
+        openAddForm();
+      } else {
+        const inp = document.getElementById('pwInput');
+        inp.classList.remove('error');
+        void inp.offsetWidth;
+        inp.classList.add('error');
+        document.getElementById('pwError').textContent = 'Špatné heslo. Zkusil bych to znovu!';
+        inp.value = '';
+        inp.focus();
+      }
+    } catch(e) {
+      document.getElementById('pwError').textContent = 'Chyba připojení. Zkus to znovu.';
     }
-    document.getElementById('pwOverlay').classList.remove('open');
-    openAddForm();
   }
 
   // ── ADD BOOK FORM ──
