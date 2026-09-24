@@ -1642,7 +1642,7 @@
   // ════════════════════════════════════════
 
   // ── PASSWORD (Zatím velmi skryté) ──
-  const ADD_BOOK_PASSWORD = "AK2026";
+  const ADD_BOOK_PASSWORD = "";
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
   // Celkově by se zde měly vyskytovat čtyři lokace budov
@@ -1929,6 +1929,7 @@
     formData.append('book', JSON.stringify(newBook));
     if (coverFile)    formData.append('cover', coverFile);
     if (contentsFile) formData.append('contents', contentsFile);
+    formData.append('password', document.getElementById('pwInput').value);
 
     fetch(WORKER_URL, { method: 'POST', body: formData })
       .then(res => res.json())
