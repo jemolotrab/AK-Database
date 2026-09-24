@@ -14,14 +14,16 @@ Vítejte ve školní **online databázi knih**! Kde si pro svůj projekt můžet
 > **Na webu se kdyžtak vpravo nahoře vyskytuje tlačítko *`GitHub`*, které váš přemístí zpět zde na Github**
 
 ## Informace o projektu a jak to *(zhruba)* funguje
-Jelikož tento projekt je převážně tvořen přes GitHub, tak je důležité si objasnit proč je tato databáze tvořená právě přes něj a jaké to má výhody a nevýhody.
 
 ### Proč GitHub? <img src="Assets/images/25231.png" width="16" height="16"/>
+Jelikož tento projekt je převážně tvořen přes GitHub, tak je důležité si objasnit proč je tato databáze tvořená právě přes něj a jaké to má výhody a nevýhody.
+
 Celý projekt je stavěn na jednom principu, a to ukládání knih se základními informacemi o ní. GitHub je perfektně stavěn na ukládání projektů jak pro osobní účely, tak i pro veřejnost, což se dá v našem případě velmi využít. V našem repositáři vytvoříme web za pomocí programovacího jayzka HTML (soubor pojmenovaný index.html) a dále můžeme přidat složky s jmény předmětů, kde se knihy budou ukládat.\
 I přesto že GitHub nám dovoluje si jak ukládat knihy, tak i běžet funkční web, tak nám nedovoluje ukládat a přidat knihy do repositáře automaticky. Vždy je potřeba pro uživatele vzít nainstalovaný soubor .zip, extrahovat ho a manuálně ho přidat do správné složky, což může být problém pro uživatele, kteří s GitHub neumí nebo s ním nijak v minulosti nepracovali. Naštěstí existuje jednoduché řešení, které celý proces zautomatizuje.
 
 ### Propojení GitHub s Cloudflare <img src="Assets/images/cloudflare-logo-png_seeklogo-294312.png" width="16" height="16"/>
-Abychom mohli vůbec pochopit, jak nám Cloudflare pomůže s automatizací, tak je dobré si krátce říct o Cloudflare a jeho možnostech.\
+Abychom mohli vůbec pochopit, jak nám Cloudflare pomůže s automatizací, tak je dobré si krátce říct o Cloudflare a jeho možnostech.
+
 Pokud člověk chce automatizovat nějaký proces v GitHub, tak musí vytvořit takzvaný token, což je klíč který dává přístup k repositáři a můžete v něm cokoli upravovat. Tento token ale nemůžeme dát do našeho kódu webu (index.html), protože je ten kód volně viditelný každým kdo si kód otevře a taky i ho sám GitHub zachytí a zabrání jeho použití. Proto na scénu přichází Cloudflare.\
 Cloudflare nám dovoluje si vytvořit takzvané "Workers", kteří dovolují použít váš kód v malém prostoru cloudu. Když našemu "Worker" předámé token s krátkým kódem o tom jak s ním zacházet, tak bude token bezpečně enkriptovaný v Cloudflare mimo náš kód.
 
