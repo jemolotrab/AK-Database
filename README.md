@@ -11,7 +11,7 @@ Vítejte ve školní **online databázi knih**! Kde si pro svůj projekt můžet
 > **Stránka webu** ↴\
 > [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/)
 >
-> **Na webu se kdyžtak vpravo nahoře vyskytuje tlačítko *`GitHub`*, které váš přemístí zpět zde na Github**
+> **(Na webu se kdyžtak vpravo nahoře vyskytuje tlačítko *`GitHub`*, které váš přemístí zpět zde na Github)**
 
 ## Informace o projektu a jak to *(zhruba)* funguje
 
