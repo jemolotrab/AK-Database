@@ -55,10 +55,10 @@ Hned po otevření editora je možné si povšimnout dvou horních tlačítek (*
 Když už se knihy ukládají automaticky a chceme aby se lehce třídily a vyhledávaly, tak je potřeba zadané knihy nějak očíslovat nebo označit vlastním kódem. Pro naše účely můžeme třídit knihy podle jednoduchých pravidel, kde každá kniha je tříděna podle předmětu (čeština, matematika, němčina atd.), kategorie předmětu (například v češtině jsou kategorie román, epika, učebnice atd.) a dále na čtyři náhodná písmena, která zajistí to, aby každá kniha měla svůj vlastní kód a aby se kódy neopakovaly. Tento systém můžeme pojmenovat jako Systémově Tříděný Kód (STK) a celkově se kód staví na XX-YY-ZZZZ, kdy "XX" je předmět, "YY" je kategorie předmětu a "ZZZZ" jsou ty čtyři náhodně generovaná písmena (tedy 26 písmen), což nám dovoluje mít jedinečných **456 976 knih** v jedné kategorii předmětu.
 
 ### Fotky
-Všechny knihy mají možnost přidání fotek obalu knihy a jejího obsahu, což zjednodušuje vyhledávání a uživatel si může i předem ověřit, zda kniha obsahuje informace co právě hledá a tím si ušetřit čas a lépe naplánovat jakou knihu potřebuje. Podporované formáty souborů fotek jsou .png a .jpg/.jpeg.
+Všechny knihy mají možnost přidání fotek obalu knihy a jejího obsahu, což zjednodušuje vyhledávání a uživatel si může i předem ověřit, zda kniha obsahuje informace co právě hledá a tím si ušetřit čas a lépe naplánovat jakou knihu potřebuje. Plně podporované formáty souborů fotek jsou .png a .jpg/.jpeg.
 
 ### Upload knihy
-Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne (a tím pádem ztracena). Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. GitHub bude obsahovat složku se jménem knihy knihy, ve kterém se vyskytuje soubor ve formátu .json a fotky, které jste nahrály. Po chvilce strpení by se kniha měla objevit na webu.
+Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne (a tím pádem ztracena). Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. GitHub bude obsahovat složku se jménem knihy, ve kterém se vyskytuje soubor ve formátu .json a fotky, které jste nahrály. Po chvilce strpení by se kniha měla objevit na webu.
 
 ### Ukázka souboru knihy (Half-Life 2_ Raising the Bar.json)
 ```
