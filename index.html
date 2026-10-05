@@ -253,8 +253,19 @@
     /* ── BOOK GRID ── */
     .books-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(8, 1fr);   /* ← BOOKS PER ROW on wide screens */
+      gap: 1rem;
+    }
+    /* fewer columns on smaller screens so the cards never get tiny */
+    @media (max-width: 1000px) { .books-grid { grid-template-columns: repeat(6, 1fr); } }
+    @media (max-width: 900px)  { .books-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 600px)  { .books-grid { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; } }
+    @media (max-width: 420px)  { .books-grid { grid-template-columns: repeat(2, 1fr); } }
+    /* slightly more compact card text when 8 fit in a row */
+    @media (min-width: 1001px) {
+      .books-grid .book-info   { padding: 0.65rem; }
+      .books-grid .book-title  { font-size: 0.82rem; }
+      .books-grid .book-author { font-size: 0.7rem; }
     }
  
     .books-list {
@@ -898,8 +909,8 @@
       position: fixed;
       right: 0;
       bottom: 0;
-      width: 40px;
-      height: 40px;
+      width: 8px;
+      height: 8px;
       z-index: 9000;
     }
 
