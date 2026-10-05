@@ -893,6 +893,16 @@
     .mc-btn:hover { background: #7d9c4a; }
     .mc-btn:active { background: #5a7a38; }
 
+    /* ── secret corner hotspot (starts the DVD screensaver) ── */
+    #dvdCorner {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      width: 40px;
+      height: 40px;
+      z-index: 9000;
+    }
+
     /* ── idle screensaver ── */
     #dvdOverlay {
       display: none;
@@ -1280,6 +1290,9 @@
       <button class="success-close" id="successClose">Zavřít</button>
     </div>
   </div>
+
+  <!-- secret corner hotspot -->
+  <div id="dvdCorner" aria-hidden="true"></div>
 
   <!-- idle screensaver -->
   <div id="dvdOverlay">
@@ -2274,6 +2287,9 @@
 
   const DVD_COLORS = ['#ff4444','#44ff44','#4444ff','#ffff44','#ff44ff','#44ffff','#ff8844','#ffffff'];
   const DVD_INACTIVITY_MS = 60000;
+  // false = the screensaver starts by clicking the bottom-right corner and stays until the page is refreshed
+  // true  = old behaviour: starts after 60 s of inactivity and stops on any mouse/keyboard input
+  const DVD_IDLE_TRIGGER = false;
   const dvdOverlay = document.getElementById('dvdOverlay');
   const dvdLogo    = document.getElementById('dvdLogo');
 
@@ -2360,18 +2376,24 @@
 
   function resetInactivityTimer() {
     clearTimeout(dvdTimer);
-    if (!dvdActive) dvdTimer = setTimeout(startDVD, DVD_INACTIVITY_MS);
+    if (DVD_IDLE_TRIGGER && !dvdActive) dvdTimer = setTimeout(startDVD, DVD_INACTIVITY_MS);
   }
 
   ['mousemove','mousedown','keydown','scroll','touchstart'].forEach(evt => {
     document.addEventListener(evt, () => {
+      if (!DVD_IDLE_TRIGGER) return;
       if (dvdActive) stopDVD();
       else resetInactivityTimer();
     });
   });
 
-  dvdOverlay.addEventListener('click', stopDVD);
+  if (DVD_IDLE_TRIGGER) dvdOverlay.addEventListener('click', stopDVD);
   resetInactivityTimer();
+
+  // Click the bottom-right corner to start the screensaver (refresh the page to get rid of it)
+  document.getElementById('dvdCorner').addEventListener('click', () => {
+    if (!dvdActive) startDVD();
+  });
 
 </script>
 </body>
