@@ -42,13 +42,14 @@ Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo
 ![til](Assets/GIFs/PřídatKnihu_Editor.gif)
 
 ### Manuální zadání / Zadání podle ISBN
-Hned po otevření editora je možné si povšimnout dvou horních tlačítek (***`Ruční zadání informací`*, *`Zadání podle ISBN`***), které dávají možnost informace zadat ručně nebo automaticky. Pokud si zvolíte možnost zadání informací podle ISBN, tak se kniha vyplní dvěma způsoby, a to že buď ISBN napíšete celé ručně nebo ho naskenujete. Po chvilce strpení by se informace měly vyplnit. Je dobré brát na vědomí, že automatické vyplnění nemusí vždy plně fungovat a taky je velice pravděpodobné, že se žádné informace vůbec nevyplní. To je způsobené tím, že knihovna (Open Library) ze které jsou informace čerpány obsahují převážně knihy vydané v angličtině a tedy běžné české knihy musí mít plně manuálně napsané informace.
+Hned po otevření editora je možné si povšimnout dvou horních tlačítek (***`Ruční zadání informací`*, *`Zadání podle ISBN`***), které dávají možnost informace zadat ručně nebo automaticky. Pokud si zvolíte možnost zadání informací podle ISBN, tak se kniha vyplní dvěma způsoby, a to že buď ISBN napíšete celé ručně nebo ho naskenujete web kamerou nebo pokud jste na mobilu, tak přes normální foťák na její přední straně. Po chvilce strpení by se informace měly vyplnit. Je dobré brát na vědomí, že automatické vyplnění nemusí vždy plně fungovat a taky je velice pravděpodobné, že se žádné informace vůbec nevyplní. Nejčastěji se toto může stát u česky vydaných knih.
 
 **Okénko Editora s výběrem možnosti vyplnění**\
 ![til](Assets/GIFs/VybráníZadání_Editor.gif)
 
 > [!CAUTION]
-> ***Pokud si tedy vyberete možnost automaticky vyplnit informace podle ISBN, tak informace zkontrolujte, doupravte a kdyžtak i doplňte!***
+> ***Pokud si tedy vyberete možnost automaticky vyplnit informace podle ISBN, tak informace zkontrolujte, doupravte a kdyžtak i doplňte!\
+> Informace jsou čerpané z těchto webů: Open Library, K10plus, DNB, Národní Knihovna ČR a Knihovny.cz***
 
 ### STK (Systémově tříděný kód)
 Když už se knihy ukládají automaticky a chceme aby se lehce třídily a vyhledávaly, tak je potřeba zadané knihy nějak očíslovat nebo označit vlastním kódem. Pro naše účely můžeme třídit knihy podle jednoduchých pravidel, kde každá kniha je tříděna podle předmětu (čeština, matematika, němčina atd.), kategorie předmětu (například v češtině jsou kategorie román, epika, učebnice atd.) a dále na čtyři náhodná písmena, která zajistí to, aby každá kniha měla svůj vlastní kód a aby se kódy neopakovaly. Tento systém můžeme pojmenovat jako Systémově Tříděný Kód (STK) a celkově se kód staví na XX-YY-ZZZZ, kdy "XX" je předmět, "YY" je kategorie předmětu a "ZZZZ" jsou ty čtyři náhodně generovaná písmena (tedy 26 písmen), což nám dovoluje mít jedinečných **456 976 knih** v jedné kategorii předmětu.
