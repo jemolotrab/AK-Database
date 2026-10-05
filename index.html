@@ -990,6 +990,73 @@
     .isbn-fetch-btn:hover { background: var(--brown); }
     .isbn-fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* ── BARCODE SCANNER ── */
+    .isbn-scan-btn {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      margin-bottom: 0.75rem;
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px dashed var(--brown);
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .isbn-scan-btn:hover { background: var(--ink); color: var(--gold); border-style: solid; }
+    .scan-box {
+      position: relative;
+      margin-bottom: 0.75rem;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 4 / 3;
+      max-height: 320px;
+      width: 100%;
+    }
+    .scan-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .scan-frame {
+      position: absolute;
+      left: 10%; right: 10%; top: 30%; bottom: 30%;
+      border: 2px solid var(--gold);
+      border-radius: 6px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.35);
+      pointer-events: none;
+    }
+    .scan-frame::after {
+      content: '';
+      position: absolute;
+      left: 4%; right: 4%; top: 50%;
+      height: 2px;
+      background: var(--rust);
+      opacity: 0.85;
+      animation: scanline 1.6s ease-in-out infinite alternate;
+    }
+    @keyframes scanline { from { top: 12%; } to { top: 88%; } }
+    .scan-hint {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.72rem;
+      color: #fff;
+      background: rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .scan-cancel {
+      position: absolute;
+      top: 0.5rem; right: 0.5rem;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.72rem;
+      font-family: 'DM Sans', sans-serif;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
@@ -1092,7 +1159,7 @@
         <div id="isbnPanel" style="display:none;">
           <div class="form-section">Vyhledat knihu podle ISBN</div>
           <p style="font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;background:var(--parchment);padding:0.6rem 0.75rem;border-radius:4px;border-left:3px solid var(--rust);">
-            Tato funkce nemusí fungovat pro všechny knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly. Využívá Open Library.
+            Tato funkce nemusí fungovat pro všechny knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly. Využívá Národní knihovnu ČR, Open Library a další knihovní katalogy. Údaje si vždy zkontroluj.
           </p>
           <div class="form-row" style="align-items:flex-end;">
             <div class="form-field">
@@ -1100,6 +1167,13 @@
               <input class="form-input" id="f-isbn-fetch" type="text" placeholder="978-80-..." />
             </div>
             <button class="isbn-fetch-btn" id="isbnFetchBtn">Načíst informace</button>
+          </div>
+          <button type="button" class="isbn-scan-btn" id="isbnScanBtn">📷 Skenovat čárový kód kamerou</button>
+          <div class="scan-box" id="scanBox" style="display:none;">
+            <video id="scanVideo" playsinline muted></video>
+            <div class="scan-frame"></div>
+            <button type="button" class="scan-cancel" id="scanCancel">✕ Zrušit</button>
+            <div class="scan-hint" id="scanHint">Namiř kameru na čárový kód (ISBN) na zadní straně knihy</div>
           </div>
           <div id="isbnStatus" style="font-size:0.75rem;margin-bottom:0.75rem;min-height:1.2rem;"></div>
         </div>
@@ -1786,6 +1860,7 @@
 
   // ── MODE TOGGLE ──
   function setMode(mode) {
+    if (typeof stopScanner === 'function') stopScanner();
     const isISBN = mode === 'isbn';
     document.getElementById('modeManual').classList.toggle('active', !isISBN);
     document.getElementById('modeISBN').classList.toggle('active', isISBN);
@@ -1879,7 +1954,157 @@
   });
 
 
+
+  // ── BARCODE SCANNER (native BarcodeDetector, ZXing as fallback) ──
+  let scanStream = null, scanTimer = null, scanActive = false, zxingPromise = null, zxingReader = null;
+  const scanCanvas = document.createElement('canvas');
+
+  function isValidIsbn13(code) {
+    if (!/^97[89]\d{10}$/.test(code)) return false;
+    let sum = 0;
+    for (let i = 0; i < 12; i++) sum += Number(code[i]) * (i % 2 ? 3 : 1);
+    return (10 - (sum % 10)) % 10 === Number(code[12]);
+  }
+
+  function loadZXing() {
+    if (window.ZXing) return Promise.resolve();
+    if (!zxingPromise) {
+      zxingPromise = new Promise((resolve, reject) => {
+        const sc = document.createElement('script');
+        sc.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+        sc.onload = resolve;
+        sc.onerror = () => { zxingPromise = null; reject(new Error('ZXing load failed')); };
+        document.head.appendChild(sc);
+      });
+    }
+    return zxingPromise;
+  }
+
+  function stopScanner() {
+    scanActive = false;
+    clearTimeout(scanTimer);
+    if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+    const video = document.getElementById('scanVideo');
+    if (video) video.srcObject = null;
+    const box = document.getElementById('scanBox');
+    if (box) box.style.display = 'none';
+    const btn = document.getElementById('isbnScanBtn');
+    if (btn) btn.style.display = '';
+  }
+
+  async function startScanner() {
+    const status = document.getElementById('isbnStatus');
+    status.style.color = 'var(--muted)';
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      status.style.color = 'var(--rust)';
+      status.textContent = '❌ Tento prohlížeč nepodporuje přístup ke kameře (nebo stránka neběží přes HTTPS).';
+      return;
+    }
+
+    // Choose decoder: native BarcodeDetector if it supports EAN-13, otherwise ZXing
+    let detector = null;
+    try {
+      if ('BarcodeDetector' in window) {
+        const formats = await BarcodeDetector.getSupportedFormats();
+        if (formats.includes('ean_13')) detector = new BarcodeDetector({ formats: ['ean_13'] });
+      }
+    } catch (e) { detector = null; }
+
+    if (!detector) {
+      status.textContent = 'Načítám skener…';
+      try {
+        await loadZXing();
+        const hints = new Map([
+          [ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]],
+          [ZXing.DecodeHintType.TRY_HARDER, true]
+        ]);
+        zxingReader = new ZXing.MultiFormatReader();
+        zxingReader.setHints(hints);
+      } catch (e) {
+        status.style.color = 'var(--rust)';
+        status.textContent = '❌ Skener se nepodařilo načíst. Zkontroluj připojení k internetu.';
+        return;
+      }
+    }
+
+    try {
+      scanStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+    } catch (e) {
+      status.style.color = 'var(--rust)';
+      status.textContent = (e.name === 'NotAllowedError')
+        ? '❌ Přístup ke kameře byl zamítnut. Povol ho v nastavení prohlížeče.'
+        : '❌ Kameru se nepodařilo spustit (' + (e.name || 'chyba') + ').';
+      return;
+    }
+
+    // Try continuous autofocus where supported (mostly Android)
+    try {
+      await scanStream.getVideoTracks()[0].applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+    } catch (e) { /* not supported, fine */ }
+
+    const video = document.getElementById('scanVideo');
+    video.srcObject = scanStream;
+    await video.play().catch(() => {});
+    document.getElementById('scanBox').style.display = 'block';
+    document.getElementById('isbnScanBtn').style.display = 'none';
+    status.textContent = '';
+
+    scanActive = true;
+    let lastCode = '', hits = 0;
+
+    const tick = async () => {
+      if (!scanActive) return;
+      let code = '';
+      try {
+        if (video.readyState >= 2 && video.videoWidth) {
+          if (detector) {
+            const found = await detector.detect(video);
+            code = found[0]?.rawValue || '';
+          } else {
+            const w = video.videoWidth, h = video.videoHeight;
+            scanCanvas.width = w; scanCanvas.height = h;
+            const ctx = scanCanvas.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(video, 0, 0, w, h);
+            const bmp = new ZXing.BinaryBitmap(
+              new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(scanCanvas))
+            );
+            try { code = zxingReader.decode(bmp).getText(); } catch (e) { code = ''; }
+          }
+        }
+      } catch (e) { code = ''; }
+
+      // Only accept real ISBNs (978/979 + valid check digit), confirmed by 2 reads in a row
+      if (isValidIsbn13(code)) {
+        hits = (code === lastCode) ? hits + 1 : 1;
+        lastCode = code;
+        if (hits >= 2) { onScanned(code); return; }
+      } else {
+        hits = 0; lastCode = '';
+      }
+      scanTimer = setTimeout(tick, 150);
+    };
+    tick();
+  }
+
+  function onScanned(code) {
+    stopScanner();
+    if (navigator.vibrate) navigator.vibrate(120);
+    document.getElementById('f-isbn-fetch').value = code;
+    const status = document.getElementById('isbnStatus');
+    status.style.color = 'var(--brown)';
+    status.textContent = '📷 Naskenováno ISBN ' + code + '. Hledám…';
+    document.getElementById('isbnFetchBtn').click();
+  }
+
+  document.getElementById('isbnScanBtn').addEventListener('click', startScanner);
+  document.getElementById('scanCancel').addEventListener('click', stopScanner);
+
   document.getElementById('formClose').addEventListener('click', () => {
+    stopScanner();
     document.getElementById('formOverlay').classList.remove('open');
   });
 
