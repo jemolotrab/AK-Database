@@ -1797,7 +1797,7 @@
   document.getElementById('modeManual').addEventListener('click', () => setMode('manual'));
   document.getElementById('modeISBN').addEventListener('click',   () => setMode('isbn'));
 
-  // ── ISBN FETCH FROM GOOGLE BOOKS ──
+  // ── ISBN FETCH (via Cloudflare Worker: Open Library + K10plus + DNB) ──
 
   // Smart subject/category mapping from Google Books categories to STK codes
   document.getElementById('isbnFetchBtn').addEventListener('click', async () => {
@@ -1814,14 +1814,17 @@
     btn.disabled = true;
     btn.textContent = 'Načítám...';
     status.style.color = 'var(--muted)';
-    status.textContent = 'Hledám v Open Library...';
+    status.textContent = 'Hledám v knihovních katalozích...';
 
     try {
-      const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
-      const data = await res.json();
-      const key = `ISBN:${isbn}`;
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Action': 'lookup-isbn' },
+        body: JSON.stringify({ isbn })
+      });
+      const book = await res.json();
 
-      if (!data[key]) {
+      if (!book.found) {
         status.style.color = 'var(--rust)';
         status.textContent = '❌ Kniha nenalezena. Zkus jiné ISBN nebo ruční zadání.';
         btn.disabled = false;
@@ -1829,38 +1832,36 @@
         return;
       }
 
-      const book = data[key];
       const filled = [];
 
       if (book.title) {
         document.getElementById('f-title').value = book.title;
         filled.push('název');
       }
-      if (book.authors?.[0]?.name) {
-        document.getElementById('f-author').value = book.authors.map(a => a.name).join(', ');
+      if (book.author) {
+        document.getElementById('f-author').value = book.author;
         filled.push('autor');
       }
-      if (book.publish_date) {
-        document.getElementById('f-year').value = book.publish_date.match(/\d{4}/)?.[0] || '';
+      if (book.year) {
+        document.getElementById('f-year').value = book.year;
         filled.push('rok');
       }
       document.getElementById('f-isbn').value = isbn;
 
-      if (book.notes) {
-        const desc = typeof book.notes === 'string' ? book.notes : book.notes?.value || '';
-        if (desc) { document.getElementById('f-desc').value = desc.slice(0, 300); filled.push('popis'); }
+      if (book.description) {
+        document.getElementById('f-desc').value = book.description.slice(0, 300);
+        filled.push('popis');
       }
 
-      if (book.subjects?.length) {
-        const kws = book.subjects.slice(0, 3).map(s => s.name || s);
-        if (kws[0]) document.getElementById('f-kw1').value = kws[0];
-        if (kws[1]) document.getElementById('f-kw2').value = kws[1];
-        if (kws[2]) document.getElementById('f-kw3').value = kws[2];
+      if (book.keywords?.length) {
+        if (book.keywords[0]) document.getElementById('f-kw1').value = book.keywords[0];
+        if (book.keywords[1]) document.getElementById('f-kw2').value = book.keywords[1];
+        if (book.keywords[2]) document.getElementById('f-kw3').value = book.keywords[2];
         filled.push('klíčová slova');
       }
 
       status.style.color = 'var(--brown)';
-      status.textContent = `✅ Nalezeno! Vyplněno: ${filled.join(', ')}. Zbytek dopiš ručně.`;
+      status.textContent = `✅ Nalezeno (${book.sources.join(', ')})! Vyplněno: ${filled.join(', ')}. Zbytek dopiš ručně.`;
 
       setMode('manual');
 
