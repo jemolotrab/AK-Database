@@ -1159,7 +1159,7 @@
         <div id="isbnPanel" style="display:none;">
           <div class="form-section">Vyhledat knihu podle ISBN</div>
           <p style="font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;background:var(--parchment);padding:0.6rem 0.75rem;border-radius:4px;border-left:3px solid var(--rust);">
-            Tato funkce nemusí fungovat pro všechny knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly. Využívá Národní knihovnu ČR, Open Library a další knihovní katalogy. Údaje si vždy zkontroluj.
+            Tato funkce nemusí fungovat pro všechny knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly. Využívá Knihovny.cz, Open Library a další knihovní katalogy. Údaje si vždy zkontroluj.
           </p>
           <div class="form-row" style="align-items:flex-end;">
             <div class="form-field">
@@ -1875,6 +1875,39 @@
   // ── ISBN FETCH (via Cloudflare Worker: Open Library + K10plus + DNB) ──
 
   // Smart subject/category mapping from Google Books categories to STK codes
+
+  // ── KNIHOVNY.CZ LOOKUP (runs in the browser; the service allows cross-origin reads) ──
+  async function lookupKnihovny(isbn) {
+    const fields = ['title', 'authors', 'publicationDates', 'humanReadablePublicationDates', 'subjects', 'summary']
+      .map(f => 'field%5B%5D=' + f).join('&');
+    const base = 'https://www.knihovny.cz/api/v1/search?type=AllFields&limit=1&lookfor=' + encodeURIComponent(isbn);
+
+    let r = await fetch(base + '&' + fields);
+    if (!r.ok) r = await fetch(base);              // fall back to the default field set
+    if (!r.ok) return null;
+
+    const rec = (await r.json()).records?.[0];
+    if (!rec || !rec.title) return null;
+
+    // Author: "Karel Čapek, 1890-1938" -> "Karel Čapek" ("Čapek, Karel" -> "Karel Čapek")
+    let author = Object.keys(rec.authors?.primary || {})[0] || '';
+    author = author.replace(/,?\s*\d{3,4}\s*-\s*(\d{3,4})?\s*$/, '').trim();
+    const parts = author.split(',').map(x => x.trim()).filter(Boolean);
+    if (parts.length === 2 && !/\d/.test(author)) author = parts[1] + ' ' + parts[0];
+
+    const subjects = [...new Set((rec.subjects || []).flat().map(x => String(x).trim()).filter(Boolean))];
+    const dates = (rec.publicationDates || []).concat(rec.humanReadablePublicationDates || []);
+    const summary = Array.isArray(rec.summary) ? rec.summary[0] : rec.summary;
+
+    return {
+      title: String(rec.title).replace(/[\s\/:;,=]+$/, '').trim(),
+      author,
+      year: (dates.map(String).join(' ').match(/\d{4}/) || [''])[0],
+      description: summary ? String(summary).trim() : '',
+      keywords: subjects.slice(0, 3)
+    };
+  }
+
   document.getElementById('isbnFetchBtn').addEventListener('click', async () => {
     const isbn = document.getElementById('f-isbn-fetch').value.trim().replace(/[-\s]/g, '');
     const status = document.getElementById('isbnStatus');
@@ -1892,14 +1925,38 @@
     status.textContent = 'Hledám v knihovních katalozích...';
 
     try {
-      const res = await fetch(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Action': 'lookup-isbn' },
-        body: JSON.stringify({ isbn })
-      });
-      const book = await res.json();
+      // Worker (Open Library, K10plus, DNB, ...) and Knihovny.cz (asked from the browser, because
+      // the Czech catalogues block Cloudflare's servers) run in parallel
+      const isCzech = /^97[89]80/.test(isbn.length === 10 ? '978' + isbn : isbn) || /^80/.test(isbn);
+      const [wRes, kRes] = await Promise.allSettled([
+        fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Action': 'lookup-isbn' },
+          body: JSON.stringify({ isbn })
+        }).then(r => r.json()),
+        lookupKnihovny(isbn)
+      ]);
 
-      if (!book.found) {
+      const fromWorker = (wRes.status === 'fulfilled' && wRes.value?.found) ? wRes.value : null;
+      const fromKnih = (kRes.status === 'fulfilled') ? kRes.value : null;
+      if (kRes.status === 'rejected') console.debug('Knihovny.cz lookup failed:', kRes.reason);
+
+      if (!fromWorker && !fromKnih && wRes.status === 'rejected') {
+        throw new Error('network');
+      }
+
+      // Czech ISBN -> Knihovny.cz has priority; otherwise the worker does
+      const ordered = isCzech ? [fromKnih, fromWorker] : [fromWorker, fromKnih];
+      const book = { title: '', author: '', year: '', description: '', keywords: [], sources: [] };
+      for (const src of ordered) {
+        if (!src) continue;
+        for (const f of ['title', 'author', 'year', 'description']) if (!book[f] && src[f]) book[f] = src[f];
+        if (!book.keywords.length && src.keywords?.length) book.keywords = src.keywords;
+      }
+      if (fromKnih) book.sources.push('Knihovny.cz');
+      if (fromWorker) book.sources.push(...fromWorker.sources);
+
+      if (!book.title) {
         status.style.color = 'var(--rust)';
         status.textContent = '❌ Kniha nenalezena. Zkus jiné ISBN nebo ruční zadání.';
         btn.disabled = false;
