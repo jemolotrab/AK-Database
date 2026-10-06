@@ -601,6 +601,38 @@
       border-radius: 4px;
       border: 1px solid var(--border);
     }
+
+    .modal-contents-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .modal-contents-list a { display: block; }
+
+    /* ── contents photos in the add-book form ── */
+    .contents-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .contents-list:empty { display: none; }
+    .contents-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.35rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--card-bg);
+      font-size: 0.72rem;
+    }
+    .contents-item img { width: 36px; height: 36px; object-fit: cover; border-radius: 3px; flex-shrink: 0; }
+    .contents-item .ci-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
+    .contents-item .ci-order { color: var(--muted); flex-shrink: 0; }
+    .contents-item button {
+      border: 1px solid var(--border);
+      background: transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.72rem;
+      color: var(--ink);
+      flex-shrink: 0;
+    }
+    .contents-item button:hover { background: var(--ink); color: var(--gold); }
+    .contents-item button:disabled { opacity: 0.3; cursor: default; background: transparent; color: var(--ink); }
  
     .modal-close {
       position: absolute;
@@ -1284,8 +1316,9 @@
           <input class="form-input" id="f-cover" type="file" accept=".jpg,.jpeg,.png" />
         </div>
         <div class="form-field">
-          <label>Strana s obsahem</label>
-          <input class="form-input" id="f-contents" type="file" accept=".jpg,.jpeg,.png" />
+          <label>Strany s obsahem <span style="color:var(--muted);margin-left:0">(můžeš přidat i víc fotek, max. 10)</span></label>
+          <input class="form-input" id="f-contents" type="file" accept=".jpg,.jpeg,.png" multiple />
+          <div class="contents-list" id="contentsList"></div>
         </div>
         <p style="font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.5;">
           Podporované formáty: <strong>.jpg/.jpeg</strong>, <strong>.png</strong><br>
@@ -1735,7 +1768,14 @@
       <div class="modal-description">${book.location ? Object.entries(book.location).map(([k,v]) => v ? `${v}` : '').filter(Boolean).join(' &nbsp;·&nbsp; ') || '—' : '—'}</div>
       <div class="modal-section-label">Klíčová slova</div>
       <div class="modal-keywords">${(book.keywords||[]).map(k=>`<span class="keyword-chip">${k}</span>`).join('')}</div>
-      ${book.contents ? `<div class="modal-section-label">Strana obsahu</div><img class="modal-contents" src="${book.contents}" alt="Obsah"/>` : ''}
+      ${(() => {
+        const pages = Array.isArray(book.contents) ? book.contents.filter(Boolean) : (book.contents ? [book.contents] : []);
+        if (!pages.length) return '';
+        return `<div class="modal-section-label">${pages.length > 1 ? 'Strany obsahu' : 'Strana obsahu'}</div>
+          <div class="modal-contents-list">${pages.map((u, i) =>
+            `<a href="${u}" target="_blank" rel="noopener"><img class="modal-contents" loading="lazy" src="${u}" alt="Obsah ${i + 1}"/></a>`
+          ).join('')}</div>`;
+      })()}
     `;
  
     document.getElementById('modalOverlay').classList.add('open');
@@ -1891,6 +1931,8 @@
     });
     document.getElementById('f-cover').value = '';
     document.getElementById('f-contents').value = '';
+    contentsFiles = [];
+    renderContentsList();
     document.getElementById('f-loc1').selectedIndex = 0;
     document.getElementById('f-matura').checked = false;
     fSubject.value = '';
@@ -2217,6 +2259,64 @@
     '--noise-rotation', `${Math.floor(Math.random() * 360)}deg`
   );
 
+  // ── CONTENTS PHOTOS (several allowed) ──
+  const MAX_CONTENTS = 10;
+  let contentsFiles = [];
+
+  function renderContentsList() {
+    const box = document.getElementById('contentsList');
+    box.innerHTML = '';
+    contentsFiles.forEach((f, i) => {
+      const row = document.createElement('div');
+      row.className = 'contents-item';
+
+      const img = document.createElement('img');
+      img.alt = '';
+      img.src = URL.createObjectURL(f);
+      img.onload = () => URL.revokeObjectURL(img.src);
+
+      const order = document.createElement('span');
+      order.className = 'ci-order';
+      order.textContent = (i + 1) + '.';
+
+      const name = document.createElement('span');
+      name.className = 'ci-name';
+      name.textContent = f.name;
+
+      const mk = (label, title, disabled, fn) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = label; b.title = title; b.disabled = disabled;
+        b.addEventListener('click', fn);
+        return b;
+      };
+      const move = (from, to) => {
+        const [x] = contentsFiles.splice(from, 1);
+        contentsFiles.splice(to, 0, x);
+        renderContentsList();
+      };
+
+      row.append(
+        img, order, name,
+        mk('▲', 'Posunout nahoru', i === 0, () => move(i, i - 1)),
+        mk('▼', 'Posunout dolů', i === contentsFiles.length - 1, () => move(i, i + 1)),
+        mk('✕', 'Odebrat', false, () => { contentsFiles.splice(i, 1); renderContentsList(); })
+      );
+      box.appendChild(row);
+    });
+  }
+
+  document.getElementById('f-contents').addEventListener('change', (e) => {
+    for (const f of e.target.files) {
+      if (contentsFiles.length >= MAX_CONTENTS) {
+        alert(`Maximálně ${MAX_CONTENTS} fotek obsahu.`);
+        break;
+      }
+      contentsFiles.push(f);
+    }
+    e.target.value = '';           // so the same photo can be picked again and more can be added
+    renderContentsList();
+  });
+
   document.getElementById('formSubmit').addEventListener('click', async () => {
     const title   = document.getElementById('f-title').value.trim();
     const author  = document.getElementById('f-author').value.trim();
@@ -2227,7 +2327,12 @@
     const kw2     = document.getElementById('f-kw2').value.trim();
     const kw3     = document.getElementById('f-kw3').value.trim();
     const coverFile    = document.getElementById('f-cover').files[0]    || null;
-    const contentsFile = document.getElementById('f-contents').files[0] || null;
+    // Contents photos get neutral, ordered names (obsah-1.jpg, obsah-2.jpg, ...) so that
+    // identical camera file names (IMG_001.jpg) can never overwrite each other
+    const contentsUpload = contentsFiles.map((f, i) => {
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+      return { file: f, name: `obsah-${i + 1}.${ext === 'png' ? 'png' : (ext === 'jpeg' ? 'jpeg' : 'jpg')}` };
+    });
 
     if (!title || !author || !year || !xx || !yy || !kw1 || !kw2 || !kw3) {
       alert('Vyplň prosím všechna povinná pole (označena *).');
@@ -2248,7 +2353,7 @@
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
       cover:    buildFileURL(xx, title, coverFile ? coverFile.name : ''),
-      contents: buildFileURL(xx, title, contentsFile ? contentsFile.name : ''),
+      contents: contentsUpload.map(c => buildFileURL(xx, title, c.name)),
     };
 
     // Close form and show success screen immediately with spinner
@@ -2265,7 +2370,7 @@
     const formData = new FormData();
     formData.append('book', JSON.stringify(newBook));
     if (coverFile)    formData.append('cover', coverFile);
-    if (contentsFile) formData.append('contents', contentsFile);
+    contentsUpload.forEach(c => formData.append('contents', c.file, c.name));
     formData.append('password', document.getElementById('pwInput').value);
 
     fetch(WORKER_URL, { method: 'POST', body: formData })
