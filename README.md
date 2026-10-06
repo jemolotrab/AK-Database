@@ -1,4 +1,4 @@
-# AK - Adolescentní Knihovna 2026
+# AK - Adolescentní Knihovna 2026 [HODNĚ PŘEDĚLAT]
 <!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání/odebrání knihy - 14.09.26 -->
 
 > [!WARNING]
