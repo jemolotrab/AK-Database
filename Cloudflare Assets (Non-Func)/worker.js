@@ -6,6 +6,18 @@ const CORS_HEADERS = {
 
 const JSON_HEADERS = { ...CORS_HEADERS, 'Content-Type': 'application/json' };
 
+const FOLDER_MAP = {
+  "01":"01-Cestina","02":"02-Anglictina","03":"03-Nemcina",
+  "04":"04-Spanelstina","05":"05-Matematika","06":"06-Ekonomie",
+  "07":"07-Fyzika","08":"08-Chemie","09":"09-Biologie",
+  "10":"10-Zemepis","11":"11-Historie","12":"12-IT",
+  "13":"13-Hudebka","14":"14-Telocvik","15":"15-Vytvarka","16":"16-Vareni",
+};
+
+class HttpError extends Error {
+  constructor(status, message) { super(message); this.status = status; }
+}
+
 export default {
   async fetch(request, env) {
 
@@ -45,7 +57,16 @@ export default {
         });
       }
 
-      // ── Book upload endpoint ──
+      // ── Delete a whole book folder (JSON body) ──
+      if (request.headers.get('X-Action') === 'delete-book') {
+        const body = await request.json();
+        if (!env.ADD_BOOK_PASSWORD || body.password !== env.ADD_BOOK_PASSWORD) {
+          return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: JSON_HEADERS });
+        }
+        return new Response(JSON.stringify(await handleDelete(body, env)), { status: 200, headers: JSON_HEADERS });
+      }
+
+      // ── Book upload / update endpoint (multipart) ──
       const formData = await request.formData();
 
       // Protect the upload with the same password
@@ -53,6 +74,11 @@ export default {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 401, headers: JSON_HEADERS
         });
+      }
+
+      // ── Edit an existing book (same password check as above) ──
+      if (request.headers.get('X-Action') === 'update-book') {
+        return new Response(JSON.stringify(await handleUpdate(formData, env)), { status: 200, headers: JSON_HEADERS });
       }
 
       const bookJson = formData.get('book');
@@ -68,14 +94,6 @@ export default {
       const book = JSON.parse(bookJson);
       const { stk, title } = book;
       const xx = stk.split('-')[0];
-
-      const FOLDER_MAP = {
-        "01":"01-Cestina","02":"02-Anglictina","03":"03-Nemcina",
-        "04":"04-Spanelstina","05":"05-Matematika","06":"06-Ekonomie",
-        "07":"07-Fyzika","08":"08-Chemie","09":"09-Biologie",
-        "10":"10-Zemepis","11":"11-Historie","12":"12-IT",
-        "13":"13-Hudebka","14":"14-Telocvik","15":"15-Vytvarka","16":"16-Vareni",
-      };
 
       const subjectFolder = FOLDER_MAP[xx] || 'Ostatni';
       const bookFolder = `BOOK_FILES/${subjectFolder}/${title}`;
@@ -119,7 +137,7 @@ export default {
 
     } catch (e) {
       return new Response(JSON.stringify({ error: e.message }), {
-        status: 500, headers: JSON_HEADERS
+        status: e instanceof HttpError ? e.status : 500, headers: JSON_HEADERS
       });
     }
   }
@@ -160,6 +178,163 @@ async function fileToBase64(file) {
     binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
   }
   return btoa(binary);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  EDIT / DELETE BOOKS
+//  Uses the GitHub Git Data API, so everything (JSON, images, moves
+//  between folders, deletions) lands in ONE commit. Old versions stay
+//  in the repository history, so nothing is ever lost for good.
+// ════════════════════════════════════════════════════════════════
+const branchOf = (env) => env.GITHUB_BRANCH || 'main';
+
+function safeName(name) {
+  return typeof name === 'string' && name.length > 0 && name.length <= 200 &&
+    !/[\/\\]/.test(name) && !name.includes('..') && !name.startsWith('.');
+}
+
+function bookFolderPath(stk, title) {
+  if (typeof stk !== 'string' || !/^\d{2}-\d{2}-[A-Za-z0-9]{4}$/.test(stk)) {
+    throw new HttpError(400, 'Neplatný kód STK.');
+  }
+  if (!safeName(title)) throw new HttpError(400, 'Neplatný název knihy.');
+  return `BOOK_FILES/${FOLDER_MAP[stk.split('-')[0]] || 'Ostatni'}/${title}`;
+}
+
+const encodePath = (path) => path.split('/').map(encodeURIComponent).join('/');
+
+function gh(env, path, init = {}) {
+  return fetch(`https://api.github.com/repos/${env.GITHUB_REPO}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'AK-Knihovna-Worker',
+      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+    },
+  });
+}
+
+async function ghJson(env, path, init) {
+  const r = await gh(env, path, init);
+  if (!r.ok) throw new HttpError(502, `GitHub ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  return r.json();
+}
+
+// Files directly inside a folder, or null when the folder does not exist
+async function listFolder(env, folder) {
+  const r = await gh(env, `/contents/${encodePath(folder)}?ref=${encodeURIComponent(branchOf(env))}`);
+  if (r.status === 404) return null;
+  if (!r.ok) throw new HttpError(502, `GitHub ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  const list = await r.json();
+  return Array.isArray(list) ? list.filter((f) => f.type === 'file') : null;
+}
+
+// Makes sure the folder really is this book (its JSON has the same STK) before touching it
+async function verifiedBookFiles(env, stk, title) {
+  const folder = bookFolderPath(stk, title);
+  const files = await listFolder(env, folder);
+  if (!files) throw new HttpError(404, 'Složka knihy nebyla na GitHubu nalezena.');
+
+  const jsonFile = files.find((f) => f.name === `${title}.json`);
+  if (!jsonFile) throw new HttpError(409, 'Ve složce chybí soubor knihy (.json), proto ji nebudu měnit.');
+
+  const meta = await ghJson(env, `/contents/${encodePath(jsonFile.path)}?ref=${encodeURIComponent(branchOf(env))}`);
+  const bytes = Uint8Array.from(atob(String(meta.content).replace(/\s/g, '')), (c) => c.charCodeAt(0));
+  let stored;
+  try { stored = JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { stored = null; }
+  if (!stored || stored.stk !== stk) throw new HttpError(409, 'Kód STK ve složce nesouhlasí, nic jsem nezměnil.');
+
+  return { folder, files };
+}
+
+// One commit containing all tree changes. entries: [{path, mode, type, sha | content}], sha:null = delete
+async function commitTree(env, message, entries) {
+  const branch = branchOf(env);
+  const ref = await ghJson(env, `/git/ref/heads/${encodeURIComponent(branch)}`);
+  const parentSha = ref.object.sha;
+  const parent = await ghJson(env, `/git/commits/${parentSha}`);
+  const tree = await ghJson(env, '/git/trees', {
+    method: 'POST', body: JSON.stringify({ base_tree: parent.tree.sha, tree: entries }),
+  });
+  const commit = await ghJson(env, '/git/commits', {
+    method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [parentSha] }),
+  });
+  await ghJson(env, `/git/refs/heads/${encodeURIComponent(branch)}`, {
+    method: 'PATCH', body: JSON.stringify({ sha: commit.sha }),
+  });
+  return commit.sha;
+}
+
+async function handleDelete(body, env) {
+  const { stk, title } = body;
+  const { files } = await verifiedBookFiles(env, stk, title);
+  const entries = files.map((f) => ({ path: f.path, mode: '100644', type: 'blob', sha: null }));
+  await commitTree(env, `Smazána kniha: ${title}`, entries);
+  return { success: true, deleted: files.length };
+}
+
+async function handleUpdate(formData, env) {
+  let book, keep;
+  try {
+    book = JSON.parse(formData.get('book'));
+    keep = JSON.parse(formData.get('keep') || '[]');
+  } catch (e) {
+    throw new HttpError(400, 'Neplatná data knihy.');
+  }
+  const oldStk = formData.get('oldStk');
+  const oldTitle = formData.get('oldTitle');
+  if (!book || !Array.isArray(keep) || !keep.every(safeName)) throw new HttpError(400, 'Neplatná data knihy.');
+
+  const newFolder = bookFolderPath(book.stk, book.title);
+  const { folder: oldFolder, files: oldFiles } = await verifiedBookFiles(env, oldStk, oldTitle);
+
+  // A different folder (new title or subject) must not already exist - it would be overwritten
+  if (newFolder !== oldFolder) {
+    const existing = await listFolder(env, newFolder);
+    if (existing && existing.length) {
+      throw new HttpError(409, 'Kniha se stejným názvem už v tomto předmětu existuje.');
+    }
+  }
+
+  const MODE = { mode: '100644', type: 'blob' };
+  const entries = new Map();            // path -> tree entry (later entries win)
+  const oldByName = new Map(oldFiles.map((f) => [f.name, f]));
+
+  entries.set(`${newFolder}/${book.title}.json`, {
+    path: `${newFolder}/${book.title}.json`, ...MODE, content: JSON.stringify(book, null, 2),
+  });
+
+  // Files that stay (moved to the new folder when needed, no re-upload)
+  for (const name of keep) {
+    const f = oldByName.get(name);
+    if (!f) continue;
+    const path = `${newFolder}/${name}`;
+    if (path !== f.path) entries.set(path, { path, ...MODE, sha: f.sha });
+    else if (!entries.has(path)) entries.set(path, null);   // untouched, only protects it from deletion below
+  }
+
+  // Newly uploaded images (cover and contents pages)
+  const uploads = [formData.get('cover'), ...formData.getAll('contents')]
+    .filter((f) => f && typeof f !== 'string' && f.size > 0);
+  for (const file of uploads) {
+    if (!safeName(file.name)) throw new HttpError(400, `Neplatný název souboru: ${file.name}`);
+    const blob = await ghJson(env, '/git/blobs', {
+      method: 'POST', body: JSON.stringify({ content: await fileToBase64(file), encoding: 'base64' }),
+    });
+    const path = `${newFolder}/${file.name}`;
+    entries.set(path, { path, ...MODE, sha: blob.sha });
+  }
+
+  // Everything in the old folder that is not part of the new state gets deleted
+  const keepPaths = new Set(entries.keys());
+  for (const f of oldFiles) {
+    if (!keepPaths.has(f.path)) entries.set(f.path, { path: f.path, ...MODE, sha: null });
+  }
+
+  const tree = [...entries.values()].filter(Boolean);
+  await commitTree(env, `Upravena kniha: ${book.title}`, tree);
+  return { success: true, stk: book.stk, folder: newFolder };
 }
 
 // ════════════════════════════════════════════════════════════════
