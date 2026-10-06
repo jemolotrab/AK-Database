@@ -847,6 +847,23 @@
     .pw-submit:hover { background: var(--brown); }
     .pw-cancel { margin-top: 0.6rem; background: none; border: none; color: var(--muted); font-size: 0.75rem; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: underline; display: block; width: 100%; }
 
+    /* ── delete confirmation (type the title) ── */
+    .delete-title {
+      font-family: 'Rubik', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 0.85rem;
+      padding: 0.55rem 0.75rem;
+      background: var(--parchment);
+      border-left: 3px solid var(--rust);
+      border-radius: 4px;
+      word-break: break-word;
+      text-align: left;
+    }
+    .pw-input.delete-input { letter-spacing: normal; }
+    .pw-submit.delete-confirm { background: var(--rust); color: #fff; }
+    .pw-submit.delete-confirm:hover:not(:disabled) { background: var(--rust); filter: brightness(0.88); }
+    .pw-submit.delete-confirm:disabled { opacity: 0.35; cursor: not-allowed; }
+
     /* ── ADD BOOK FORM ── */
     .form-box {
       background: var(--card-bg);
@@ -1248,6 +1265,18 @@
       <div class="pw-error" id="pwError"></div>
       <button class="pw-submit" id="pwSubmit">Potvrdit</button>
       <button class="pw-cancel" id="pwCancel">Zrušit</button>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION OVERLAY -->
+  <div class="overlay" id="deleteOverlay">
+    <div class="pw-box">
+      <h2>Smazat knihu?</h2>
+      <p>Smaže se kniha i všechny její fotky. Pro potvrzení opiš její název:</p>
+      <div class="delete-title" id="deleteTitleShown"></div>
+      <input class="pw-input delete-input" id="deleteInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="název knihy" />
+      <button class="pw-submit delete-confirm" id="deleteConfirm" disabled>Smazat knihu</button>
+      <button class="pw-cancel" id="deleteCancel">Zrušit</button>
     </div>
   </div>
 
@@ -2568,11 +2597,48 @@
   }
 
   // ── DELETE A BOOK ──
-  async function deleteBook(stk) {
+  // Step 1: the user has to type the book's title before anything is deleted
+  let deleteTarget = null;
+
+  // Forgiving on purpose: case, accents, spaces and punctuation do not matter
+  function titleTyped() {
+    if (!deleteTarget) return false;
+    const typed = document.getElementById('deleteInput').value;
+    const a = normTitle(typed), b = normTitle(deleteTarget.title);
+    return b ? a === b : typed.trim() === deleteTarget.title.trim();
+  }
+
+  function deleteBook(stk) {
     const book = BOOKS.find(b => b.stk === stk);
     if (!book) return;
-    if (!confirm(`Opravdu smazat knihu „${book.title}“ (${book.stk})?\n\nSmaže se i její složka s fotkami. Starší verze zůstane v historii GitHubu.`)) return;
+    deleteTarget = book;
+    document.getElementById('deleteTitleShown').textContent = book.title;
+    document.getElementById('deleteInput').value = '';
+    document.getElementById('deleteConfirm').disabled = true;
+    document.getElementById('deleteOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('deleteInput').focus(), 100);
+  }
 
+  document.getElementById('deleteInput').addEventListener('input', () => {
+    document.getElementById('deleteConfirm').disabled = !titleTyped();
+  });
+  document.getElementById('deleteInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('deleteConfirm').click();
+  });
+  document.getElementById('deleteCancel').addEventListener('click', () => {
+    deleteTarget = null;
+    document.getElementById('deleteOverlay').classList.remove('open');
+  });
+  document.getElementById('deleteConfirm').addEventListener('click', () => {
+    if (!titleTyped()) return;
+    const book = deleteTarget;
+    deleteTarget = null;
+    document.getElementById('deleteOverlay').classList.remove('open');
+    performDelete(book);
+  });
+
+  // Step 2: the actual deletion
+  async function performDelete(book) {
     document.getElementById('modalOverlay').classList.remove('open');
     showResult({ title: 'Mažu knihu…', stk: book.stk, entry: spinnerHTML('Mažu z databáze...') });
 
