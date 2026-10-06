@@ -2,7 +2,7 @@
 <!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání/odebrání knihy - 14.09.26 (tento text není viditelný) -->
 
 > [!WARNING]
-> ***Tento projekt a zároveň i toto README není plně dokončeno! Tedy je možné, že se projekt může v blízké době výrazně pozměnit a README nemusí odpovídat realitě!***
+> ***Tento projekt a zároveň i toto README je VELMI out of date! Tedy je možné, že se projekt může v blízké době výrazně pozměnit a README nemusí odpovídat realitě!***
 
 Vítejte ve školní **online databázi knih**! Kde si můžete hledat a procházet knihy potřebné pro vaše projekty, prezentace a tak dále. Toto **README** obsahuje základní informace o tom, jak tento projekt funguje a jak postupovat u přidání a úpravy/oddělání knihy.
 
