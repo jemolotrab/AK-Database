@@ -165,7 +165,7 @@
  
     .search-input {
       width: 100%;
-      padding: 0.65rem 1rem 0.65rem 2.5rem;
+      padding: 0.65rem 3rem 0.65rem 2.5rem;
       border: 1.5px solid var(--border);
       border-radius: 4px;
       background: var(--card-bg);
@@ -177,6 +177,23 @@
     }
  
     .search-input:focus { border-color: var(--brown); }
+
+    .search-scan-btn {
+      position: absolute;
+      right: 0.3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      padding: 0.35rem 0.55rem;
+      font-size: 1.15rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .search-scan-btn:hover { background: var(--parchment); }
+    .search-scan-box { margin-bottom: 0.75rem; }
     .search-input::placeholder { color: var(--muted); }
  
     .filter-select {
@@ -1215,7 +1232,8 @@
   <div class="search-wrap">
     <div class="search-input-wrap">
       <span class="search-icon">🔍</span>
-      <input class="search-input" id="searchInput" type="text" placeholder="Hledat podle názvu, autora, klíčových slov nebo STK..." />
+      <input class="search-input" id="searchInput" type="text" placeholder="Hledat podle názvu, autora, klíčových slov, STK nebo ISBN..." />
+      <button type="button" class="search-scan-btn" id="searchScanBtn" title="Najít knihu naskenováním ISBN" aria-label="Skenovat ISBN">📷</button>
     </div>
     <select class="filter-select" id="subjectFilter">
       <option value="">Všechny předměty</option>
@@ -1265,6 +1283,20 @@
       <div class="pw-error" id="pwError"></div>
       <button class="pw-submit" id="pwSubmit">Potvrdit</button>
       <button class="pw-cancel" id="pwCancel">Zrušit</button>
+    </div>
+  </div>
+
+  <!-- SCAN ISBN TO FIND A BOOK -->
+  <div class="overlay" id="searchScanOverlay">
+    <div class="pw-box" style="max-width:420px;">
+      <h2>Najít knihu podle ISBN</h2>
+      <p>Namiř kameru na čárový kód na zadní straně knihy.</p>
+      <div class="scan-box search-scan-box" id="searchScanBox">
+        <video id="searchScanVideo" playsinline muted></video>
+        <div class="scan-frame"></div>
+      </div>
+      <div class="pw-error" id="searchScanStatus"></div>
+      <button class="pw-cancel" id="searchScanCancel">Zrušit</button>
     </div>
   </div>
 
@@ -1663,7 +1695,14 @@
       if (maturaOnly && !b.matura) return false;
       if (searchQuery) {
         const haystack = [b.title, b.author, b.stk, ...(b.keywords||[])].join(' ').toLowerCase();
-        if (!haystack.includes(searchQuery)) return false;
+        // ISBN: hyphens/spaces do not matter, ISBN-10 and ISBN-13 of the same book match, partial digits work too
+        const qDigits  = searchQuery.replace(/[\s-]/g, '');
+        const bDigits  = String(b.isbn || '').replace(/[^0-9xX]/g, '').toLowerCase();
+        const isbnHit  = /^[0-9x]{4,13}$/.test(qDigits) && (
+          bDigits.includes(qDigits) ||
+          (/^(\d{9}[\dx]|\d{13})$/.test(qDigits) && normIsbn(b.isbn) !== '' && normIsbn(b.isbn) === normIsbn(qDigits))
+        );
+        if (!haystack.includes(searchQuery) && !isbnHit) return false;
       }
       return true;
     });
@@ -1768,6 +1807,7 @@
       container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
         <div class="big" ${isCake ? 'id="cakeEgg" style="cursor:pointer;user-select:none;"' : ''}>${pick.emoji}</div>
         <p>${pick.text}</p>
+        ${/^(\d{9}[\dx]|\d{13})$/.test(searchQuery.replace(/[\s-]/g, '')) ? `<p style="font-size:0.8rem;margin-top:0.5rem;">Kniha s ISBN ${searchQuery.replace(/[^0-9x\s-]/g, '')} v archivu zatím není.</p>` : ''}
       </div>`;
       if (isCake) {
         document.getElementById('cakeEgg').addEventListener('click', () => {
@@ -2191,6 +2231,7 @@
 
 
   // ── BARCODE SCANNER (native BarcodeDetector, ZXing as fallback) ──
+  // One camera engine, used by the book form (fill in by ISBN) and by the search bar (find by ISBN)
   let scanStream = null, scanTimer = null, scanActive = false, zxingPromise = null, zxingReader = null;
   const scanCanvas = document.createElement('canvas');
 
@@ -2215,26 +2256,31 @@
     return zxingPromise;
   }
 
+  // Stops the camera and puts both scanner UIs back to normal
   function stopScanner() {
     scanActive = false;
     clearTimeout(scanTimer);
     if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
-    const video = document.getElementById('scanVideo');
-    if (video) video.srcObject = null;
+    ['scanVideo', 'searchScanVideo'].forEach(id => {
+      const v = document.getElementById(id);
+      if (v) v.srcObject = null;
+    });
     const box = document.getElementById('scanBox');
     if (box) box.style.display = 'none';
     const btn = document.getElementById('isbnScanBtn');
     if (btn) btn.style.display = '';
+    const so = document.getElementById('searchScanOverlay');
+    if (so) so.classList.remove('open');
   }
 
-  async function startScanner() {
-    const status = document.getElementById('isbnStatus');
-    status.style.color = 'var(--muted)';
+  // Starts the camera in `video` and calls onCode(isbn) once a valid ISBN-13 was read twice in a row.
+  // onStatus(text, isError) reports problems. Resolves to true when the camera is running.
+  async function startCamera({ video, onCode, onStatus }) {
+    onStatus('', false);
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      status.style.color = 'var(--rust)';
-      status.textContent = '❌ Tento prohlížeč nepodporuje přístup ke kameře (nebo stránka neběží přes HTTPS).';
-      return;
+      onStatus('❌ Tento prohlížeč nepodporuje přístup ke kameře (nebo stránka neběží přes HTTPS).', true);
+      return false;
     }
 
     // Choose decoder: native BarcodeDetector if it supports EAN-13, otherwise ZXing
@@ -2247,7 +2293,7 @@
     } catch (e) { detector = null; }
 
     if (!detector) {
-      status.textContent = 'Načítám skener…';
+      onStatus('Načítám skener…', false);
       try {
         await loadZXing();
         const hints = new Map([
@@ -2257,9 +2303,8 @@
         zxingReader = new ZXing.MultiFormatReader();
         zxingReader.setHints(hints);
       } catch (e) {
-        status.style.color = 'var(--rust)';
-        status.textContent = '❌ Skener se nepodařilo načíst. Zkontroluj připojení k internetu.';
-        return;
+        onStatus('❌ Skener se nepodařilo načíst. Zkontroluj připojení k internetu.', true);
+        return false;
       }
     }
 
@@ -2269,11 +2314,10 @@
         audio: false
       });
     } catch (e) {
-      status.style.color = 'var(--rust)';
-      status.textContent = (e.name === 'NotAllowedError')
+      onStatus((e.name === 'NotAllowedError')
         ? '❌ Přístup ke kameře byl zamítnut. Povol ho v nastavení prohlížeče.'
-        : '❌ Kameru se nepodařilo spustit (' + (e.name || 'chyba') + ').';
-      return;
+        : '❌ Kameru se nepodařilo spustit (' + (e.name || 'chyba') + ').', true);
+      return false;
     }
 
     // Try continuous autofocus where supported (mostly Android)
@@ -2281,12 +2325,9 @@
       await scanStream.getVideoTracks()[0].applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
     } catch (e) { /* not supported, fine */ }
 
-    const video = document.getElementById('scanVideo');
     video.srcObject = scanStream;
     await video.play().catch(() => {});
-    document.getElementById('scanBox').style.display = 'block';
-    document.getElementById('isbnScanBtn').style.display = 'none';
-    status.textContent = '';
+    onStatus('', false);
 
     scanActive = true;
     let lastCode = '', hits = 0;
@@ -2316,13 +2357,31 @@
       if (isValidIsbn13(code)) {
         hits = (code === lastCode) ? hits + 1 : 1;
         lastCode = code;
-        if (hits >= 2) { onScanned(code); return; }
+        if (hits >= 2) { onCode(code); return; }
       } else {
         hits = 0; lastCode = '';
       }
       scanTimer = setTimeout(tick, 150);
     };
     tick();
+    return true;
+  }
+
+  // ── scanner inside the book form (fills in the book) ──
+  async function startScanner() {
+    const status = document.getElementById('isbnStatus');
+    const ok = await startCamera({
+      video: document.getElementById('scanVideo'),
+      onCode: onScanned,
+      onStatus: (msg, isError) => {
+        status.style.color = isError ? 'var(--rust)' : 'var(--muted)';
+        status.textContent = msg;
+      }
+    });
+    if (ok) {
+      document.getElementById('scanBox').style.display = 'block';
+      document.getElementById('isbnScanBtn').style.display = 'none';
+    }
   }
 
   function onScanned(code) {
@@ -2337,6 +2396,29 @@
 
   document.getElementById('isbnScanBtn').addEventListener('click', startScanner);
   document.getElementById('scanCancel').addEventListener('click', stopScanner);
+
+  // ── scanner in the search bar (finds the book in the archive) ──
+  async function startSearchScan() {
+    const status = document.getElementById('searchScanStatus');
+    document.getElementById('searchScanOverlay').classList.add('open');
+    await startCamera({
+      video: document.getElementById('searchScanVideo'),
+      onCode: onSearchScanned,
+      onStatus: (msg) => { status.textContent = msg; }
+    });
+  }
+
+  function onSearchScanned(code) {
+    stopScanner();                                     // also closes the scan window
+    if (navigator.vibrate) navigator.vibrate(120);
+    const input = document.getElementById('searchInput');
+    input.value = code;
+    input.dispatchEvent(new Event('input'));           // runs the normal search
+    input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  document.getElementById('searchScanBtn').addEventListener('click', startSearchScan);
+  document.getElementById('searchScanCancel').addEventListener('click', stopScanner);
 
   document.getElementById('formClose').addEventListener('click', () => {
     stopScanner();
