@@ -57,7 +57,7 @@ export default {
 
       const bookJson = formData.get('book');
       const coverFile = formData.get('cover');
-      const contentsFile = formData.get('contents');
+      const contentsFiles = formData.getAll('contents').filter((f) => f && typeof f !== 'string' && f.size > 0);
 
       if (!bookJson) {
         return new Response(JSON.stringify({ error: 'Missing book data' }), {
@@ -97,13 +97,14 @@ export default {
         if (!coverResult.ok) errors.push(`Cover: ${await coverResult.text()}`);
       }
 
-      // ── Upload contents page if provided ──
-      if (contentsFile && contentsFile.size > 0) {
-        const contentsB64 = await fileToBase64(contentsFile);
-        const contentsResult = await uploadToGitHub(
-          env, `${bookFolder}/${contentsFile.name}`, contentsB64, `Obsah: ${title}`
+      // ── Upload contents pages (one or several) ──
+      // Sequential on purpose: parallel commits to the same branch can conflict on GitHub.
+      for (const file of contentsFiles) {
+        const b64 = await fileToBase64(file);
+        const result = await uploadToGitHub(
+          env, `${bookFolder}/${file.name}`, b64, `Obsah: ${title}`
         );
-        if (!contentsResult.ok) errors.push(`Contents: ${await contentsResult.text()}`);
+        if (!result.ok) errors.push(`Contents (${file.name}): ${await result.text()}`);
       }
 
       if (errors.length > 0) {
@@ -152,11 +153,11 @@ async function uploadToGitHub(env, path, content, message) {
 }
 
 async function fileToBase64(file) {
-  const buffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
+  const bytes = new Uint8Array(await file.arrayBuffer());
   let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
   }
   return btoa(binary);
 }
