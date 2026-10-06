@@ -633,6 +633,45 @@
     }
     .contents-item button:hover { background: var(--ink); color: var(--gold); }
     .contents-item button:disabled { opacity: 0.3; cursor: default; background: transparent; color: var(--ink); }
+    .contents-item .ci-tag { color: var(--muted); font-size: 0.65rem; flex-shrink: 0; }
+
+    /* ── duplicate warning in the form ── */
+    .dup-warning {
+      font-size: 0.74rem;
+      line-height: 1.55;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.9rem;
+      border-radius: 4px;
+      border-left: 3px solid var(--gold);
+      background: var(--parchment);
+      color: var(--ink);
+    }
+    .dup-warning:empty { display: none; }
+    .dup-warning.block { border-left-color: var(--rust); }
+    .dup-warning div + div { margin-top: 0.3rem; }
+
+    /* ── edit / delete buttons in the book detail ── */
+    .modal-admin {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+    }
+    .modal-admin button {
+      padding: 0.45rem 0.9rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .modal-admin button:hover { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+    .modal-admin button.danger:hover { background: var(--rust); color: #fff; border-color: var(--rust); }
  
     .modal-close {
       position: absolute;
@@ -1203,7 +1242,7 @@
   <!-- PASSWORD OVERLAY -->
   <div class="overlay" id="pwOverlay">
     <div class="pw-box">
-      <h2>Opravdu přidat knihu?</h2>
+      <h2 id="pwTitle">Opravdu přidat knihu?</h2>
       <p>Tato funkce je chráněna velice bezpečným heslem!</p>
       <input class="pw-input" id="pwInput" type="password" placeholder="········" maxlength="32" />
       <div class="pw-error" id="pwError"></div>
@@ -1216,7 +1255,7 @@
   <div class="overlay" id="formOverlay">
     <div class="form-box">
       <div class="form-header">
-        <h2>Editor nové knihy...</h2>
+        <h2 id="formTitle">Editor nové knihy...</h2>
         <button class="form-close" id="formClose">✕</button>
       </div>
       <div class="form-body">
@@ -1269,6 +1308,7 @@
           <label>ISBN <span style="color:var(--muted)">(nepovinné)</span></label>
           <input class="form-input" id="f-isbn" type="text" placeholder="978-80-..." />
         </div>
+        <div class="dup-warning" id="dupWarning"></div>
 
         <div class="form-section">Umístění knihy</div>
         <div class="form-field">
@@ -1323,7 +1363,7 @@
         </div>
         <p style="font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.5;">
           Podporované formáty: <strong>.jpg/.jpeg</strong>, <strong>.png</strong><br>
-          !!! Po odeslání se stáhne <strong>.zip</strong> soubor obsahující složku s knihou — fotky a data jsou už v ní spolu zabalené.
+          Fotky se po odeslání uloží spolu s údaji o knize přímo do databáze.
         </p>
 
         <div class="form-section">Další</div>
@@ -1346,9 +1386,9 @@
   <!-- SUCCESS OVERLAY -->
   <div class="overlay" id="successOverlay">
     <div class="success-box">
-      <div class="success-emoji">✅</div>
-      <h2>Kniha byla úspěšně zaznamenána!</h2>
-      <p>Ještě ale zbívá přidat soubor knihy na GitHub!</p>
+      <div class="success-emoji" id="successEmoji">✅</div>
+      <h2 id="successTitle">Kniha byla úspěšně zaznamenána!</h2>
+      <p id="successText"></p>
       <div class="success-stk" id="successStk"></div>
       <div class="success-entry" id="successEntry"></div>
       <button class="success-close" id="successClose">Zavřít</button>
@@ -1777,6 +1817,10 @@
             `<a href="${u}" target="_blank" rel="noopener"><img class="modal-contents" loading="lazy" src="${u}" alt="Obsah ${i + 1}"/></a>`
           ).join('')}</div>`;
       })()}
+      <div class="modal-admin">
+        <button type="button" onclick="startEdit('${book.stk}')">✏️ Upravit knihu</button>
+        <button type="button" class="danger" onclick="startDelete('${book.stk}')">🗑 Smazat knihu</button>
+      </div>
     `;
  
     document.getElementById('modalOverlay').classList.add('open');
@@ -1877,13 +1921,23 @@
   fSubcat.addEventListener('change', updateSTKPreview);
 
   // ── PASSWORD GATE ──
-  document.getElementById('addBookBtn').addEventListener('click', () => {
+  // The password is asked every time; once verified it is kept only in memory (gone after a refresh)
+  let adminPassword = '';
+  let pendingAfterUnlock = null;
+
+  function askPassword(onSuccess, heading) {
+    pendingAfterUnlock = onSuccess;
+    document.getElementById('pwTitle').textContent = heading;
     document.getElementById('pwInput').value = '';
     document.getElementById('pwError').textContent = '';
     document.getElementById('pwInput').classList.remove('error');
     document.getElementById('pwOverlay').classList.add('open');
     setTimeout(() => document.getElementById('pwInput').focus(), 100);
-  });
+  }
+
+  document.getElementById('addBookBtn').addEventListener('click', () => askPassword(openAddForm, 'Opravdu přidat knihu?'));
+  function startEdit(stk)   { askPassword(() => openEditForm(stk), 'Opravdu upravit knihu?'); }
+  function startDelete(stk) { askPassword(() => deleteBook(stk),   'Opravdu smazat knihu?'); }
 
   document.getElementById('pwCancel').addEventListener('click', () => {
     document.getElementById('pwOverlay').classList.remove('open');
@@ -1906,8 +1960,11 @@
       });
       const result = await res.json();
       if (result.valid) {
+        adminPassword = val;
         document.getElementById('pwOverlay').classList.remove('open');
-        openAddForm();
+        const next = pendingAfterUnlock || openAddForm;
+        pendingAfterUnlock = null;
+        next();
       } else {
         const inp = document.getElementById('pwInput');
         inp.classList.remove('error');
@@ -1924,6 +1981,9 @@
 
   // ── ADD BOOK FORM ──
   function openAddForm() {
+    editingBook = null;
+    existingCover = null;
+    setEditUI(false);
     currentZZZZ = generateZZZZ();
     updateSTKPreview();
     // Clear all fields
@@ -1942,6 +2002,7 @@
     fSubcat.disabled = true;
     // Reset to manual mode
     setMode('manual');
+    updateDupWarning();
     document.getElementById('formOverlay').classList.add('open');
   }
 
@@ -2081,6 +2142,7 @@
 
       status.style.color = 'var(--brown)';
       status.textContent = `✅ Nalezeno (${book.sources.join(', ')})! Vyplněno: ${filled.join(', ')}. Zbytek dopiš ručně.`;
+      updateDupWarning();
 
       setMode('manual');
 
@@ -2261,80 +2323,102 @@
     '--noise-rotation', `${Math.floor(Math.random() * 360)}deg`
   );
 
-  // ── COVER PREVIEW (same look as the contents list, but only one photo) ──
-  function renderCoverPreview() {
-    const input = document.getElementById('f-cover');
-    const box = document.getElementById('coverList');
-    box.innerHTML = '';
-    const f = input.files[0];
-    if (!f) return;
+  // ── STATE FOR THE FORM (null = adding a new book) ──
+  let editingBook = null;
+  let existingCover = null;      // {url, filename} of the cover that is already saved (edit mode)
+  const MAX_CONTENTS = 10;
+  let contentsFiles = [];        // items: {file} (new photo) or {url, filename} (already saved photo)
 
+  const fileNameFromUrl = (u) => decodeURIComponent(String(u).split('/').pop());
+  const pagesOf = (book) => Array.isArray(book.contents) ? book.contents.filter(Boolean) : (book.contents ? [book.contents] : []);
+
+  function setEditUI(on) {
+    document.getElementById('formTitle').textContent = on ? 'Úprava knihy...' : 'Editor nové knihy...';
+    document.getElementById('formSubmit').textContent = on ? 'Uložit změny' : 'Zaznamenat knihu!';
+    document.querySelector('.mode-toggle-wrap').style.display = on ? 'none' : '';
+    document.getElementById('stkRegen').style.display = on ? 'none' : '';
+  }
+
+  // One row of the photo lists (thumbnail, name, buttons)
+  function photoRow({ src, revoke, name, tag, order, buttons }) {
     const row = document.createElement('div');
     row.className = 'contents-item';
 
     const img = document.createElement('img');
     img.alt = '';
-    img.src = URL.createObjectURL(f);
-    img.onload = () => URL.revokeObjectURL(img.src);
+    img.src = src;
+    if (revoke) img.onload = () => URL.revokeObjectURL(src);
+    row.appendChild(img);
 
-    const name = document.createElement('span');
-    name.className = 'ci-name';
-    name.textContent = f.name;
+    if (order) {
+      const o = document.createElement('span');
+      o.className = 'ci-order';
+      o.textContent = order;
+      row.appendChild(o);
+    }
+    const n = document.createElement('span');
+    n.className = 'ci-name';
+    n.textContent = name;
+    row.appendChild(n);
 
-    const rm = document.createElement('button');
-    rm.type = 'button';
-    rm.textContent = '✕';
-    rm.title = 'Odebrat';
-    rm.addEventListener('click', () => { input.value = ''; renderCoverPreview(); });
+    if (tag) {
+      const t = document.createElement('span');
+      t.className = 'ci-tag';
+      t.textContent = tag;
+      row.appendChild(t);
+    }
+    buttons.forEach(([label, title, disabled, fn]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = label; b.title = title; b.disabled = disabled;
+      b.addEventListener('click', fn);
+      row.appendChild(b);
+    });
+    return row;
+  }
 
-    row.append(img, name, rm);
-    box.appendChild(row);
+  // ── COVER PREVIEW (one photo; in edit mode the saved cover is shown until replaced or removed) ──
+  function renderCoverPreview() {
+    const input = document.getElementById('f-cover');
+    const box = document.getElementById('coverList');
+    box.innerHTML = '';
+    const f = input.files[0];
+
+    if (f) {
+      const src = URL.createObjectURL(f);
+      box.appendChild(photoRow({
+        src, revoke: true, name: f.name, tag: existingCover ? 'nová' : '',
+        buttons: [['✕', 'Odebrat', false, () => { input.value = ''; renderCoverPreview(); }]]
+      }));
+    } else if (existingCover) {
+      box.appendChild(photoRow({
+        src: existingCover.url, name: existingCover.filename, tag: 'uložená',
+        buttons: [['✕', 'Odebrat obálku', false, () => { existingCover = null; renderCoverPreview(); }]]
+      }));
+    }
   }
   document.getElementById('f-cover').addEventListener('change', renderCoverPreview);
 
-  // ── CONTENTS PHOTOS (several allowed) ──
-  const MAX_CONTENTS = 10;
-  let contentsFiles = [];
-
+  // ── CONTENTS PHOTOS (several allowed, saved + new ones in one ordered list) ──
   function renderContentsList() {
     const box = document.getElementById('contentsList');
     box.innerHTML = '';
-    contentsFiles.forEach((f, i) => {
-      const row = document.createElement('div');
-      row.className = 'contents-item';
-
-      const img = document.createElement('img');
-      img.alt = '';
-      img.src = URL.createObjectURL(f);
-      img.onload = () => URL.revokeObjectURL(img.src);
-
-      const order = document.createElement('span');
-      order.className = 'ci-order';
-      order.textContent = (i + 1) + '.';
-
-      const name = document.createElement('span');
-      name.className = 'ci-name';
-      name.textContent = f.name;
-
-      const mk = (label, title, disabled, fn) => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.textContent = label; b.title = title; b.disabled = disabled;
-        b.addEventListener('click', fn);
-        return b;
-      };
-      const move = (from, to) => {
-        const [x] = contentsFiles.splice(from, 1);
-        contentsFiles.splice(to, 0, x);
-        renderContentsList();
-      };
-
-      row.append(
-        img, order, name,
-        mk('▲', 'Posunout nahoru', i === 0, () => move(i, i - 1)),
-        mk('▼', 'Posunout dolů', i === contentsFiles.length - 1, () => move(i, i + 1)),
-        mk('✕', 'Odebrat', false, () => { contentsFiles.splice(i, 1); renderContentsList(); })
-      );
-      box.appendChild(row);
+    const move = (from, to) => {
+      const [x] = contentsFiles.splice(from, 1);
+      contentsFiles.splice(to, 0, x);
+      renderContentsList();
+    };
+    contentsFiles.forEach((it, i) => {
+      const isNew = !!it.file;
+      const src = isNew ? URL.createObjectURL(it.file) : it.url;
+      box.appendChild(photoRow({
+        src, revoke: isNew, order: (i + 1) + '.', name: isNew ? it.file.name : it.filename,
+        tag: editingBook ? (isNew ? 'nová' : 'uložená') : '',
+        buttons: [
+          ['▲', 'Posunout nahoru', i === 0, () => move(i, i - 1)],
+          ['▼', 'Posunout dolů', i === contentsFiles.length - 1, () => move(i, i + 1)],
+          ['✕', 'Odebrat', false, () => { contentsFiles.splice(i, 1); renderContentsList(); }]
+        ]
+      }));
     });
   }
 
@@ -2344,12 +2428,175 @@
         alert(`Maximálně ${MAX_CONTENTS} fotek obsahu.`);
         break;
       }
-      contentsFiles.push(f);
+      contentsFiles.push({ file: f });
     }
     e.target.value = '';           // so the same photo can be picked again and more can be added
     renderContentsList();
   });
 
+  // New photos get neutral, ordered names (obsah-1.jpg, ...) that never collide with saved ones
+  function planContents(items, usedNames) {
+    const used = new Set(usedNames);
+    let n = 1;
+    return items.map(it => {
+      if (!it.file) return { filename: it.filename };
+      const ext = (it.file.name.split('.').pop() || '').toLowerCase();
+      const e = ext === 'png' ? 'png' : (ext === 'jpeg' ? 'jpeg' : 'jpg');
+      while (used.has(`obsah-${n}.${e}`)) n++;
+      const filename = `obsah-${n}.${e}`;
+      used.add(filename);
+      return { file: it.file, filename };
+    });
+  }
+
+  // ── DUPLICATE CHECK ──
+  const normTitle = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+  // Any valid ISBN-10/13 -> ISBN-13 digits, so both spellings of the same book compare equal
+  function normIsbn(raw) {
+    let d = String(raw || '').replace(/[^0-9Xx]/g, '').toUpperCase();
+    if (/^\d{9}[\dX]$/.test(d)) {
+      const core = '978' + d.slice(0, 9);
+      let sum = 0;
+      for (let i = 0; i < 12; i++) sum += Number(core[i]) * (i % 2 ? 3 : 1);
+      d = core + ((10 - (sum % 10)) % 10);
+    }
+    return /^\d{13}$/.test(d) ? d : '';
+  }
+
+  // blocks = would overwrite an existing book's folder; warns = looks like the same book
+  function findDuplicates({ title, author, isbn, xx }, excludeStk) {
+    const out = { blocks: [], warns: [] };
+    const t = normTitle(title), a = normTitle(author), i = normIsbn(isbn);
+    for (const b of BOOKS) {
+      if (b.stk === excludeStk) continue;
+      if (xx && title && b.stk.split('-')[0] === xx && b.title === title) {
+        out.blocks.push({ book: b, why: 'stejný název ve stejném předmětu' });
+      } else if (i && normIsbn(b.isbn) === i) {
+        out.warns.push({ book: b, why: 'stejné ISBN' });
+      } else if (t && a && normTitle(b.title) === t && normTitle(b.author) === a) {
+        out.warns.push({ book: b, why: 'stejný název a autor' });
+      }
+    }
+    return out;
+  }
+
+  const dupLine = (d) => `„${d.book.title}“ (${d.book.stk}) – ${d.why}`;
+
+  function currentFormBook() {
+    return {
+      title:  document.getElementById('f-title').value.trim(),
+      author: document.getElementById('f-author').value.trim(),
+      isbn:   document.getElementById('f-isbn').value.trim(),
+      xx:     fSubject.value
+    };
+  }
+
+  function updateDupWarning() {
+    const box = document.getElementById('dupWarning');
+    box.innerHTML = '';
+    box.classList.remove('block');
+    const dups = findDuplicates(currentFormBook(), editingBook ? editingBook.stk : null);
+    const add = (icon, text) => {
+      const div = document.createElement('div');
+      div.textContent = `${icon} ${text}`;
+      box.appendChild(div);
+    };
+    dups.blocks.slice(0, 3).forEach(d => add('⛔', `V archivu už je: ${dupLine(d)}. Uložení by ji přepsalo, změň název nebo předmět.`));
+    dups.warns.slice(0, 3).forEach(d => add('⚠️', `Podobná kniha už v archivu je: ${dupLine(d)}.`));
+    if (dups.blocks.length) box.classList.add('block');
+  }
+
+  ['f-title', 'f-author', 'f-isbn'].forEach(id => document.getElementById(id).addEventListener('input', updateDupWarning));
+  fSubject.addEventListener('change', updateDupWarning);
+
+  // ── RESULT OVERLAY (shared by add / edit / delete) ──
+  const spinnerHTML = (label) => `
+    <div style="display:flex;align-items:center;gap:0.6rem;">
+      <div style="width:16px;height:16px;border:2px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;"></div>
+      ${label}
+    </div>`;
+
+  function showResult({ emoji = '✅', title, text = '', stk = '', entry = '' }) {
+    document.getElementById('successEmoji').textContent = emoji;
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successText').textContent = text;
+    const stkEl = document.getElementById('successStk');
+    stkEl.textContent = stk;
+    stkEl.style.display = stk ? '' : 'none';
+    document.getElementById('successEntry').innerHTML = entry;
+    document.getElementById('successOverlay').classList.add('open');
+  }
+
+  // ── EDIT A BOOK ──
+  function openEditForm(stk) {
+    const book = BOOKS.find(b => b.stk === stk);
+    if (!book) return;
+    document.getElementById('modalOverlay').classList.remove('open');
+
+    const { xx, yy, zzzz } = parseSTK(book.stk);
+    editingBook = book;
+    setEditUI(true);
+    currentZZZZ = zzzz;                               // the physical label keeps its last 4 letters
+
+    document.getElementById('f-title').value  = book.title || '';
+    document.getElementById('f-author').value = book.author || '';
+    document.getElementById('f-year').value   = book.year || '';
+    document.getElementById('f-isbn').value   = book.isbn || '';
+    document.getElementById('f-desc').value   = book.description || '';
+    const kws = book.keywords || [];
+    ['f-kw1', 'f-kw2', 'f-kw3'].forEach((id, i) => { document.getElementById(id).value = kws[i] || ''; });
+    document.getElementById('f-loc1').value = Object.values(book.location || {})[0] || '';
+
+    fSubject.value = xx;
+    fSubject.dispatchEvent(new Event('change'));      // fills the category list
+    fSubcat.value = yy;
+    document.getElementById('f-matura').checked = !!book.matura;
+    updateSTKPreview();
+
+    document.getElementById('f-cover').value = '';
+    existingCover = book.cover ? { url: book.cover, filename: fileNameFromUrl(book.cover) } : null;
+    renderCoverPreview();
+    document.getElementById('f-contents').value = '';
+    contentsFiles = pagesOf(book).map(u => ({ url: u, filename: fileNameFromUrl(u) }));
+    renderContentsList();
+
+    setMode('manual');
+    updateDupWarning();
+    document.getElementById('formOverlay').classList.add('open');
+  }
+
+  // ── DELETE A BOOK ──
+  async function deleteBook(stk) {
+    const book = BOOKS.find(b => b.stk === stk);
+    if (!book) return;
+    if (!confirm(`Opravdu smazat knihu „${book.title}“ (${book.stk})?\n\nSmaže se i její složka s fotkami. Starší verze zůstane v historii GitHubu.`)) return;
+
+    document.getElementById('modalOverlay').classList.remove('open');
+    showResult({ title: 'Mažu knihu…', stk: book.stk, entry: spinnerHTML('Mažu z databáze...') });
+
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Action': 'delete-book' },
+        body: JSON.stringify({ password: adminPassword, stk: book.stk, title: book.title })
+      });
+      const result = await res.json();
+      if (result.success) {
+        BOOKS = BOOKS.filter(b => b.stk !== book.stk);
+        render();
+        showResult({ title: 'Kniha byla smazána', stk: book.stk, entry: '✅ Kniha byla odstraněna z databáze.' });
+      } else {
+        showResult({ emoji: '❌', title: 'Mazání se nepovedlo', stk: book.stk, entry: `❌ Chyba: ${result.error}` });
+      }
+    } catch (e) {
+      showResult({ emoji: '❌', title: 'Mazání se nepovedlo', stk: book.stk,
+        entry: `❌ Chyba připojení: ${e.message}<br><br>Zkontroluj připojení k internetu a zkus to znovu.` });
+    }
+  }
+
+  // ── SAVE (new book or changes to an existing one) ──
   document.getElementById('formSubmit').addEventListener('click', async () => {
     const title   = document.getElementById('f-title').value.trim();
     const author  = document.getElementById('f-author').value.trim();
@@ -2359,25 +2606,47 @@
     const kw1     = document.getElementById('f-kw1').value.trim();
     const kw2     = document.getElementById('f-kw2').value.trim();
     const kw3     = document.getElementById('f-kw3').value.trim();
-    const coverFile    = document.getElementById('f-cover').files[0]    || null;
-    // Contents photos get neutral, ordered names (obsah-1.jpg, obsah-2.jpg, ...) so that
-    // identical camera file names (IMG_001.jpg) can never overwrite each other
-    const contentsUpload = contentsFiles.map((f, i) => {
-      const ext = (f.name.split('.').pop() || '').toLowerCase();
-      return { file: f, name: `obsah-${i + 1}.${ext === 'png' ? 'png' : (ext === 'jpeg' ? 'jpeg' : 'jpg')}` };
-    });
+    const isbn    = document.getElementById('f-isbn').value.trim();
+    const coverFile = document.getElementById('f-cover').files[0] || null;
+    const editing = editingBook;
 
     if (!title || !author || !year || !xx || !yy || !kw1 || !kw2 || !kw3) {
       alert('Vyplň prosím všechna povinná pole (označena *).');
       return;
     }
+    if (/[\/\\]/.test(title) || title.includes('..') || title.startsWith('.')) {
+      alert('Název knihy nesmí obsahovat lomítka ani „..“ (je z něj název složky na GitHubu).');
+      return;
+    }
+
+    // Duplicate check: hard stop when it would overwrite a book, a question when it only looks the same
+    const dups = findDuplicates({ title, author, isbn, xx }, editing ? editing.stk : null);
+    if (dups.blocks.length) {
+      alert('Tuto knihu nelze uložit:\n\n' + dups.blocks.map(dupLine).join('\n') + '\n\nUložení by přepsalo existující knihu. Změň název nebo předmět.');
+      return;
+    }
+    if (dups.warns.length &&
+        !confirm('V archivu už je podobná kniha:\n\n' + dups.warns.slice(0, 3).map(dupLine).join('\n') + '\n\nOpravdu ji chceš uložit?')) {
+      return;
+    }
+
+    // Which file names are already taken in the book's folder
+    const used = new Set();
+    if (coverFile) used.add(coverFile.name);
+    if (editing) {
+      if (!coverFile && existingCover) used.add(existingCover.filename);
+      contentsFiles.forEach(it => { if (!it.file) used.add(it.filename); });
+    }
+    const contentsPlan = planContents(contentsFiles, used);
+    const coverName = coverFile ? coverFile.name : (editing && existingCover ? existingCover.filename : '');
 
     const stk = `${xx}-${yy}-${currentZZZZ}`;
     const newBook = {
+      ...(editing || {}),
       stk,
       title,
       author,
-      isbn:        document.getElementById('f-isbn').value.trim() || '',
+      isbn,
       year,
       description: document.getElementById('f-desc').value.trim() || '',
       location: {
@@ -2385,42 +2654,56 @@
       },
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
-      cover:    buildFileURL(xx, title, coverFile ? coverFile.name : ''),
-      contents: contentsUpload.map(c => buildFileURL(xx, title, c.name)),
+      cover:    buildFileURL(xx, title, coverName),
+      contents: contentsPlan.map(c => buildFileURL(xx, title, c.filename)),
     };
 
-    // Close form and show success screen immediately with spinner
-    document.getElementById('formOverlay').classList.remove('open');
-    document.getElementById('successStk').textContent = stk;
-    document.getElementById('successEntry').innerHTML = `
-      <div style="display:flex;align-items:center;gap:0.6rem;">
-        <div style="width:16px;height:16px;border:2px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;"></div>
-        Ukládám do databáze...
-      </div>`;
-    document.getElementById('successOverlay').classList.add('open');
-
-    // Submit to Worker in the background
     const formData = new FormData();
     formData.append('book', JSON.stringify(newBook));
-    if (coverFile)    formData.append('cover', coverFile);
-    contentsUpload.forEach(c => formData.append('contents', c.file, c.name));
-    formData.append('password', document.getElementById('pwInput').value);
+    formData.append('password', adminPassword);
+    if (coverFile) formData.append('cover', coverFile);
+    contentsPlan.filter(c => c.file).forEach(c => formData.append('contents', c.file, c.filename));
 
-    fetch(WORKER_URL, { method: 'POST', body: formData })
+    const headers = {};
+    if (editing) {
+      headers['X-Action'] = 'update-book';
+      formData.append('oldStk', editing.stk);
+      formData.append('oldTitle', editing.title);
+      const keep = [
+        (!coverFile && existingCover) ? existingCover.filename : null,
+        ...contentsPlan.filter(c => !c.file).map(c => c.filename)
+      ].filter(Boolean);
+      formData.append('keep', JSON.stringify(keep));
+    }
+
+    // Close the form and show the progress screen while the Worker saves in the background
+    document.getElementById('formOverlay').classList.remove('open');
+    showResult(editing
+      ? { title: 'Ukládám změny…', stk, entry: spinnerHTML('Ukládám do databáze...') }
+      : { title: 'Kniha byla úspěšně zaznamenána!', text: 'Kniha se právě ukládá do databáze.', stk, entry: spinnerHTML('Ukládám do databáze...') });
+
+    fetch(WORKER_URL, { method: 'POST', headers, body: formData })
       .then(res => res.json())
       .then(result => {
         if (result.success) {
-          BOOKS.push(newBook);
+          if (editing) {
+            const idx = BOOKS.findIndex(b => b.stk === editing.stk);
+            if (idx >= 0) BOOKS[idx] = newBook; else BOOKS.push(newBook);
+          } else {
+            BOOKS.push(newBook);
+          }
           render();
-          document.getElementById('successEntry').innerHTML = '✅ Kniha byla úspěšně uložena do databáze!';
+          showResult(editing
+            ? { title: 'Kniha byla upravena!', stk, entry: '✅ Změny jsou uloženy v databázi.' }
+            : { title: 'Kniha byla úspěšně zaznamenána!', stk, entry: '✅ Kniha byla úspěšně uložena do databáze!' });
         } else {
-          document.getElementById('successEntry').innerHTML =
-            `❌ Chyba: ${result.error}<br><br>Zkus to znovu nebo kontaktuj správce.`;
+          showResult({ emoji: '❌', title: editing ? 'Změny se nepovedlo uložit' : 'Knihu se nepovedlo uložit', stk,
+            entry: `❌ Chyba: ${result.error}<br><br>Zkus to znovu nebo kontaktuj správce.` });
         }
       })
       .catch(e => {
-        document.getElementById('successEntry').innerHTML =
-          `❌ Chyba připojení: ${e.message}<br><br>Zkontroluj připojení k internetu a zkus to znovu.`;
+        showResult({ emoji: '❌', title: 'Chyba připojení', stk,
+          entry: `❌ ${e.message}<br><br>Zkontroluj připojení k internetu a zkus to znovu.` });
       });
   });
 
