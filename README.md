@@ -1,10 +1,10 @@
-# AK - Adolescentní Knihovna 2026 [HODNĚ PŘEDĚLAT]
-<!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání/odebrání knihy - 14.09.26 -->
+# AK - Adolescentní Knihovna 2026
+<!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání/odebrání knihy - 14.09.26 (tento text není viditelný) -->
 
 > [!WARNING]
 > ***Tento projekt a zároveň i toto README není plně dokončeno! Tedy je možné, že se projekt může v blízké době výrazně pozměnit a README nemusí odpovídat realitě!***
 
-Vítejte ve školní **online databázi knih**! Kde si pro svůj projekt můžete hledat knihy potřebné pro vaše projekty, prezentace a tak dále. Toto **README** obsahuje základní informace o tom, jak tento projekt funguje a jak případně přidat/oddělat knihu.
+Vítejte ve školní **online databázi knih**! Kde si můžete hledat a procházet knihy potřebné pro vaše projekty, prezentace a tak dále. Toto **README** obsahuje základní informace o tom, jak tento projekt funguje a jak postupovat u přidání a úpravy/oddělání knihy.
 
 ## Webovka
 > [!NOTE]
@@ -16,25 +16,26 @@ Vítejte ve školní **online databázi knih**! Kde si pro svůj projekt můžet
 ## Informace o projektu a jak to *(zhruba)* funguje
 
 ### Proč GitHub? <img src="Assets/images/25231.png" width="16" height="16"/>
-Jelikož tento projekt je převážně tvořen přes GitHub, tak je důležité si objasnit proč je tato databáze tvořená právě přes něj a jaké to má výhody a nevýhody.
+Jelikož je tento projekt převážně tvořen přes GitHub, tak je důležité si vysvětlit a objasnit proč je tato databáze tvořená právě přes něj a jaké to má výhody a nevýhody.
 
-Celý projekt je stavěn na jednom principu, a to ukládání knih se základními informacemi o ní. GitHub je perfektně stavěn na ukládání projektů jak pro osobní účely, tak i pro veřejnost, což se dá v našem případě velmi využít. V našem repositáři vytvoříme web za pomocí programovacího jayzka HTML (soubor pojmenovaný index.html) a dále můžeme přidat složky s jmény předmětů, kde se knihy budou ukládat.\
-I přesto že GitHub nám dovoluje si jak ukládat knihy, tak i běžet funkční web, tak nám nedovoluje ukládat a přidat knihy do repositáře automaticky. Vždy je potřeba pro uživatele vzít nainstalovaný soubor .zip, extrahovat ho a manuálně ho přidat do správné složky, což může být problém pro uživatele, kteří s GitHub neumí nebo s ním nijak v minulosti nepracovali. Naštěstí existuje jednoduché řešení, které celý proces zautomatizuje.
+Celý projekt je stavěn na jednom základním principu, a to ukládání knih se základními informacemi potřebné pro uživatele. GitHub byl vybrán z důvodu, jelikož repositáře (se kterými GitHub pracuje) dovolují ukládání hromadu souborů pro osobní účely bez žádných limitací. GitHub také kromě ukládání souborů dokáže za pomocí kódu **HTML** nechat běžet jednoduchý web, který se vyskytuje ve stejném repositáři a dokáže se propojit se soubory v něm.\
+I přesto, že GitHub dokáže většinu potřeb zachovat v jednom repositáři, tak jediné co nám GitHub nedovolí je automatizace. Náš web dovoluje uživateli nejenom prohlížet knihy, ale knihy i přidávat, jenže aby knihu mohl opravdu uložit na web, tak potřebuje soubor knihy přidat do tohoto repositáře na GitHub. Problém jenže je, že většina uživatelů se nebude chtít hrabat v souborech jenom proto, aby uložili nějakou knihu a nebo GitHub nikdy nepoužívali. Naštěstí existuje jednoduché řešení, které nám celý proces ukládání knih zautomatizuje.
 
 ### Propojení GitHub s Cloudflare <img src="Assets/images/cloudflare-logo-png_seeklogo-294312.png" width="16" height="16"/>
-Abychom mohli vůbec pochopit, jak nám Cloudflare pomůže s automatizací, tak je dobré si krátce říct o Cloudflare a jeho možnostech.
+Naše řešení se nazývá Cloudflare, ale co to je a jak nám dokáže pomoct s automatizací ukládání knih na GitHub?
 
-Pokud člověk chce automatizovat nějaký proces v GitHub, tak musí vytvořit takzvaný token, což je klíč který dává přístup k repositáři a můžete v něm cokoli upravovat. Tento token ale nemůžeme dát do našeho kódu webu (index.html), protože je ten kód volně viditelný každým kdo si kód otevře a taky i ho sám GitHub zachytí a zabrání jeho použití. Proto na scénu přichází Cloudflare.\
-Cloudflare nám dovoluje si vytvořit takzvané "Workers", kteří dovolují použít váš kód v malém prostoru cloudu. Když našemu "Worker" předámé token s krátkým kódem o tom jak s ním zacházet, tak bude token bezpečně enkriptovaný v Cloudflare mimo náš kód.
+**[NĚJAKÉ INFORMACE O CLOUDFLARE ZDE]**\
+Aby Cloudflare mohl mít přístup k našemu repositáři, tak je potřeba vytvořit takzvaný token, který dovoluje k úpravě repositáře bez potřeby se ověřovat. Abychom tento token mohli využít, tak ho nemůžeme jen tak napsat do našeho index.html (který řídí web) především z důvodu, že by si ho každý mohl jednoduše najít a zneužít, což sám GitHub zachytí a nedovolí se projektu uložit. Proto je potřeba vzít náš token a předat ho našemu vytvořenému pracovníkovi na Cloudflare s kódem, který mu řekne, jak s ním zacházet.\
+Jelikož náš pracovník existuje v malém prostoru cloudu s enkryptovaným tokenem, tak může velmi jednoduše interagovat s naším webem a ukládat naše knihy automaticky na GitHub.
 
-Cloudflare ušetří manuální ukládání na GitHub a tedy postup je pro uživatele jednodušší. Jakmile uživatel uloží knihu na našem webu, tak se stáhne složka na Cloudflare, kde náš "Worker" vezme veškeré soubory co se v něm nachází a převede je na GitHub plně automaticky bez pomoci uživatele. Finální kniha by se měla na webu objevit během několika sekund.
+Cloudflare nám tedy ušetří veškerou manuální práci s ukládáním knih na GitHub, což je pro průměrného uživatele jednodušší. Jakmile tedy uživatel uloží knihu na našem webu, tak pošle veškeré soubory knihy na Cloudflare, kde náš pracovník převezme naše informace a plně automaticky je uloží do správného repositáře a složky na GitHub. Kniha by se během několika sekund objevit na webu i po obnovení.
 
 > [!CAUTION]
-> ***Málokrát do roka se může stát, že spojení s Cloudflare vypadne a nedovolí knize se uložit na GitHub! Pokud se tak stane, tak kontaktujte členy repositáře!***
+> ***Málokrát do roka se může stát, že spojení s Cloudflare vypadne a nedovolí knize se uložit na GitHub! Pokud se tak stane, tak náš pracovník na Cloudflare nemá aktuální token a je potřeba vygenerovat nový!***
 
 > [!IMPORTANT]
 > ## Postup u přidání knihy
-Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko ***`+ Chci přidat knihu!`***. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo, aby jste mohli pokračovat. Po zadání hesla by se měl objevit editor knihy, kde o knize napíšete veškeré nutné i vedlejší informace.
+Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko ***`+ Chci přidat knihu!`***. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo (editor knihy je chráněn heslem z důvodu, že ten web je plně přístupný k celému internetu). Po zadání (správného) hesla by se měl objevit editor knihy, kde o knize napíšete veškeré nutné i vedlejší informace.
 
 **Tlačítko přidání knihy**\
 ![til](Assets/GIFs/KliknoutNaPřidáníKnihy.gif)\
@@ -42,9 +43,10 @@ Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo
 ![til](Assets/GIFs/PřídatKnihu_Editor.gif)
 
 ### Manuální zadání / Zadání podle ISBN
-Hned po otevření editora je možné si povšimnout dvou horních tlačítek (***`Ruční zadání informací`*, *`Zadání podle ISBN`***), které dávají možnost informace zadat ručně nebo automaticky. Pokud si zvolíte možnost zadání informací podle ISBN, tak se kniha vyplní dvěma způsoby, a to že buď ISBN napíšete celé ručně nebo ho naskenujete web kamerou nebo pokud jste na mobilu, tak přes normální foťák na její přední straně. Po chvilce strpení by se informace měly vyplnit. Je dobré brát na vědomí, že automatické vyplnění nemusí vždy plně fungovat a taky je velice pravděpodobné, že se žádné informace vůbec nevyplní. Nejčastěji se toto může stát u česky vydaných knih.
+První čeho si lze v editoru knihy povšimnout jsou dvě horní tlačítka (***`Ruční zadání informací`*, *`Zadání podle ISBN`***), které dávají možnost informace o knize zadat ručně nebo automaticky. Pokud si zvolíte možnost automatického zadání informací o knize podle ISBN, tak se dále vyskytne možnost, zda kód ISBN zadáte ručně a nebo naskenujete čárkový kód s ISBN té knihy. V obou případech by se měly všechny informace automaticky vyplnit.\
+Každopádně je ale furt dobré brát na vědomí, že automatické vyplnění ne vždycky může fungovat, protože buď kniha není vyhledatelná, nebo připojení s pracovníkem na Cloudflare (který informace o knize vyhledává) je nějak porušené. Toto se stává nejčastěji u česky vydaných knih.
 
-**Okénko Editora s výběrem možnosti vyplnění**\
+**Okénko E-ditora s výběrem možnosti vyplnění**\
 ![til](Assets/GIFs/VybráníZadání_Editor.gif)
 
 > [!CAUTION]
@@ -52,7 +54,8 @@ Hned po otevření editora je možné si povšimnout dvou horních tlačítek (*
 > Informace jsou čerpané z těchto katalogů a webů: Open Library, K10plus, DNB, Národní Knihovna ČR a Knihovny.cz***
 
 ### STK (Systémově tříděný kód)
-Když už se knihy ukládají automaticky a chceme aby se lehce třídily a vyhledávaly, tak je potřeba zadané knihy nějak očíslovat nebo označit vlastním kódem. Pro naše účely můžeme třídit knihy podle jednoduchých pravidel, kde každá kniha je tříděna podle předmětu (čeština, matematika, němčina atd.), kategorie předmětu (například v češtině jsou kategorie román, epika, učebnice atd.) a dále na čtyři náhodná písmena, která zajistí to, aby každá kniha měla svůj vlastní kód a aby se kódy neopakovaly. Tento systém můžeme pojmenovat jako Systémově Tříděný Kód (STK) a celkově se kód staví na XX-YY-ZZZZ, kdy "XX" je předmět, "YY" je kategorie předmětu a "ZZZZ" jsou ty čtyři náhodně generovaná písmena (tedy 26 písmen), což nám dovoluje mít jedinečných **456 976 knih** v jedné kategorii předmětu.
+Když už se knihy mají ukládat automaticky, tak je dobré vymyslet nějaký systém třídění knih a označit jednotlivou knihu vlastním kódem nebo číslem. Protože hodláme ukládat školní, tak můžeme třídit a seřazovat knihy podle jednoduchých pravidel. Každá kniha je tedy tříděna podle předmětu, kategorie předmětu a poté má každá kniha čtyři náhodně vygenerovaná písmena, která zabraňují tomu, aby se různé knihy ve stejném předmětu a stejné kategorii nepletly a také aby se daly jednoduše identifikovat.\
+Finální podobu kódu si můžete představit nějak takto: XX-YY-ZZZZ, kdy XX je školní předmět, YY je kategorie předmětu a ZZZZ jsou ty čtyři náhodně generovaná písmena, která dovolují mít v jedné kategorii předmětu až 456 976 jedinečných knih :) 
 
 ### Fotky
 Všechny knihy mají možnost přidání fotek obalu knihy a jejího obsahu, což zjednodušuje vyhledávání a uživatel si může i předem ověřit, zda kniha obsahuje informace co právě hledá a tím si ušetřit čas a lépe naplánovat jakou knihu potřebuje. Plně podporované formáty souborů fotek jsou .png a .jpg/.jpeg.
