@@ -1314,6 +1314,7 @@
         <div class="form-field">
           <label>Obálka knihy</label>
           <input class="form-input" id="f-cover" type="file" accept=".jpg,.jpeg,.png" />
+          <div class="contents-list" id="coverList"></div>
         </div>
         <div class="form-field">
           <label>Strany s obsahem <span style="color:var(--muted);margin-left:0">(můžeš přidat i víc fotek, max. 10)</span></label>
@@ -1930,6 +1931,7 @@
       document.getElementById(id).value = '';
     });
     document.getElementById('f-cover').value = '';
+    renderCoverPreview();
     document.getElementById('f-contents').value = '';
     contentsFiles = [];
     renderContentsList();
@@ -2258,6 +2260,37 @@
   document.documentElement.style.setProperty(
     '--noise-rotation', `${Math.floor(Math.random() * 360)}deg`
   );
+
+  // ── COVER PREVIEW (same look as the contents list, but only one photo) ──
+  function renderCoverPreview() {
+    const input = document.getElementById('f-cover');
+    const box = document.getElementById('coverList');
+    box.innerHTML = '';
+    const f = input.files[0];
+    if (!f) return;
+
+    const row = document.createElement('div');
+    row.className = 'contents-item';
+
+    const img = document.createElement('img');
+    img.alt = '';
+    img.src = URL.createObjectURL(f);
+    img.onload = () => URL.revokeObjectURL(img.src);
+
+    const name = document.createElement('span');
+    name.className = 'ci-name';
+    name.textContent = f.name;
+
+    const rm = document.createElement('button');
+    rm.type = 'button';
+    rm.textContent = '✕';
+    rm.title = 'Odebrat';
+    rm.addEventListener('click', () => { input.value = ''; renderCoverPreview(); });
+
+    row.append(img, name, rm);
+    box.appendChild(row);
+  }
+  document.getElementById('f-cover').addEventListener('change', renderCoverPreview);
 
   // ── CONTENTS PHOTOS (several allowed) ──
   const MAX_CONTENTS = 10;
