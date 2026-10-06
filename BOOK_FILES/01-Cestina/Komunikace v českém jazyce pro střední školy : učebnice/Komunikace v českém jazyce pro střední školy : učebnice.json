@@ -1,0 +1,22 @@
+{
+  "stk": "01-01-RKUP",
+  "title": "Komunikace v českém jazyce pro střední školy : učebnice",
+  "author": "Didaktis",
+  "isbn": "9788073582289",
+  "year": "2018",
+  "description": "Jednosvazková učebnice pokrývající celou dobu studia na střední škole, vytvořená podle RVP pro střední odborné vzdělávání. Je koncipovaná primárně pro hodinovou dotaci 1 hodina na jazyk, sloh a komunikaci",
+  "location": {
+    "Budova": "Vojtova"
+  },
+  "keywords": [
+    "čeština",
+    "stylistika",
+    "komunikační dovednosti"
+  ],
+  "matura": false,
+  "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Komunikace%20v%20%C4%8Desk%C3%A9m%20jazyce%20pro%20st%C5%99edn%C3%AD%20%C5%A1koly%20%3A%20u%C4%8Debnice/1000022300.jpg",
+  "contents": [
+    "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Komunikace%20v%20%C4%8Desk%C3%A9m%20jazyce%20pro%20st%C5%99edn%C3%AD%20%C5%A1koly%20%3A%20u%C4%8Debnice/obsah-1.jpg",
+    "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Komunikace%20v%20%C4%8Desk%C3%A9m%20jazyce%20pro%20st%C5%99edn%C3%AD%20%C5%A1koly%20%3A%20u%C4%8Debnice/obsah-2.jpg"
+  ]
+}
