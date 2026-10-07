@@ -35,6 +35,7 @@ Cloudflare nám tedy ušetří veškerou manuální práci s ukládáním knih n
 
 > [!IMPORTANT]
 > ## Postup u přidání knihy
+**[VŠECHNY INFORMACE POZMĚNIT. OPRAVDU]**\
 Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko ***`+ Chci přidat knihu!`***. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo (editor knihy je chráněn heslem z důvodu, že ten web je plně přístupný k celému internetu). Po zadání (správného) hesla by se měl objevit editor knihy, kde o knize napíšete veškeré nutné i vedlejší informace.
 
 **Tlačítko přidání knihy**\
