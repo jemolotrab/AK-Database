@@ -922,7 +922,12 @@
       border-radius: 4px;
       word-break: break-word;
       text-align: left;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
+    /* the title is not real text in the page, so it cannot be selected, copied or dragged */
+    .delete-title::before { content: attr(data-title); }
     .pw-input.delete-input { letter-spacing: normal; }
     .pw-submit.delete-confirm { background: var(--rust); color: #fff; }
     .pw-submit.delete-confirm:hover:not(:disabled) { background: var(--rust); filter: brightness(0.88); }
@@ -1367,7 +1372,7 @@
   <div class="overlay" id="deleteOverlay">
     <div class="pw-box">
       <h2>Smazat knihu?</h2>
-      <p>Smaže se kniha i všechny její fotky. Pro potvrzení opiš její název:</p>
+      <p>Smaže se kniha i všechny její fotky. Pro potvrzení opiš její název ručně (kopírování a vkládání je vypnuté):</p>
       <div class="delete-title" id="deleteTitleShown"></div>
       <input class="pw-input delete-input" id="deleteInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="název knihy" />
       <button class="pw-submit delete-confirm" id="deleteConfirm" disabled>Smazat knihu</button>
@@ -3008,7 +3013,9 @@
     const book = BOOKS.find(b => b.stk === stk);
     if (!book) return;
     deleteTarget = book;
-    document.getElementById('deleteTitleShown').textContent = book.title;
+    const shown = document.getElementById('deleteTitleShown');
+    shown.textContent = '';
+    shown.setAttribute('data-title', book.title);
     document.getElementById('deleteInput').value = '';
     document.getElementById('deleteConfirm').disabled = true;
     document.getElementById('deleteOverlay').classList.add('open');
@@ -3021,6 +3028,18 @@
   document.getElementById('deleteInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('deleteConfirm').click();
   });
+  // The title has to be typed by hand: no pasting, no dropping text, no copying the shown title
+  (() => {
+    const input = document.getElementById('deleteInput');
+    const shown = document.getElementById('deleteTitleShown');
+    const block = (e) => e.preventDefault();
+    ['paste', 'drop'].forEach(t => input.addEventListener(t, block));
+    input.addEventListener('beforeinput', (e) => {
+      if (/^insertFrom(Paste|PasteAsQuotation|Drop|Yank)$/.test(e.inputType)) e.preventDefault();
+    });
+    ['copy', 'cut', 'contextmenu', 'selectstart', 'dragstart'].forEach(t => shown.addEventListener(t, block));
+  })();
+
   document.getElementById('deleteCancel').addEventListener('click', () => {
     deleteTarget = null;
     document.getElementById('deleteOverlay').classList.remove('open');
@@ -3311,4 +3330,3 @@
 </script>
 </body>
 </html>
-  
