@@ -262,6 +262,21 @@
     }
  
     .filter-select:focus { border-color: var(--brown); }
+
+    .random-btn {
+      padding: 0.65rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--card-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: var(--ink);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .random-btn:hover { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+    .modal-dates { font-size: 0.7rem; color: var(--muted); margin-top: 1.25rem; }
  
     .matura-filter { display: flex; align-items: center; gap: 0.4rem; color: var(--ink); white-space: nowrap; }
     .filter-select:disabled {
@@ -1298,10 +1313,17 @@
     <select class="filter-select" id="subcatFilter" disabled>
       <option value="">Všechny podkategorie</option>
     </select>
+    <select class="filter-select" id="sortSelect" title="Řazení knih">
+      <option value="">Řazení: výchozí</option>
+      <option value="new">Nejnovější nahoře</option>
+      <option value="az">Abecedně A → Z</option>
+      <option value="za">Abecedně Z → A</option>
+    </select>
     <label class="matura-filter" id="maturaFilterWrap" style="display:none;">
       <input type="checkbox" id="maturaFilter" style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;" />
       <span style="font-size:0.8rem;cursor:pointer;">Maturitní četba</span>
     </label>
+    <button type="button" class="random-btn" id="randomBtn" title="Otevře náhodnou knihu z těch, které jsou zrovna zobrazené">🎲 Náhodná kniha</button>
     <div class="view-toggle">
       <button class="view-btn active" id="gridBtn" title="Mřížka">⊞</button>
       <button class="view-btn" id="listBtn" title="Seznam">☰</button>
@@ -1666,6 +1688,7 @@
   let activeSubject = '';
   let activeSubcat = '';
   let searchQuery = '';
+  let sortMode = '';              // '' (default) | 'new' | 'az' | 'za'
  
   // ── POPULATE SUBJECT FILTER ──
   const subjectFilter = document.getElementById('subjectFilter');
@@ -1776,7 +1799,7 @@
   // ── FILTER ──
   function filteredBooks() {
     const maturaOnly = document.getElementById('maturaFilter').checked;
-    return BOOKS.filter(b => {
+    const result = BOOKS.filter(b => {
       const { xx, yy } = parseSTK(b.stk);
       if (activeSubject && xx !== activeSubject) return false;
       if (activeSubcat  && yy !== activeSubcat)  return false;
@@ -1794,8 +1817,39 @@
       }
       return true;
     });
+    return sortBooks(result);
   }
- 
+
+  // ── SORTING ──
+  const csCompare = (a, b) => String(a || '').localeCompare(String(b || ''), 'cs', { sensitivity: 'base', numeric: true });
+  const dateOf = (b) => { const t = Date.parse(b.updated || b.added || ''); return Number.isNaN(t) ? 0 : t; };
+
+  function sortBooks(list) {
+    if (sortMode === 'az') return list.sort((a, b) => csCompare(a.title, b.title));
+    if (sortMode === 'za') return list.sort((a, b) => csCompare(b.title, a.title));
+    if (sortMode === 'new') {
+      // newest added/changed first; older books without a date go to the end (alphabetically)
+      return list.sort((a, b) => (dateOf(b) - dateOf(a)) || csCompare(a.title, b.title));
+    }
+    return list;                                      // default: the order the books were loaded in
+  }
+
+  document.getElementById('sortSelect').addEventListener('change', (e) => {
+    sortMode = e.target.value;
+    render();
+  });
+
+  // ── RANDOM BOOK (from the books currently shown, never the same one twice in a row) ──
+  let lastRandomStk = '';
+  document.getElementById('randomBtn').addEventListener('click', () => {
+    const pool = filteredBooks();
+    if (!pool.length) { alert('Zrovna není zobrazená žádná kniha, ze které by šlo vybírat.'); return; }
+    let pick;
+    do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && pick.stk === lastRandomStk);
+    lastRandomStk = pick.stk;
+    openModal(pick.stk);
+  });
+
   // ── RENDER ──
   function render() {
     const books = filteredBooks();
@@ -1973,6 +2027,13 @@
           <div class="modal-contents-list">${pages.map((u, i) =>
             `<a href="${u}" target="_blank" rel="noopener"><img class="modal-contents" loading="lazy" src="${u}" alt="Obsah ${i + 1}"/></a>`
           ).join('')}</div>`;
+      })()}
+      ${(() => {
+        const fmt = (iso) => { const t = new Date(iso); return isNaN(t) ? '' : t.toLocaleDateString('cs-CZ'); };
+        const parts = [];
+        if (fmt(book.added)) parts.push('Přidáno ' + fmt(book.added));
+        if (fmt(book.updated) && fmt(book.updated) !== fmt(book.added)) parts.push('Naposledy upraveno ' + fmt(book.updated));
+        return parts.length ? `<div class="modal-dates">${parts.join(' · ')}</div>` : '';
       })()}
       <div class="modal-admin">
         <button type="button" onclick="startEdit('${book.stk}')">✏️ Upravit knihu</button>
@@ -3126,8 +3187,11 @@
     const coverName = coverFile ? coverFile.name : (editing && existingCover ? existingCover.filename : '');
 
     const stk = `${xx}-${yy}-${currentZZZZ}`;
+    const nowIso = new Date().toISOString();
     const newBook = {
       ...(editing || {}),
+      added: editing ? editing.added : nowIso,        // set once, when the book is created
+      updated: nowIso,                                // refreshed on every save
       stk,
       title,
       author,
