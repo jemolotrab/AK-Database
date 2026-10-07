@@ -57,6 +57,13 @@ export default {
         });
       }
 
+      // ── Phone <-> computer pairing (QR code); needs the D1 database bound as DB ──
+      const action = request.headers.get('X-Action') || '';
+      if (action.startsWith('pair-')) {
+        const body = await request.json().catch(() => ({}));
+        return new Response(JSON.stringify(await handlePair(action, body, env)), { status: 200, headers: JSON_HEADERS });
+      }
+
       // ── Delete a whole book folder (JSON body) ──
       if (request.headers.get('X-Action') === 'delete-book') {
         const body = await request.json();
@@ -608,4 +615,71 @@ function flipName(name) {
   // "Tolkien, J. R. R." -> "J. R. R. Tolkien"
   const parts = name.split(',').map((p) => p.trim()).filter(Boolean);
   return parts.length === 2 ? `${parts[1]} ${parts[0]}` : name;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  PHONE <-> COMPUTER PAIRING
+//  The computer creates a short-lived pairing code (shown as a QR code), the phone opens the site
+//  with that code and sends scanned ISBNs, the computer polls and receives them.
+//  Stored in a D1 database (binding name: DB). Nothing secret passes through here: only ISBN numbers.
+// ════════════════════════════════════════════════════════════════
+const PAIR_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // no 0/O, 1/I/L
+const PAIR_TTL_MS = 2 * 60 * 60 * 1000;                     // a pairing lives 2 hours
+const PAIR_MAX_SCANS = 200;                                 // per pairing
+
+function newPairCode(len = 8) {
+  const bytes = crypto.getRandomValues(new Uint8Array(len));
+  return Array.from(bytes, (b) => PAIR_ALPHABET[b % PAIR_ALPHABET.length]).join('');
+}
+
+function isValidIsbn13(code) {
+  if (!/^97[89]\d{10}$/.test(code)) return false;
+  let sum = 0;
+  for (let i = 0; i < 12; i++) sum += Number(code[i]) * (i % 2 ? 3 : 1);
+  return (10 - (sum % 10)) % 10 === Number(code[12]);
+}
+
+async function handlePair(action, body, env) {
+  if (!env.DB) throw new HttpError(503, 'Párování telefonu není nastavené (chybí databáze D1 s názvem DB).');
+  const now = Date.now();
+
+  if (action === 'pair-create') {
+    // housekeeping: forget old pairings
+    await env.DB.prepare('DELETE FROM pair_scans WHERE ts < ?').bind(now - PAIR_TTL_MS).run();
+    await env.DB.prepare('DELETE FROM pair_sessions WHERE created < ?').bind(now - PAIR_TTL_MS).run();
+    const code = newPairCode();
+    await env.DB.prepare('INSERT INTO pair_sessions (code, created, connected) VALUES (?, ?, 0)').bind(code, now).run();
+    return { code };
+  }
+
+  const code = String(body.code || '').toUpperCase();
+  if (!/^[A-Z2-9]{8}$/.test(code)) throw new HttpError(400, 'Neplatný kód spojení.');
+  const session = await env.DB.prepare('SELECT created, connected FROM pair_sessions WHERE code = ?').bind(code).first();
+  if (!session || session.created < now - PAIR_TTL_MS) {
+    throw new HttpError(410, 'Spojení vypršelo nebo neexistuje.');
+  }
+
+  if (action === 'pair-hello') {                    // the phone says it is there
+    await env.DB.prepare('UPDATE pair_sessions SET connected = ? WHERE code = ?').bind(now, code).run();
+    return { ok: true };
+  }
+
+  if (action === 'pair-send') {                     // the phone sends a scanned ISBN
+    const isbn = String(body.isbn || '').replace(/[^0-9]/g, '');
+    if (!isValidIsbn13(isbn)) throw new HttpError(400, 'Neplatné ISBN.');
+    const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM pair_scans WHERE code = ?').bind(code).first();
+    if (row && row.n >= PAIR_MAX_SCANS) throw new HttpError(429, 'Příliš mnoho skenů v jednom spojení.');
+    await env.DB.prepare('INSERT INTO pair_scans (code, isbn, ts) VALUES (?, ?, ?)').bind(code, isbn, now).run();
+    return { ok: true };
+  }
+
+  if (action === 'pair-poll') {                     // the computer asks for new scans
+    const after = Number(body.after) || 0;
+    const { results } = await env.DB.prepare(
+      'SELECT id, isbn FROM pair_scans WHERE code = ? AND id > ? ORDER BY id'
+    ).bind(code, after).all();
+    return { connected: session.connected > 0, scans: results };
+  }
+
+  throw new HttpError(400, 'Neznámá akce.');
 }
