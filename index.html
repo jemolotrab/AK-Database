@@ -195,6 +195,22 @@
     .search-scan-btn:hover { background: var(--parchment); }
     .search-scan-box { margin-bottom: 0.75rem; }
 
+    /* "connect to computer" button: only shown on phones / touch screens */
+    .phone-connect-btn {
+      display: none;
+      padding: 0.65rem 1rem;
+      border: 1.5px dashed var(--brown);
+      background: transparent;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--ink);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .phone-connect-btn:hover { background: var(--ink); color: var(--gold); border-style: solid; }
+    @media (max-width: 700px), (pointer: coarse) { .phone-connect-btn { display: inline-block; } }
+
     /* ── phone pairing (computer side) ── */
     .pair-box {
       display: flex;
@@ -1266,6 +1282,7 @@
       <input class="search-input" id="searchInput" type="text" placeholder="Hledat podle názvu, autora, klíčových slov, STK nebo ISBN..." />
       <button type="button" class="search-scan-btn" id="searchScanBtn" title="Najít knihu naskenováním ISBN" aria-label="Skenovat ISBN">📷</button>
     </div>
+    <button type="button" class="phone-connect-btn" id="phoneConnectBtn">📱 Připojit k počítači</button>
     <select class="filter-select" id="subjectFilter">
       <option value="">Všechny předměty</option>
     </select>
@@ -1321,7 +1338,7 @@
   <div class="overlay" id="phoneOverlay">
     <div class="pw-box" style="max-width:440px;">
       <h2>📱 Skener pro počítač</h2>
-      <p id="phoneStatus">Spojuji s počítačem…</p>
+      <p id="phoneStatus">Nepřipojeno. Namiř kameru na QR kód zobrazený na počítači.</p>
       <div class="scan-box search-scan-box" id="phoneScanBox" style="display:none;">
         <video id="phoneVideo" playsinline muted></video>
         <div class="scan-frame"></div>
@@ -1396,8 +1413,8 @@
           <div class="pair-box" id="pairBox" style="display:none;">
             <div class="pair-qr" id="pairQr"></div>
             <div class="pair-text">
-              <strong>1.</strong> Na telefonu naskenuj tento QR kód (stačí běžný Fotoaparát).<br>
-              <strong>2.</strong> Otevře se skener. Namiř ho na čárový kód knihy.<br>
+              <strong>1.</strong> Na telefonu otevři tento web a klepni na <em>„📱 Připojit k počítači“</em> a namiř kameru na QR kód. (Jde to i běžným Fotoaparátem.)<br>
+              <strong>2.</strong> Pak namiř telefon na čárový kód knihy.<br>
               <span style="color:var(--muted);">Kód spojení:</span> <span class="pair-code" id="pairCode"></span>
               <div id="pairStatus"></div>
             </div>
@@ -2340,9 +2357,25 @@
     if (ps) ps.style.display = '';
   }
 
-  // Starts the camera in `video` and calls onCode(isbn) once a valid ISBN-13 was read twice in a row.
+  // Pairing code from a scanned QR code: the full link (?pair=CODE on this site) or just the 8 characters
+  function pairCodeFromText(text) {
+    const t = String(text || '').trim();
+    let code = '';
+    try {
+      const u = new URL(t);
+      if (u.origin === location.origin) code = u.searchParams.get('pair') || '';
+    } catch (e) {
+      code = t;                                        // not a link: maybe the bare code
+    }
+    code = code.toUpperCase();
+    return /^[A-Z2-9]{8}$/.test(code) ? code : '';
+  }
+
+  // Starts the camera in `video` and calls onCode(value, kind) once a code was read twice in a row.
+  //   formats: ['isbn'] (default), and/or 'qr' for the pairing QR code; kind is 'isbn' or 'qr'
+  //   continuous: keep scanning after a hit (phone scanner mode)
   // onStatus(text, isError) reports problems. Resolves to true when the camera is running.
-  async function startCamera({ video, onCode, onStatus, continuous = false }) {
+  async function startCamera({ video, onCode, onStatus, continuous = false, formats = ['isbn'] }) {
     onStatus('', false);
 
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -2350,12 +2383,22 @@
       return false;
     }
 
-    // Choose decoder: native BarcodeDetector if it supports EAN-13, otherwise ZXing
+    const nativeFormats = formats.map(f => f === 'qr' ? 'qr_code' : 'ean_13');
+    const classify = (raw) => {
+      if (formats.includes('isbn') && isValidIsbn13(raw)) return { kind: 'isbn', value: raw };
+      if (formats.includes('qr')) {
+        const code = pairCodeFromText(raw);
+        if (code) return { kind: 'qr', value: code };
+      }
+      return null;
+    };
+
+    // Choose decoder: native BarcodeDetector if it supports everything we need, otherwise ZXing
     let detector = null;
     try {
       if ('BarcodeDetector' in window) {
-        const formats = await BarcodeDetector.getSupportedFormats();
-        if (formats.includes('ean_13')) detector = new BarcodeDetector({ formats: ['ean_13'] });
+        const supported = await BarcodeDetector.getSupportedFormats();
+        if (nativeFormats.every(f => supported.includes(f))) detector = new BarcodeDetector({ formats: nativeFormats });
       }
     } catch (e) { detector = null; }
 
@@ -2363,8 +2406,9 @@
       onStatus('Načítám skener…', false);
       try {
         await loadZXing();
+        const zx = formats.map(f => f === 'qr' ? ZXing.BarcodeFormat.QR_CODE : ZXing.BarcodeFormat.EAN_13);
         const hints = new Map([
-          [ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]],
+          [ZXing.DecodeHintType.POSSIBLE_FORMATS, zx],
           [ZXing.DecodeHintType.TRY_HARDER, true]
         ]);
         zxingReader = new ZXing.MultiFormatReader();
@@ -2397,16 +2441,15 @@
     onStatus('', false);
 
     scanActive = true;
-    let lastCode = '', hits = 0;
+    let lastKey = '', hits = 0;
 
     const tick = async () => {
       if (!scanActive) return;
-      let code = '';
+      let raws = [];
       try {
         if (video.readyState >= 2 && video.videoWidth) {
           if (detector) {
-            const found = await detector.detect(video);
-            code = found[0]?.rawValue || '';
+            raws = (await detector.detect(video)).map(f => f.rawValue);
           } else {
             const w = video.videoWidth, h = video.videoHeight;
             scanCanvas.width = w; scanCanvas.height = h;
@@ -2415,24 +2458,27 @@
             const bmp = new ZXing.BinaryBitmap(
               new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(scanCanvas))
             );
-            try { code = zxingReader.decode(bmp).getText(); } catch (e) { code = ''; }
+            try { raws = [zxingReader.decode(bmp).getText()]; } catch (e) { raws = []; }
           }
         }
-      } catch (e) { code = ''; }
+      } catch (e) { raws = []; }
 
-      // Only accept real ISBNs (978/979 + valid check digit), confirmed by 2 reads in a row
-      if (isValidIsbn13(code)) {
-        hits = (code === lastCode) ? hits + 1 : 1;
-        lastCode = code;
+      // Only accept real ISBNs (978/979 + valid check digit) or valid pairing codes,
+      // confirmed by 2 reads in a row
+      const hit = raws.map(classify).find(Boolean);
+      if (hit) {
+        const key = hit.kind + ':' + hit.value;
+        hits = (key === lastKey) ? hits + 1 : 1;
+        lastKey = key;
         if (hits >= 2) {
-          onCode(code);
+          onCode(hit.value, hit.kind);
           if (!continuous) return;
-          hits = 0; lastCode = '';
-          scanTimer = setTimeout(tick, 2500);          // pause, so the same barcode is not sent twice
+          hits = 0; lastKey = '';
+          scanTimer = setTimeout(tick, 2500);          // pause, so the same code is not handled twice
           return;
         }
       } else {
-        hits = 0; lastCode = '';
+        hits = 0; lastKey = '';
       }
       scanTimer = setTimeout(tick, 150);
     };
@@ -2582,34 +2628,48 @@
   document.getElementById('pairCancel').addEventListener('click', stopPairing);
   document.getElementById('pairDisconnect').addEventListener('click', stopPairing);
 
-  // ── phone side: the page was opened through the QR code (?pair=CODE) ──
+  // ── phone side: connected either through the QR link (?pair=CODE) or by scanning the QR in the page ──
   let phoneCode = '';
 
-  async function enterPhoneMode(code) {
-    phoneCode = code;
-    const status = document.getElementById('phoneStatus');
-    document.getElementById('phoneOverlay').classList.add('open');
+  function setPhoneStatus(text) {
+    document.getElementById('phoneStatus').textContent = text;
+  }
+
+  // Tells the computer "I am here". Returns true when the pairing is valid.
+  async function connectPhone(code) {
     try {
       await pairApi('pair-hello', { code });
-      status.textContent = '✅ Spojeno s počítačem. Spusť kameru a naskenuj čárový kód knihy.';
+      phoneCode = code;
+      setPhoneStatus('✅ Spojeno s počítačem. Namiř kameru na čárový kód knihy.');
+      return true;
     } catch (e) {
-      status.textContent = e.status === 410
-        ? '❌ Spojení vypršelo. Na počítači klikni znovu na „Skenovat telefonem“ a naskenuj nový QR kód.'
-        : '❌ Spojení se nepodařilo: ' + e.message;
-      document.getElementById('phoneStart').style.display = 'none';
+      phoneCode = '';
+      setPhoneStatus(e.status === 410
+        ? '❌ Tento QR kód už nefunguje. Na počítači klikni znovu na „Skenovat telefonem“ a naskenuj nový.'
+        : '❌ Spojení se nepodařilo: ' + e.message);
+      return false;
     }
+  }
+
+  // The page was opened through the QR link
+  async function enterPhoneMode(code) {
+    document.getElementById('phoneOverlay').classList.add('open');
+    await connectPhone(code);
   }
 
   function addSent(text, ok) {
     const row = document.createElement('div');
     row.textContent = (ok ? '✅ ' : '❌ ') + text;
-    const box = document.getElementById('phoneSent');
-    box.prepend(row);
+    document.getElementById('phoneSent').prepend(row);
   }
 
   let lastSent = { isbn: '', t: 0 };
 
   async function sendFromPhone(isbn) {
+    if (!phoneCode) {
+      setPhoneStatus('Nejdřív naskenuj QR kód zobrazený na počítači.');
+      return;
+    }
     // pointing the camera at the same book for a while must not send it again and again
     if (isbn === lastSent.isbn && Date.now() - lastSent.t < 10000) return;
     lastSent = { isbn, t: Date.now() };
@@ -2619,27 +2679,46 @@
       addSent(`Odesláno: ${isbn}`, true);
     } catch (e) {
       addSent(`${isbn}: ${e.message}`, false);
-      if (e.status === 410) {
-        stopScanner();
-        document.getElementById('phoneStatus').textContent = '❌ Spojení vypršelo. Naskenuj na počítači nový QR kód.';
-        document.getElementById('phoneStart').style.display = 'none';
+      if (e.status === 410) {                           // pairing ended: keep the camera, wait for a new QR
+        phoneCode = '';
+        setPhoneStatus('❌ Spojení skončilo. Namiř kameru na nový QR kód na počítači.');
       }
     }
   }
 
-  document.getElementById('phoneStart').addEventListener('click', async () => {
-    const status = document.getElementById('phoneStatus');
+  // Everything the phone camera reads: books go to the computer, QR codes (re)connect
+  async function onPhoneCode(value, kind) {
+    if (kind === 'qr') {
+      if (value === phoneCode) return;                  // already connected to this one
+      if (navigator.vibrate) navigator.vibrate(120);
+      const ok = await connectPhone(value);
+      if (ok) addSent(`Připojeno k počítači (${value})`, true);
+      return;
+    }
+    sendFromPhone(value);
+  }
+
+  async function startPhoneCamera() {
     const ok = await startCamera({
       video: document.getElementById('phoneVideo'),
       continuous: true,
-      onCode: sendFromPhone,
-      onStatus: (msg) => { if (msg) status.textContent = msg; }
+      formats: ['isbn', 'qr'],
+      onCode: onPhoneCode,
+      onStatus: (msg) => { if (msg) setPhoneStatus(msg); }
     });
     if (ok) {
       document.getElementById('phoneScanBox').style.display = 'block';
       document.getElementById('phoneStart').style.display = 'none';
-      status.textContent = '📷 Skenuji… Další knihu stačí namířit na čárový kód.';
+      if (!phoneCode) setPhoneStatus('📷 Namiř kameru na QR kód zobrazený na počítači.');
     }
+  }
+
+  document.getElementById('phoneStart').addEventListener('click', startPhoneCamera);
+
+  // Button on the main page (phones): opens the scanner right away, so the QR code can be scanned in the page
+  document.getElementById('phoneConnectBtn').addEventListener('click', () => {
+    document.getElementById('phoneOverlay').classList.add('open');
+    startPhoneCamera();
   });
 
   document.getElementById('phoneDisconnect').addEventListener('click', () => {
@@ -3232,3 +3311,4 @@
 </script>
 </body>
 </html>
+  
