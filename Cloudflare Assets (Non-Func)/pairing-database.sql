@@ -1,5 +1,5 @@
--- Run these in Cloudflare: Storage & databases -> D1 -> your database -> Console
--- (paste and run them one at a time if the console complains)
+-- Cloudflare: Storage & databases -> D1 -> your database -> Console
+-- (tohle bylo zkopírované na Cloudflare pro vytvoření databáze)
 
 CREATE TABLE IF NOT EXISTS pair_sessions (
   code TEXT PRIMARY KEY,
