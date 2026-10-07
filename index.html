@@ -194,6 +194,37 @@
     }
     .search-scan-btn:hover { background: var(--parchment); }
     .search-scan-box { margin-bottom: 0.75rem; }
+
+    /* ── phone pairing (computer side) ── */
+    .pair-box {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 0.9rem;
+      margin-bottom: 0.75rem;
+      border: 1.5px dashed var(--brown);
+      border-radius: 6px;
+      background: var(--card-bg);
+    }
+    .pair-qr svg { width: 170px; height: 170px; display: block; background: #fff; border-radius: 4px; }
+    .pair-text { flex: 1; min-width: 190px; font-size: 0.78rem; line-height: 1.65; color: var(--ink); }
+    .pair-code { font-family: 'Rubik', monospace; font-weight: 600; letter-spacing: 0.16em; }
+    #pairStatus { margin-top: 0.4rem; font-weight: 500; }
+    .pair-cancel {
+      border: 1px solid var(--border); background: transparent; border-radius: 4px;
+      padding: 0.3rem 0.7rem; font-size: 0.72rem; font-family: 'DM Sans', sans-serif; cursor: pointer; color: var(--ink);
+    }
+    .pair-cancel:hover { background: var(--ink); color: var(--gold); }
+    .pair-badge {
+      display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+      font-size: 0.74rem; padding: 0.5rem 0.75rem; margin-bottom: 1rem;
+      border-left: 3px solid var(--gold); background: var(--parchment); border-radius: 4px;
+    }
+
+    /* ── phone pairing (phone side) ── */
+    .phone-sent { text-align: left; margin: 0.25rem 0 0.75rem; max-height: 9rem; overflow-y: auto; }
+    .phone-sent div { font-size: 0.8rem; padding: 0.3rem 0; border-bottom: 1px solid var(--border); }
     .search-input::placeholder { color: var(--muted); }
  
     .filter-select {
@@ -1286,6 +1317,21 @@
     </div>
   </div>
 
+  <!-- PHONE SCANNER MODE (opened by the QR code from the computer) -->
+  <div class="overlay" id="phoneOverlay">
+    <div class="pw-box" style="max-width:440px;">
+      <h2>📱 Skener pro počítač</h2>
+      <p id="phoneStatus">Spojuji s počítačem…</p>
+      <div class="scan-box search-scan-box" id="phoneScanBox" style="display:none;">
+        <video id="phoneVideo" playsinline muted></video>
+        <div class="scan-frame"></div>
+      </div>
+      <button class="pw-submit" id="phoneStart">📷 Spustit kameru</button>
+      <div class="phone-sent" id="phoneSent"></div>
+      <button class="pw-cancel" id="phoneDisconnect">Odpojit</button>
+    </div>
+  </div>
+
   <!-- SCAN ISBN TO FIND A BOOK -->
   <div class="overlay" id="searchScanOverlay">
     <div class="pw-box" style="max-width:420px;">
@@ -1321,6 +1367,11 @@
       </div>
       <div class="form-body">
 
+        <div class="pair-badge" id="pairBadge" style="display:none;">
+          <span>📱 Telefon je připojen. Naskenovaná ISBN se doplní sem.</span>
+          <button type="button" class="pair-cancel" id="pairDisconnect">Odpojit</button>
+        </div>
+
         <!-- MODE TOGGLE -->
         <div class="mode-toggle-wrap">
           <button class="mode-btn active" id="modeManual">Ruční zadání informací</button>
@@ -1341,6 +1392,17 @@
             <button class="isbn-fetch-btn" id="isbnFetchBtn">Načíst informace</button>
           </div>
           <button type="button" class="isbn-scan-btn" id="isbnScanBtn">📷 Skenovat čárový kód kamerou</button>
+          <button type="button" class="isbn-scan-btn" id="pairStartBtn">📱 Skenovat telefonem</button>
+          <div class="pair-box" id="pairBox" style="display:none;">
+            <div class="pair-qr" id="pairQr"></div>
+            <div class="pair-text">
+              <strong>1.</strong> Na telefonu naskenuj tento QR kód (stačí běžný Fotoaparát).<br>
+              <strong>2.</strong> Otevře se skener. Namiř ho na čárový kód knihy.<br>
+              <span style="color:var(--muted);">Kód spojení:</span> <span class="pair-code" id="pairCode"></span>
+              <div id="pairStatus"></div>
+            </div>
+            <button type="button" class="pair-cancel" id="pairCancel">Zrušit</button>
+          </div>
           <div class="scan-box" id="scanBox" style="display:none;">
             <video id="scanVideo" playsinline muted></video>
             <div class="scan-frame"></div>
@@ -2050,6 +2112,7 @@
 
   // ── ADD BOOK FORM ──
   function openAddForm() {
+    stopPairing();
     editingBook = null;
     existingCover = null;
     setEditUI(false);
@@ -2261,7 +2324,7 @@
     scanActive = false;
     clearTimeout(scanTimer);
     if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
-    ['scanVideo', 'searchScanVideo'].forEach(id => {
+    ['scanVideo', 'searchScanVideo', 'phoneVideo'].forEach(id => {
       const v = document.getElementById(id);
       if (v) v.srcObject = null;
     });
@@ -2271,11 +2334,15 @@
     if (btn) btn.style.display = '';
     const so = document.getElementById('searchScanOverlay');
     if (so) so.classList.remove('open');
+    const pb = document.getElementById('phoneScanBox');
+    if (pb) pb.style.display = 'none';
+    const ps = document.getElementById('phoneStart');
+    if (ps) ps.style.display = '';
   }
 
   // Starts the camera in `video` and calls onCode(isbn) once a valid ISBN-13 was read twice in a row.
   // onStatus(text, isError) reports problems. Resolves to true when the camera is running.
-  async function startCamera({ video, onCode, onStatus }) {
+  async function startCamera({ video, onCode, onStatus, continuous = false }) {
     onStatus('', false);
 
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -2357,7 +2424,13 @@
       if (isValidIsbn13(code)) {
         hits = (code === lastCode) ? hits + 1 : 1;
         lastCode = code;
-        if (hits >= 2) { onCode(code); return; }
+        if (hits >= 2) {
+          onCode(code);
+          if (!continuous) return;
+          hits = 0; lastCode = '';
+          scanTimer = setTimeout(tick, 2500);          // pause, so the same barcode is not sent twice
+          return;
+        }
       } else {
         hits = 0; lastCode = '';
       }
@@ -2420,8 +2493,169 @@
   document.getElementById('searchScanBtn').addEventListener('click', startSearchScan);
   document.getElementById('searchScanCancel').addEventListener('click', stopScanner);
 
+  // ════════════ PHONE <-> COMPUTER PAIRING ════════════
+  async function pairApi(action, payload) {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Action': action },
+      body: JSON.stringify(payload || {})
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.error || ('Chyba ' + res.status));
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  // ── computer side: show a QR code, receive ISBNs from the phone ──
+  let pairCode = '', pairTimer = null, pairAfter = 0, pairBusy = false;
+
+  async function startPairing() {
+    stopPairing();
+    const status = document.getElementById('pairStatus');
+    document.getElementById('pairBox').style.display = 'flex';
+    document.getElementById('pairStartBtn').style.display = 'none';
+    document.getElementById('pairQr').innerHTML = '';
+    document.getElementById('pairCode').textContent = '';
+    status.style.color = 'var(--muted)';
+    status.textContent = 'Připravuji spojení…';
+    try {
+      await loadZXing();                               // also contains the QR code generator
+      const { code } = await pairApi('pair-create');
+      pairCode = code; pairAfter = 0;
+      const url = `${location.origin}${location.pathname}?pair=${code}`;
+      document.getElementById('pairQr').appendChild(new ZXing.BrowserQRCodeSvgWriter().write(url, 170, 170));
+      document.getElementById('pairCode').textContent = code;
+      status.textContent = '⏳ Čekám na telefon…';
+      pairTimer = setInterval(pollPairing, 2000);
+    } catch (e) {
+      status.style.color = 'var(--rust)';
+      status.textContent = '❌ ' + e.message;
+      document.getElementById('pairStartBtn').style.display = '';
+    }
+  }
+
+  function stopPairing() {
+    clearInterval(pairTimer);
+    pairTimer = null; pairCode = ''; pairBusy = false;
+    document.getElementById('pairBox').style.display = 'none';
+    document.getElementById('pairStartBtn').style.display = '';
+    document.getElementById('pairBadge').style.display = 'none';
+  }
+
+  async function pollPairing() {
+    if (pairBusy || !pairCode) return;
+    pairBusy = true;
+    try {
+      const r = await pairApi('pair-poll', { code: pairCode, after: pairAfter });
+      if (r.connected) {
+        document.getElementById('pairBadge').style.display = '';
+        const st = document.getElementById('pairStatus');
+        st.style.color = 'var(--brown)';
+        st.textContent = '📱 Telefon je připojen. Naskenuj čárový kód knihy.';
+      }
+      for (const sc of r.scans) {
+        pairAfter = Math.max(pairAfter, sc.id);
+        onPhoneScan(sc.isbn);
+      }
+    } catch (e) {
+      if (e.status === 410) {                           // expired: stop for good
+        stopPairing();
+        alert('Spojení s telefonem vypršelo. Klikni znovu na „Skenovat telefonem“.');
+      }                                                 // other errors = short network blips, try again
+    } finally {
+      pairBusy = false;
+    }
+  }
+
+  function onPhoneScan(isbn) {
+    const hasData = ['f-title', 'f-author', 'f-year'].some(id => document.getElementById(id).value.trim());
+    if (hasData && !confirm(`Telefon poslal ISBN ${isbn}.\n\nFormulář už obsahuje vyplněné údaje. Přepsat je údaji nové knihy?`)) return;
+    setMode('isbn');
+    document.getElementById('f-isbn-fetch').value = isbn;
+    document.getElementById('isbnFetchBtn').click();   // the normal lookup does the rest
+  }
+
+  document.getElementById('pairStartBtn').addEventListener('click', startPairing);
+  document.getElementById('pairCancel').addEventListener('click', stopPairing);
+  document.getElementById('pairDisconnect').addEventListener('click', stopPairing);
+
+  // ── phone side: the page was opened through the QR code (?pair=CODE) ──
+  let phoneCode = '';
+
+  async function enterPhoneMode(code) {
+    phoneCode = code;
+    const status = document.getElementById('phoneStatus');
+    document.getElementById('phoneOverlay').classList.add('open');
+    try {
+      await pairApi('pair-hello', { code });
+      status.textContent = '✅ Spojeno s počítačem. Spusť kameru a naskenuj čárový kód knihy.';
+    } catch (e) {
+      status.textContent = e.status === 410
+        ? '❌ Spojení vypršelo. Na počítači klikni znovu na „Skenovat telefonem“ a naskenuj nový QR kód.'
+        : '❌ Spojení se nepodařilo: ' + e.message;
+      document.getElementById('phoneStart').style.display = 'none';
+    }
+  }
+
+  function addSent(text, ok) {
+    const row = document.createElement('div');
+    row.textContent = (ok ? '✅ ' : '❌ ') + text;
+    const box = document.getElementById('phoneSent');
+    box.prepend(row);
+  }
+
+  let lastSent = { isbn: '', t: 0 };
+
+  async function sendFromPhone(isbn) {
+    // pointing the camera at the same book for a while must not send it again and again
+    if (isbn === lastSent.isbn && Date.now() - lastSent.t < 10000) return;
+    lastSent = { isbn, t: Date.now() };
+    if (navigator.vibrate) navigator.vibrate(120);
+    try {
+      await pairApi('pair-send', { code: phoneCode, isbn });
+      addSent(`Odesláno: ${isbn}`, true);
+    } catch (e) {
+      addSent(`${isbn}: ${e.message}`, false);
+      if (e.status === 410) {
+        stopScanner();
+        document.getElementById('phoneStatus').textContent = '❌ Spojení vypršelo. Naskenuj na počítači nový QR kód.';
+        document.getElementById('phoneStart').style.display = 'none';
+      }
+    }
+  }
+
+  document.getElementById('phoneStart').addEventListener('click', async () => {
+    const status = document.getElementById('phoneStatus');
+    const ok = await startCamera({
+      video: document.getElementById('phoneVideo'),
+      continuous: true,
+      onCode: sendFromPhone,
+      onStatus: (msg) => { if (msg) status.textContent = msg; }
+    });
+    if (ok) {
+      document.getElementById('phoneScanBox').style.display = 'block';
+      document.getElementById('phoneStart').style.display = 'none';
+      status.textContent = '📷 Skenuji… Další knihu stačí namířit na čárový kód.';
+    }
+  });
+
+  document.getElementById('phoneDisconnect').addEventListener('click', () => {
+    stopScanner();
+    document.getElementById('phoneOverlay').classList.remove('open');
+    phoneCode = '';
+    history.replaceState(null, '', location.pathname);   // remove ?pair=... from the address
+  });
+
+  const pairParam = (new URLSearchParams(location.search).get('pair') || '').toUpperCase();
+  // setTimeout: wait until the whole script has run (WORKER_URL is defined further down)
+  if (/^[A-Z2-9]{8}$/.test(pairParam)) setTimeout(() => enterPhoneMode(pairParam), 0);
+
   document.getElementById('formClose').addEventListener('click', () => {
     stopScanner();
+    stopPairing();
     document.getElementById('formOverlay').classList.remove('open');
   });
 
@@ -2646,6 +2880,7 @@
     if (!book) return;
     document.getElementById('modalOverlay').classList.remove('open');
 
+    stopPairing();
     const { xx, yy, zzzz } = parseSTK(book.stk);
     editingBook = book;
     setEditUI(true);
