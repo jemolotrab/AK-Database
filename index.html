@@ -209,7 +209,11 @@
       white-space: nowrap;
     }
     .phone-connect-btn:hover { background: var(--ink); color: var(--gold); border-style: solid; }
-    @media (max-width: 700px), (pointer: coarse) { .phone-connect-btn { display: inline-block; } }
+    @media (max-width: 700px), (pointer: coarse) {
+      .phone-connect-btn { display: inline-block; }
+      /* on a phone the phone itself is the scanner, so "scan with your phone" (QR code for the computer) makes no sense */
+      #pairStartBtn, #pairBox, #pairBadge { display: none !important; }
+    }
 
     /* ── phone pairing (computer side) ── */
     .pair-box {
