@@ -9,7 +9,7 @@ Vítejte ve školní **online databázi knih**! Kde si můžete hledat a prochá
 ## Webovka
 > [!NOTE]
 > **Stránka webu** ↴\
-> [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/)
+> [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/) <!-- TENTO ODKAZ SE NESMÍ SAKRA ZTRATIT!!! >:) -->
 >
 > **(Na webu se kdyžtak vpravo nahoře vyskytuje tlačítko *`GitHub`*, které váš přemístí zpět zde na Github)**
 
