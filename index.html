@@ -277,6 +277,22 @@
     }
     .random-btn:hover { background: var(--ink); color: var(--gold); border-color: var(--ink); }
     .modal-dates { font-size: 0.7rem; color: var(--muted); margin-top: 1.25rem; }
+
+    /* ── statistics ── */
+    .pw-box.stats-box { max-width: 560px; max-height: 90vh; overflow-y: auto; text-align: left; }
+    .stats-box h2 { text-align: center; }
+    .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6rem; margin-bottom: 1.1rem; }
+    .stat-card { background: var(--parchment); border-radius: 6px; padding: 0.6rem 0.7rem; text-align: center; }
+    .stat-card b { display: block; font-family: 'Rubik', sans-serif; font-size: 1.4rem; line-height: 1.2; }
+    .stat-card span { font-size: 0.68rem; color: var(--muted); }
+    .stat-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 1rem 0 0.4rem; }
+    .stat-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; padding: 0.18rem 0; }
+    .stat-label { flex: 0 0 38%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .stat-bar { flex: 1; height: 0.6rem; background: var(--parchment); border-radius: 3px; overflow: hidden; }
+    .stat-bar i { display: block; height: 100%; background: var(--gold); border-radius: 3px; }
+    .stat-num { flex: 0 0 2rem; text-align: right; font-variant-numeric: tabular-nums; }
+    .stats-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+    .stats-actions .pw-submit, .stats-actions .pw-cancel { width: 100%; margin: 0; }
  
     .matura-filter { display: flex; align-items: center; gap: 0.4rem; color: var(--ink); white-space: nowrap; }
     .filter-select:disabled {
@@ -1323,6 +1339,7 @@
       <input type="checkbox" id="maturaFilter" style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;" />
       <span style="font-size:0.8rem;cursor:pointer;">Maturitní četba</span>
     </label>
+    <button type="button" class="random-btn" id="statsBtn" title="Statistiky knihovny a export do Excelu">📊 Statistiky</button>
     <button type="button" class="random-btn" id="randomBtn" title="Otevře náhodnou knihu z těch, které jsou zrovna zobrazené">🎲 Náhodná kniha</button>
     <div class="view-toggle">
       <button class="view-btn active" id="gridBtn" title="Mřížka">⊞</button>
@@ -1362,6 +1379,19 @@
       <div class="pw-error" id="pwError"></div>
       <button class="pw-submit" id="pwSubmit">Potvrdit</button>
       <button class="pw-cancel" id="pwCancel">Zrušit</button>
+    </div>
+  </div>
+
+  <!-- STATISTICS + EXCEL EXPORT -->
+  <div class="overlay" id="statsOverlay">
+    <div class="pw-box stats-box">
+      <h2>📊 Statistiky knihovny</h2>
+      <div id="statsBody"></div>
+      <div class="stats-actions">
+        <button class="pw-submit" id="statsDownloadAll">⬇ Stáhnout Excel (všechny knihy + statistiky)</button>
+        <button class="pw-submit" id="statsDownloadShown">⬇ Stáhnout Excel (jen právě zobrazené knihy)</button>
+        <button class="pw-cancel" id="statsClose">Zavřít</button>
+      </div>
     </div>
   </div>
 
@@ -1838,6 +1868,153 @@
     sortMode = e.target.value;
     render();
   });
+
+  // ── STATISTICS + EXCEL EXPORT ──
+  const escHtml = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const buildingOf = (b) => Object.values(b.location || {})[0] || '';
+  const pagesList = (b) => Array.isArray(b.contents) ? b.contents.filter(Boolean) : (b.contents ? [b.contents] : []);
+
+  function computeStats(books) {
+    const count = (fn) => books.filter(fn).length;
+    const tally = (keyFn) => {
+      const m = new Map();
+      books.forEach(b => { const k = keyFn(b); if (k) m.set(k, (m.get(k) || 0) + 1); });
+      return [...m.entries()];
+    };
+    return {
+      total: books.length,
+      matura: count(b => b.matura),
+      withIsbn: count(b => String(b.isbn || '').trim()),
+      withCover: count(b => b.cover),
+      withContents: count(b => pagesList(b).length),
+      withDescription: count(b => String(b.description || '').trim()),
+      bySubject: tally(b => b.stk.split('-')[0]).sort((a, b) => a[0].localeCompare(b[0])),
+      byBuilding: tally(buildingOf).sort((a, b) => b[1] - a[1]),
+      topAuthors: tally(b => String(b.author || '').trim()).sort((a, b) => b[1] - a[1] || csCompare(a[0], b[0])).slice(0, 5),
+      newest: books.filter(b => dateOf(b)).sort((a, b) => dateOf(b) - dateOf(a)).slice(0, 5)
+    };
+  }
+
+  function barRows(entries, labelFn, max) {
+    return entries.map(([k, n]) => `
+      <div class="stat-row">
+        <span class="stat-label" title="${escHtml(labelFn(k))}">${escHtml(labelFn(k))}</span>
+        <span class="stat-bar"><i style="width:${Math.max(3, Math.round(n / max * 100))}%"></i></span>
+        <span class="stat-num">${n}</span>
+      </div>`).join('');
+  }
+
+  function renderStats() {
+    const st = computeStats(BOOKS);
+    const body = document.getElementById('statsBody');
+    if (!st.total) { body.innerHTML = '<p style="text-align:center;">V knihovně zatím nejsou žádné knihy.</p>'; return; }
+    const card = (n, label) => `<div class="stat-card"><b>${n}</b><span>${label}</span></div>`;
+    const maxSub = Math.max(...st.bySubject.map(e => e[1]));
+    const maxBld = st.byBuilding.length ? Math.max(...st.byBuilding.map(e => e[1])) : 1;
+    const maxAut = st.topAuthors.length ? st.topAuthors[0][1] : 1;
+    body.innerHTML = `
+      <div class="stat-cards">
+        ${card(st.total, 'knih celkem')}
+        ${card(st.matura, 'maturitní četba')}
+        ${card(st.withCover, 's obálkou')}
+        ${card(st.withContents, 's obsahem')}
+        ${card(st.withIsbn, 's ISBN')}
+        ${card(st.withDescription, 's popisem')}
+      </div>
+      <div class="stat-title">Knihy podle předmětů</div>
+      ${barRows(st.bySubject, k => subjectName(k), maxSub)}
+      ${st.byBuilding.length ? `<div class="stat-title">Knihy podle budovy</div>${barRows(st.byBuilding, k => k, maxBld)}` : ''}
+      ${st.topAuthors.length ? `<div class="stat-title">Nejčastější autoři</div>${barRows(st.topAuthors, k => k, maxAut)}` : ''}
+      ${st.newest.length ? `<div class="stat-title">Nejnovější knihy</div>${st.newest.map(b =>
+        `<div class="stat-row"><span class="stat-label" style="flex:1">${escHtml(b.title)}</span><span class="stat-num" style="flex:0 0 auto">${escHtml(new Date(b.updated || b.added).toLocaleDateString('cs-CZ'))}</span></div>`).join('')}` : ''}
+    `;
+  }
+
+  let xlsxPromise = null;
+  function loadXLSX() {
+    if (window.XLSX) return Promise.resolve();
+    if (!xlsxPromise) {
+      xlsxPromise = new Promise((resolve, reject) => {
+        const sc = document.createElement('script');
+        sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        sc.onload = resolve;
+        sc.onerror = () => { xlsxPromise = null; reject(new Error('XLSX load failed')); };
+        document.head.appendChild(sc);
+      });
+    }
+    return xlsxPromise;
+  }
+
+  const fmtDateTime = (iso) => { const t = new Date(iso); return (iso && !isNaN(t)) ? t.toLocaleString('cs-CZ') : ''; };
+
+  // list = books for the "Knihy" sheet, all = every book (the statistics always cover the whole library)
+  function buildWorkbook(list, all) {
+    const wb = XLSX.utils.book_new();
+
+    const header = ['STK', 'Název', 'Autor', 'Rok', 'ISBN', 'Předmět', 'Podkategorie', 'Maturitní četba',
+                    'Klíčová slova', 'Budova', 'Popis', 'Obálka (odkaz)', 'Obsah (odkazy)', 'Přidáno', 'Naposledy upraveno'];
+    const rows = list.map(b => {
+      const { xx, yy } = parseSTK(b.stk);
+      const year = Number(b.year);
+      return [
+        b.stk, b.title || '', b.author || '', Number.isFinite(year) && b.year !== '' ? year : (b.year || ''),
+        b.isbn || '', subjectName(xx), SUBJECTS[xx]?.subs?.[yy] || yy, b.matura ? 'Ano' : 'Ne',
+        (b.keywords || []).join('; '), buildingOf(b), b.description || '', b.cover || '', pagesList(b).join('\n'),
+        fmtDateTime(b.added), fmtDateTime(b.updated)
+      ];
+    });
+    const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+    ws['!cols'] = [14, 34, 24, 7, 17, 14, 18, 10, 30, 18, 50, 40, 40, 18, 18].map(wch => ({ wch }));
+    ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: header.length - 1 } }) };
+    XLSX.utils.book_append_sheet(wb, ws, 'Knihy');
+
+    const st = computeStats(all);
+    const aoa = [
+      ['Statistiky knihovny', ''],
+      ['Vytvořeno', new Date().toLocaleString('cs-CZ')],
+      [],
+      ['Knih celkem', st.total],
+      ['Maturitní četba', st.matura],
+      ['S obálkou', st.withCover],
+      ['S obsahem', st.withContents],
+      ['S ISBN', st.withIsbn],
+      ['S popisem', st.withDescription],
+      [],
+      ['Knihy podle předmětů', 'Počet'],
+      ...st.bySubject.map(([k, n]) => [subjectName(k), n]),
+    ];
+    if (st.byBuilding.length) aoa.push([], ['Knihy podle budovy', 'Počet'], ...st.byBuilding);
+    if (st.topAuthors.length) aoa.push([], ['Nejčastější autoři', 'Počet'], ...st.topAuthors);
+    const ws2 = XLSX.utils.aoa_to_sheet(aoa);
+    ws2['!cols'] = [{ wch: 30 }, { wch: 24 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Statistiky');
+    return wb;
+  }
+
+  async function downloadExcel(onlyShown) {
+    const btn = document.getElementById(onlyShown ? 'statsDownloadShown' : 'statsDownloadAll');
+    const label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Připravuji soubor…';
+    try {
+      await loadXLSX();
+      const list = onlyShown ? filteredBooks() : BOOKS.slice().sort((a, b) => a.stk.localeCompare(b.stk));
+      const wb = buildWorkbook(list, BOOKS);
+      const day = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, `AK-knihovna-${day}${onlyShown ? '-zobrazene' : ''}.xlsx`);
+    } catch (e) {
+      alert('Excel se nepodařilo vytvořit. Zkontroluj připojení k internetu a zkus to znovu.');
+    } finally {
+      btn.disabled = false; btn.textContent = label;
+    }
+  }
+
+  document.getElementById('statsBtn').addEventListener('click', () => {
+    renderStats();
+    document.getElementById('statsOverlay').classList.add('open');
+  });
+  document.getElementById('statsClose').addEventListener('click', () => document.getElementById('statsOverlay').classList.remove('open'));
+  document.getElementById('statsDownloadAll').addEventListener('click', () => downloadExcel(false));
+  document.getElementById('statsDownloadShown').addEventListener('click', () => downloadExcel(true));
 
   // ── RANDOM BOOK (from the books currently shown, never the same one twice in a row) ──
   let lastRandomStk = '';
@@ -3142,6 +3319,50 @@
     }
   }
 
+  // ── PHOTO SHRINKING (big phone photos are reduced in the browser before they are uploaded) ──
+  async function loadBitmap(file) {
+    if (window.createImageBitmap) {
+      try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { /* try the fallback */ }
+    }
+    return await new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve({ width: img.naturalWidth, height: img.naturalHeight, source: img }); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+      img.src = url;
+    });
+  }
+
+  // Returns a smaller JPEG (name ends with .jpg), or the original file when shrinking does not help or fails
+  async function shrinkImage(file, maxSide, quality = 0.85) {
+    try {
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
+      // never wait forever for a stuck photo: after 20 s the original is uploaded as it is
+      const bmp = await Promise.race([
+        loadBitmap(file),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 20000))
+      ]);
+      const scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
+      if (scale === 1 && file.type === 'image/jpeg' && file.size <= 500 * 1024) return file;   // already small
+
+      const w = Math.max(1, Math.round(bmp.width * scale));
+      const h = Math.max(1, Math.round(bmp.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';                         // PNGs with transparency get a white background
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(bmp.source || bmp, 0, 0, w, h);
+      if (bmp.close) bmp.close();
+
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', quality));
+      if (!blob || blob.size >= file.size) return file;
+      return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+    } catch (e) {
+      return file;
+    }
+  }
+
   // ── SAVE (new book or changes to an existing one) ──
   document.getElementById('formSubmit').addEventListener('click', async () => {
     const title   = document.getElementById('f-title').value.trim();
@@ -3153,7 +3374,7 @@
     const kw2     = document.getElementById('f-kw2').value.trim();
     const kw3     = document.getElementById('f-kw3').value.trim();
     const isbn    = document.getElementById('f-isbn').value.trim();
-    const coverFile = document.getElementById('f-cover').files[0] || null;
+    let coverFile = document.getElementById('f-cover').files[0] || null;
     const editing = editingBook;
 
     if (!title || !author || !year || !xx || !yy || !kw1 || !kw2 || !kw3) {
@@ -3174,6 +3395,14 @@
     if (dups.warns.length &&
         !confirm('V archivu už je podobná kniha:\n\n' + dups.warns.slice(0, 3).map(dupLine).join('\n') + '\n\nOpravdu ji chceš uložit?')) {
       return;
+    }
+
+    // Shrink big phone photos first: uploads get faster and the repository stays small
+    if (coverFile || contentsFiles.some(it => it.file)) {
+      document.getElementById('formOverlay').classList.remove('open');
+      showResult({ title: 'Zmenšuji fotky…', stk: `${xx}-${yy}-${currentZZZZ}`, entry: spinnerHTML('Připravuji fotky na nahrání...') });
+      if (coverFile) coverFile = await shrinkImage(coverFile, 1200);
+      for (const it of contentsFiles) if (it.file) it.file = await shrinkImage(it.file, 2000);
     }
 
     // Which file names are already taken in the book's folder
