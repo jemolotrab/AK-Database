@@ -1,37 +1,51 @@
-# AK - Adolescentní Knihovna 2026
-<!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání/odebrání knihy - 14.09.26 (tento text není viditelný) -->
+# AK - Adolescentní Knihovna [2026]
+<!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání / odebrání knihy - 14.09.26 (tento text není viditelný) -->
 
 > [!WARNING]
 > ***Tento projekt a zároveň i toto README je VELMI out of date! Tedy je možné, že se projekt může v blízké době výrazně pozměnit a README nemusí odpovídat realitě!***
 
-Vítejte ve školní **online databázi knih**! Kde si můžete hledat a procházet knihy potřebné pro vaše projekty, prezentace a tak dále. Toto **README** obsahuje základní informace o tom, jak tento projekt funguje a jak postupovat u přidání a úpravy/oddělání knihy.
+Tento projekt se věnuje digitalizaci školních knih se základními informacemi do databáze dělané přes GitHub, kde kdokoliv může jak knihy prohlížet, tak i přidávat. Níže se vyskytuje více informaci pro porozumění celého projektu. <!-- By mě tak zajímalo, že kolik těchto skrytých textů tu dám -->
 
 ## Webovka
 > [!NOTE]
-> **Stránka webu** ↴\
-> [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/) <!-- TENTO ODKAZ SE NESMÍ SAKRA ZTRATIT!!! >:) -->
->
-> **(Na webu se kdyžtak vpravo nahoře vyskytuje tlačítko *`GitHub`*, které váš přemístí zpět zde na Github)**
+> **Odkaz na web** ↴\
+> [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/) <!-- BARTOLOMĚJ: "TENTO ODKAZ SE NESMÍ SAKRA ZTRATIT!!!" >:) -->
 
-## Informace o projektu a jak to *(zhruba)* funguje
+## Informace o projektu a jak to funguje
 
-### Proč GitHub? <img src="Assets/images/25231.png" width="16" height="16"/>
-Jelikož je tento projekt převážně tvořen přes GitHub, tak je důležité si vysvětlit a objasnit proč je tato databáze tvořená právě přes něj a jaké to má výhody a nevýhody.
+### Proč GitHub?
+GitHub je prostor, ve kterém mohou existovat veškeré data potřebné pro tento projekt: samotný web (index.html, který GitHub hostuje) a složky obsahující knihy a fotky. Tedy nám GitHub umožní spoustu věcí.
 
-Celý projekt je stavěn na jednom základním principu, a to ukládání knih se základními informacemi potřebné pro uživatele. GitHub byl vybrán z důvodu, jelikož repositáře (se kterými GitHub pracuje) dovolují ukládání hromadu souborů pro osobní účely bez žádných limitací. GitHub také kromě ukládání souborů dokáže za pomocí kódu **HTML** nechat běžet jednoduchý web, který se vyskytuje ve stejném repositáři a dokáže se propojit se soubory v něm.\
-I přesto, že GitHub dokáže většinu potřeb zachovat v jednom repositáři, tak jediné co nám GitHub nedovolí je automatizace. Náš web dovoluje uživateli nejenom prohlížet knihy, ale knihy i přidávat, jenže aby knihu mohl opravdu uložit na web, tak potřebuje soubor knihy přidat do tohoto repositáře na GitHub. Problém jenže je, že většina uživatelů se nebude chtít hrabat v souborech jenom proto, aby uložili nějakou knihu a nebo GitHub nikdy nepoužívali. Naštěstí existuje jednoduché řešení, které nám celý proces ukládání knih zautomatizuje.
+* *Hostování webu a uložení souborů je plně zdarma.*
+* *Každá úprava jakéhokoliv souboru je automaticky ukládána do historie, tedy omylem upravenou nebo smazánou knihu lze vždy vrátit.*
+* *Data jsou obyčejné soubory (krátký JSON na knihu), které se snadno čtou, zálohují i přenášejí jinam.*
 
-### Propojení GitHub s Cloudflare <img src="Assets/images/cloudflare-logo-png_seeklogo-294312.png" width="16" height="16"/>
-Naše řešení se nazývá Cloudflare, ale co to je a jak nám dokáže pomoct s automatizací ukládání knih na GitHub?
+Jediným háčkem GitHubu je to, že weby z ní jsou statické. To znamená že GitHub sice umí data číst, ale nedokáže je sám ukládat. V takovém případě je potřeba vytvořit takzvaný GitHub token, který dovoluje každému kdo ho vlastní upravovat a přidávat data do daného repositáře. Problém ale je, že tento token se nesmí dát do kódu stránky, protože by si ho mohl přečíst naprosto kdokoliv a zneužít. Tedy ukládání knih do GitHubu je pouze možné přes manuální nahrávání do správné složky v repositáři.
 
-**[NĚJAKÉ INFORMACE O CLOUDFLARE ZDE]**\
-Aby Cloudflare mohl mít přístup k našemu repositáři, tak je potřeba vytvořit takzvaný token, který dovoluje k úpravě repositáře bez potřeby se ověřovat. Abychom tento token mohli využít, tak ho nemůžeme jen tak napsat do našeho index.html (který řídí web) především z důvodu, že by si ho každý mohl jednoduše najít a zneužít, což sám GitHub zachytí a nedovolí se projektu uložit. Proto je potřeba vzít náš token a předat ho našemu vytvořenému pracovníkovi na Cloudflare s kódem, který mu řekne, jak s ním zacházet.\
-Jelikož náš pracovník existuje v malém prostoru cloudu s enkryptovaným tokenem, tak může velmi jednoduše interagovat s naším webem a ukládat naše knihy automaticky na GitHub.
+### Propojení s Cloudflare Workerem
+Naše řešení pro automatizaci ukládání knih na GitHub se jmenuje Cloudflare, kde si vytvoříme Cloudflare Workera (Cloudflare Assets (Non-Func)/worker.js), který bude stát mezi webem a GitHubem. Web tedy čte a načítá informace přímo z GitHubu a Cloudflare Worker pouze informace mění nebo přidává.
 
-Cloudflare nám tedy ušetří veškerou manuální práci s ukládáním knih na GitHub, což je pro průměrného uživatele jednodušší. Jakmile tedy uživatel uloží knihu na našem webu, tak pošle veškeré soubory knihy na Cloudflare, kde náš pracovník převezme naše informace a plně automaticky je uloží do správného repositáře a složky na GitHub. Kniha by se během několika sekund objevit na webu i po obnovení.
+* *Uchovává tajné hodnoty a komprimuje je (GitHub token a heslo k editoru knih). Hodnoty jsou uložené na Cloudflare, nikdy v repositáři*
+* *Kontroluje zadané informace a zapíše je na GitHub u přidání, úpravy a smazání knihy.*
+* *Dokáže vyhledávat po internetu zadané ISBN v knihovních katalozích.*
+* *Propojuje počítač a telefon při skenování.*
 
 > [!CAUTION]
-> ***Málokrát do roka se může stát, že spojení s Cloudflare vypadne a nedovolí knize se uložit na GitHub! Pokud se tak stane, tak náš pracovník na Cloudflare nemá aktuální token a je potřeba vygenerovat nový!***
+> ***Někdy se může stát, že spojení mezi webem, Cloudflarem a GitHubem selže. Může se jednat jak o připojení k internetu, tak i výpadku GitHubu nebo Cloudflaru, tak i vypršení tokenu potřebnému pro uprávu a předání dat na GitHub!***
+
+Pokud uvidíš správu o selhání uložení knihy, tak kniha nebyla uložena a to co si napsal, je pryč. Tedy je nutné knihu zadat znova ;)
+
+> [!IMPORTANT]
+> ## Jak knihovnu používat
+Normálně otevři web přes link. Pro použití knihovny není potřeba žádné přihlášení. Zatím...
+
+* ***Hledání:** podle názvu knihy, jméno autora, klíčových slov, kódu STK a nebo ISBN.*
+* 📷 ***ve vyhledávání:** vyhledání knihy naskenováním čárového kódu ISBN.*
+* ***Filtry:** lze hledat knihy podle předmětu a kategorie (u češtiny je dodatečné zaškrtávací políčko maturitní četba)* <!-- Protože čeština -->
+* ***Řazení:** výchozí, nejnovější nahoře, A → Z, Z → A.*
+* 🎲 ***Náhodná kniha:** otevře náhodnou knihu z těch, co jsou zrovna zobrazené (chceš-li náhodnou dějepisnou knihu, nejdřív vyfiltruj historii).*
+* ***Mřížka / seznam:** přepíná se tlačítky vedle hledání.*
+* 📊 ***Statistiky:** přehled knihovny (knihy podle předmětů a budov, nejčastější autoři, nejnovější knihy) a export do Excelu: všechny knihy + statistiky, nebo jen právě zobrazené knihy.*
 
 > [!IMPORTANT]
 > ## Postup u přidání knihy
