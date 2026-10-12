@@ -1322,7 +1322,7 @@
       <input class="search-input" id="searchInput" type="text" placeholder="Hledat podle názvu, autora, klíčových slov, STK nebo ISBN..." />
       <button type="button" class="search-scan-btn" id="searchScanBtn" title="Najít knihu naskenováním ISBN" aria-label="Skenovat ISBN">📷</button>
     </div>
-    <button type="button" class="phone-connect-btn" id="phoneConnectBtn">📱 Připojit k počítači</button>
+    <button type="button" class="phone-connect-btn" id="phoneConnectBtn">Připojit k počítači</button>
     <select class="filter-select" id="subjectFilter">
       <option value="">Všechny předměty</option>
     </select>
@@ -1339,8 +1339,8 @@
       <input type="checkbox" id="maturaFilter" style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;" />
       <span style="font-size:0.8rem;cursor:pointer;">Maturitní četba</span>
     </label>
-    <button type="button" class="random-btn" id="statsBtn" title="Statistiky knihovny a export do Excelu">📊 Statistiky</button>
-    <button type="button" class="random-btn" id="randomBtn" title="Otevře náhodnou knihu z těch, které jsou zrovna zobrazené">🎲 Náhodná kniha</button>
+    <button type="button" class="random-btn" id="statsBtn" title="Statistiky knihovny a export do Excelu">Statistiky</button>
+    <button type="button" class="random-btn" id="randomBtn" title="Otevře náhodnou knihu z těch, které jsou zrovna zobrazené">Náhodná kniha</button>
     <div class="view-toggle">
       <button class="view-btn active" id="gridBtn" title="Mřížka">⊞</button>
       <button class="view-btn" id="listBtn" title="Seznam">☰</button>
@@ -1385,7 +1385,7 @@
   <!-- STATISTICS + EXCEL EXPORT -->
   <div class="overlay" id="statsOverlay">
     <div class="pw-box stats-box">
-      <h2>📊 Statistiky knihovny</h2>
+      <h2>Statistiky knihovny</h2>
       <div id="statsBody"></div>
       <div class="stats-actions">
         <button class="pw-submit" id="statsDownloadAll">⬇ Stáhnout Excel (všechny knihy + statistiky)</button>
@@ -1398,13 +1398,13 @@
   <!-- PHONE SCANNER MODE (opened by the QR code from the computer) -->
   <div class="overlay" id="phoneOverlay">
     <div class="pw-box" style="max-width:440px;">
-      <h2>📱 Skener pro počítač</h2>
+      <h2>Skener pro počítač</h2>
       <p id="phoneStatus">Nepřipojeno. Namiř kameru na QR kód zobrazený na počítači.</p>
       <div class="scan-box search-scan-box" id="phoneScanBox" style="display:none;">
         <video id="phoneVideo" playsinline muted></video>
         <div class="scan-frame"></div>
       </div>
-      <button class="pw-submit" id="phoneStart">📷 Spustit kameru</button>
+      <button class="pw-submit" id="phoneStart">Spustit kameru</button>
       <div class="phone-sent" id="phoneSent"></div>
       <button class="pw-cancel" id="phoneDisconnect">Odpojit</button>
     </div>
@@ -1446,7 +1446,7 @@
       <div class="form-body">
 
         <div class="pair-badge" id="pairBadge" style="display:none;">
-          <span>📱 Telefon je připojen. Naskenovaná ISBN se doplní sem.</span>
+          <span>Telefon je připojen! Naskenovaná ISBN se doplní sem.</span>
           <button type="button" class="pair-cancel" id="pairDisconnect">Odpojit</button>
         </div>
 
@@ -1474,7 +1474,7 @@
           <div class="pair-box" id="pairBox" style="display:none;">
             <div class="pair-qr" id="pairQr"></div>
             <div class="pair-text">
-              <strong>1.</strong> Na telefonu otevři tento web a klepni na <em>„📱 Připojit k počítači“</em> a namiř kameru na QR kód. (Jde to i běžným Fotoaparátem.)<br>
+              <strong>1.</strong> Na telefonu otevři tento web a klepni na <em>„Připojit k počítači“</em> a namiř kameru na QR kód. (Jde to i běžným Fotoaparátem.)<br>
               <strong>2.</strong> Pak namiř telefon na čárový kód knihy.<br>
               <span style="color:var(--muted);">Kód spojení:</span> <span class="pair-code" id="pairCode"></span>
               <div id="pairStatus"></div>
@@ -2114,7 +2114,7 @@
       const emptyMessages = [
         { emoji: "☹️", text: "Nic tu není" },
         { emoji: "📭", text: "Zkouknul bych radši mail" },
-        { emoji: "😏", text: "Co mám hledat? Aha." },
+        { emoji: "😅", text: "Co mám hledat? Aha." },
         { emoji: "👀", text: "Jak můžete vidět... já ne!" },
         { emoji: "💾", text: "404 Not Found" },
         { emoji: "⁉️", text: "Co to jako je?" },
@@ -2213,8 +2213,8 @@
         return parts.length ? `<div class="modal-dates">${parts.join(' · ')}</div>` : '';
       })()}
       <div class="modal-admin">
-        <button type="button" onclick="startEdit('${book.stk}')">✏️ Upravit knihu</button>
-        <button type="button" class="danger" onclick="startDelete('${book.stk}')">🗑 Smazat knihu</button>
+        <button type="button" onclick="startEdit('${book.stk}')">Upravit knihu</button>
+        <button type="button" class="danger" onclick="startDelete('${book.stk}')">Smazat knihu</button>
       </div>
     `;
  
@@ -2238,7 +2238,7 @@
   // ADD BOOK SYSTEM
   // ════════════════════════════════════════
 
-  // ── PASSWORD (Zatím velmi skryté) ──
+  // ── PASSWORD (Zatím velmi skryté. Dokonce až tak, že žádný skrytý kód není :D) ──
   const ADD_BOOK_PASSWORD = "";
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
@@ -2821,7 +2821,7 @@
       const url = `${location.origin}${location.pathname}?pair=${code}`;
       document.getElementById('pairQr').appendChild(new ZXing.BrowserQRCodeSvgWriter().write(url, 170, 170));
       document.getElementById('pairCode').textContent = code;
-      status.textContent = '⏳ Čekám na telefon…';
+      status.textContent = 'Čekám na telefon…';
       pairTimer = setInterval(pollPairing, 2000);
     } catch (e) {
       status.style.color = 'var(--rust)';
@@ -2847,7 +2847,7 @@
         document.getElementById('pairBadge').style.display = '';
         const st = document.getElementById('pairStatus');
         st.style.color = 'var(--brown)';
-        st.textContent = '📱 Telefon je připojen. Naskenuj čárový kód knihy.';
+        st.textContent = 'Telefon je připojen! Naskenuj čárový kód knihy.';
       }
       for (const sc of r.scans) {
         pairAfter = Math.max(pairAfter, sc.id);
