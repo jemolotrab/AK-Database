@@ -2,14 +2,14 @@
 <!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání / odebrání knihy - 14.09.26 (tento text není viditelný) -->
 
 > [!WARNING]
-> ***Tento projekt a zároveň i toto README je VELMI out of date! Tedy je možné, že se projekt může v blízké době výrazně pozměnit a README nemusí odpovídat realitě!***
+> ***Tento projekt a zároveň i toto README není plně aktuální! Tedy je možné, že se projekt může v blízké době výrazně pozměnit a README nemusí odpovídat realitě!***
 
 Tento projekt se věnuje digitalizaci školních knih se základními informacemi do databáze dělané přes GitHub, kde kdokoliv může jak knihy prohlížet, tak i přidávat. Níže se vyskytuje více informaci pro porozumění celého projektu. <!-- By mě tak zajímalo, že kolik těchto skrytých textů tu dám -->
 
 ## Webovka
 > [!NOTE]
 > **Odkaz na web** ↴\
-> [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/) <!-- BARTOLOMĚJ: "TENTO ODKAZ SE NESMÍ SAKRA ZTRATIT!!!" >:) -->
+> [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/) <!-- BARTOLOMĚJ: "TENTO ODKAZ SE NESMÍ ZTRATIT!!!" >:) -->
 
 ## Informace o projektu a jak to funguje
 
