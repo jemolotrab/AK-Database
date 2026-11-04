@@ -1,85 +1,194 @@
-# AK - Adolescentní Knihovna [2026]
-<!-- Toto README by mělo obsahovat víceméně všechny informace o AK. Taky by to mělo obsahovat nějaký "guide", který popíše postup při přidání / odebrání knihy - 14.09.26 (tento text není viditelný) -->
+# AK – Adolescentní Knihovna
 
-> [!WARNING]
-> ***Tento projekt a zároveň i toto README není plně aktuální! Tedy je možné, že se projekt může v blízké době výrazně pozměnit a README nemusí odpovídat realitě!***
+Malá webová aplikace, která eviduje knihy školní knihovny. Každá kniha má svůj záznam (název, autor, ISBN, předmět, klíčová slova, obálka, fotky obsahu…) a kdokoli v něm může hledat a procházet.
 
-Tento projekt se věnuje digitalizaci školních knih se základními informacemi do databáze dělané přes GitHub, kde kdokoliv může jak knihy prohlížet, tak i přidávat. Níže se vyskytuje více informaci pro porozumění celého projektu. <!-- By mě tak zajímalo, že kolik těchto skrytých textů tu dám -->
+**Web: <https://jemolotrab.github.io/AK-Database/>**
 
-## Webovka
-> [!NOTE]
-> **Odkaz na web** ↴\
-> [AK — Adolescentní Knihovna](https://jemolotrab.github.io/AK-Database/) <!-- BARTOLOMĚJ: "TENTO ODKAZ SE NESMÍ ZTRATIT!!!" >:) -->
+> **Pro koho je tento návod?**
+> *Uživatelé* (učitelé, studenti): kapitoly [Jak používat knihovnu](#jak-používat-knihovnu) a [Jak přidat knihu](#jak-přidat-knihu).
+> *Budoucí správci a majitelé repozitáře*: kapitoly [Jak to funguje](#jak-to-funguje) a [Nastavení a údržba](#nastavení-a-údržba). Jsou psané tak, aby podle nich projekt udržel i někdo, kdo ho nikdy neviděl.
+> Podrobný technický popis (součásti, spojení, postupy, bezpečnost) je v dokumentu **[docs/jak-to-funguje.md](docs/jak-to-funguje.md)**.
 
-## Informace o projektu a jak to funguje
+---
+
+## Obsah
+
+1. [Jak to funguje](#jak-to-funguje)
+2. [Jak používat knihovnu](#jak-používat-knihovnu)
+3. [Jak přidat knihu](#jak-přidat-knihu)
+4. [Úprava a mazání knih](#úprava-a-mazání-knih)
+5. [STK a soubor knihy](#stk-a-soubor-knihy)
+6. [Nastavení a údržba](#nastavení-a-údržba)
+7. [Známá omezení](#známá-omezení)
+8. [Řešení problémů](#řešení-problémů)
+9. [Našel jsi chybu? Majitelé a předání projektu](#našel-jsi-chybu-majitelé-a-předání-projektu)
+10. [Autoři a použité nástroje](#autoři-a-použité-nástroje)
+
+---
+
+## Jak to funguje
 
 ### Proč GitHub?
-GitHub je prostor, ve kterém mohou existovat veškeré data potřebné pro tento projekt: samotný web (index.html, který GitHub hostuje) a složky obsahující knihy a fotky. Tedy nám GitHub umožní spoustu věcí.
 
-* *Hostování webu a uložení souborů je plně zdarma.*
-* *Každá úprava jakéhokoliv souboru je automaticky ukládána do historie, tedy omylem upravenou nebo smazánou knihu lze vždy vrátit.*
-* *Data jsou obyčejné soubory (krátký JSON na knihu), které se snadno čtou, zálohují i přenášejí jinam.*
+Na GitHubu je **uloženo úplně všechno**: samotný web (`index.html`, který zobrazuje GitHub Pages), záznam každé knihy i všechny fotky. Hodí se na to ze tří důvodů:
 
-Jediným háčkem GitHubu je to, že weby z ní jsou statické. To znamená že GitHub sice umí data číst, ale nedokáže je sám ukládat. V takovém případě je potřeba vytvořit takzvaný GitHub token, který dovoluje každému kdo ho vlastní upravovat a přidávat data do daného repositáře. Problém ale je, že tento token se nesmí dát do kódu stránky, protože by si ho mohl přečíst naprosto kdokoliv a zneužít. Tedy ukládání knih do GitHubu je pouze možné přes manuální nahrávání do správné složky v repositáři.
+- web i soubory jsou zdarma,
+- každá změna je *commit*, takže existuje **celá historie** a omylem upravenou nebo smazanou knihu lze vždy vrátit,
+- data jsou obyčejné soubory (jeden malý JSON na knihu), které se snadno čtou, zálohují i přenášejí jinam.
 
-### Propojení s Cloudflare Workerem
-Naše řešení pro automatizaci ukládání knih na GitHub se jmenuje Cloudflare, kde si vytvoříme Cloudflare Workera (Cloudflare Assets (Non-Func)/worker.js), který bude stát mezi webem a GitHubem. Web tedy čte a načítá informace přímo z GitHubu a Cloudflare Worker pouze informace mění nebo přidává.
+Háček: **web na GitHub Pages je statický.** Umí data zobrazit, ale nic uložit. A klíč, který dovoluje do repozitáře zapisovat (*token*), se nesmí dát do kódu stránky, protože by si ho mohl přečíst každý, kdo stránku otevře. Bez dalšího kroku by se tedy přidání knihy dělalo **ručně na GitHubu**: vytvořit složku, JSON a nahrát fotky.
 
-* *Uchovává tajné hodnoty a komprimuje je (GitHub token a heslo k editoru knih). Hodnoty jsou uložené na Cloudflare, nikdy v repositáři*
-* *Kontroluje zadané informace a zapíše je na GitHub u přidání, úpravy a smazání knihy.*
-* *Dokáže vyhledávat po internetu zadané ISBN v knihovních katalozích.*
-* *Propojuje počítač a telefon při skenování.*
+### Proč Cloudflare?
 
-> [!CAUTION]
-> ***Někdy se může stát, že spojení mezi webem, Cloudflarem a GitHubem selže. Může se jednat jak o připojení k internetu, tak i výpadku GitHubu nebo Cloudflaru, tak i vypršení tokenu potřebnému pro uprávu a předání dat na GitHub!***
+Tuhle práci dělá **Cloudflare Worker**, malý program na straně serveru (`worker/worker.js`), který stojí mezi webem a GitHubem:
 
-Pokud uvidíš správu o selhání uložení knihy, tak kniha nebyla uložena a to co si napsal, je pryč. Tedy je nutné knihu zadat znova ;)
+- uchovává **tajné hodnoty** (klíč k GitHubu a heslo editoru). Jsou uložené v Cloudflare, nikdy v repozitáři,
+- kontroluje heslo a potom **zapisuje do GitHubu** za stránku (přidání, úprava i smazání knihy),
+- **vyhledává knihy podle ISBN** v knihovních katalozích,
+- propojuje **telefon s počítačem** při skenování (viz [Skenování telefonem](#c-skenování-telefonem)).
 
-> [!IMPORTANT]
-> ## Jak knihovnu používat
-Normálně otevři web přes link. Pro použití knihovny není potřeba žádné přihlášení. Zatím...
+```mermaid
+flowchart LR
+    V["Prohlížeč<br/>index.html z GitHub Pages"]
+    W["Cloudflare Worker<br/>heslo + klíč k GitHubu"]
+    G[("GitHub repozitář<br/>BOOK_FILES/")]
+    C["Knihovní katalogy<br/>Knihovny.cz, Open Library,<br/>K10plus, DNB"]
+    D[("Cloudflare D1<br/>párování a historie změn")]
+    V -->|"čte knihy"| G
+    V -->|"přidat, upravit, smazat"| W
+    W -->|"commity"| G
+    V -->|"ISBN, české knihy"| C
+    W -->|"ISBN"| C
+    W <--> D
+```
 
-* ***Hledání:** podle názvu knihy, jméno autora, klíčových slov, kódu STK a nebo ISBN.*
-* 📷 ***ve vyhledávání:** vyhledání knihy naskenováním čárového kódu ISBN.*
-* ***Filtry:** lze hledat knihy podle předmětu a kategorie (u češtiny je dodatečné zaškrtávací políčko maturitní četba)* <!-- Protože čeština -->
-* ***Řazení:** výchozí, nejnovější nahoře, A → Z, Z → A.*
-* 🎲 ***Náhodná kniha:** otevře náhodnou knihu z těch, co jsou zrovna zobrazené (chceš-li náhodnou dějepisnou knihu, nejdřív vyfiltruj historii).*
-* ***Mřížka / seznam:** přepíná se tlačítky vedle hledání.*
-* 📊 ***Statistiky:** přehled knihovny (knihy podle předmětů a budov, nejčastější autoři, nejnovější knihy) a export do Excelu: všechny knihy + statistiky, nebo jen právě zobrazené knihy.*
+Čtení knihovny **nepotřebuje ani heslo, ani Worker**: stránka si knihy načítá přímo z GitHubu. Přes Worker procházejí jen změny.
 
-> [!IMPORTANT]
-> ## Postup u přidání knihy
-**[VŠECHNY INFORMACE POZMĚNIT. OPRAVDU]**\
-Aby jste mohli přidat knihu, tak budete muset přejít na web a kliknout vpravo nahoře na tlačítko ***`+ Chci přidat knihu!`***. Uprostřed by se poté mělo objevit okénko, kde zadáte heslo (editor knihy je chráněn heslem z důvodu, že ten web je plně přístupný k celému internetu). Po zadání (správného) hesla by se měl objevit editor knihy, kde o knize napíšete veškeré nutné i vedlejší informace.
+### Varování: ukládání může selhat
 
-**Tlačítko přidání knihy**\
-![til](Assets/GIFs/KliknoutNaPřidáníKnihy.gif)\
-**Okénko pro zadání kódu**\
-![til](Assets/GIFs/PřídatKnihu_Editor.gif)
+Spojení mezi webem, Cloudflare a GitHubem může občas selhat (výpadek internetu, výpadek GitHubu nebo Cloudflare, vypršelý klíč…). Pak se místo zelené zprávy o uložení objeví **červená zpráva ❌**.
 
-### Manuální zadání / Zadání podle ISBN
-První čeho si lze v editoru knihy povšimnout jsou dvě horní tlačítka (***`Ruční zadání informací`*, *`Zadání podle ISBN`***), které dávají možnost informace o knize zadat ručně nebo automaticky. Pokud si zvolíte možnost automatického zadání informací o knize podle ISBN, tak se dále vyskytne možnost, zda kód ISBN zadáte ručně a nebo naskenujete čárkový kód s ISBN té knihy. V obou případech by se měly všechny informace automaticky vyplnit.\
-Každopádně je ale furt dobré brát na vědomí, že automatické vyplnění ne vždycky může fungovat, protože buď kniha není vyhledatelná, nebo připojení s pracovníkem na Cloudflare (který informace o knize vyhledává) je nějak porušené. Toto se stává nejčastěji u česky vydaných knih.
+**Když vidíš ❌, kniha uložená není a to, co jsi vyplnil, je pryč**, protože formulář se už zavřel. Knihu je nutné zadat znovu (i s fotkami). Počkej proto vždy na zelené potvrzení, než stránku zavřeš nebo knihu odložíš.
 
-**Okénko E-ditora s výběrem možnosti vyplnění**\
-![til](Assets/GIFs/VybráníZadání_Editor.gif)
+---
 
-> [!CAUTION]
-> ***Pokud si tedy vyberete možnost automaticky vyplnit informace podle ISBN, tak informace zkontrolujte, doupravte a kdyžtak i doplňte!\
-> Informace jsou čerpané z těchto katalogů a webů: Open Library, K10plus, DNB, Národní Knihovna ČR a Knihovny.cz***
+## Jak používat knihovnu
 
-### STK (Systémově tříděný kód)
-Když už se knihy mají ukládat automaticky, tak je dobré vymyslet nějaký systém třídění knih a označit jednotlivou knihu vlastním kódem nebo číslem. Protože hodláme ukládat školní, tak můžeme třídit a seřazovat knihy podle jednoduchých pravidel. Každá kniha je tedy tříděna podle předmětu, kategorie předmětu a poté má každá kniha čtyři náhodně vygenerovaná písmena, která zabraňují tomu, aby se různé knihy ve stejném předmětu a stejné kategorii nepletly a také aby se daly jednoduše identifikovat.\
-Finální podobu kódu si můžete představit nějak takto: XX-YY-ZZZZ, kdy XX je školní předmět, YY je kategorie předmětu a ZZZZ jsou ty čtyři náhodně generovaná písmena, která dovolují mít v jedné kategorii předmětu až 456 976 jedinečných knih :) 
+Otevři [web](https://jemolotrab.github.io/AK-Database/). Pro procházení není potřeba žádné přihlášení.
+
+- **Hledání**: podle názvu, autora, klíčových slov, kódu STK nebo **ISBN** (s pomlčkami i bez, ISBN-10 a ISBN-13 téže knihy se najdou obě, funguje i část čísla).
+- **📷 ve vyhledávání**: namiř kameru na čárový kód na zadní straně knihy a knihovna ji najde.
+- **Filtry**: podle předmětu, kategorie a (u češtiny) *maturitní četby*.
+- **Řazení**: výchozí, nejnovější nahoře, A → Z, Z → A. (Knihy přidané před zavedením dat nemají datum a v řazení „nejnovější“ jsou na konci.)
+- **🎲 Náhodná kniha**: otevře náhodnou knihu z těch, které jsou zrovna zobrazené (chceš-li náhodnou *dějepisnou*, nejdřív vyfiltruj historii).
+- **Mřížka / seznam**: přepíná se tlačítky vedle hledání.
+- **📊 Statistiky**: přehled knihovny (knihy podle předmětů a budov, nejčastější autoři, nejnovější knihy) a **export do Excelu**: všechny knihy + statistiky, nebo jen právě zobrazené knihy.
+
+Kliknutím na knihu otevřeš její detail (fotky obsahu, popis, umístění, data).
+
+---
+
+## Jak přidat knihu
+
+1. Klikni na **„Chci přidat knihu!“** a zadej **heslo editoru** (zeptej se správce knihovny). Heslo se zadává při každém přidání, úpravě i smazání.
+2. Vyber, jak knihu vyplnit (**„Ruční zadání informací“** nebo **„Zadání podle ISBN“**):
+
+### a) Ručně
+
+Vyplň pole sám. Povinné jsou název, autor, rok, předmět, kategorie a tři klíčová slova. **Kód STK** se vytvoří automaticky.
+
+### b) Podle ISBN (automaticky)
+
+Přepni na **„Zadání podle ISBN“** (je označené *Experimentální*, automatické vyplnění je pomocník, ne záruka). Vyplní se název, autor, rok, klíčová slova a, pokud ho katalog má, i popis. Můžeš:
+
+- **napsat ISBN** a stisknout *Načíst informace*, nebo
+- **📷 naskenovat čárový kód** kamerou zařízení (na telefonu to jde skvěle), nebo
+- **📱 skenovat telefonem**, viz dále.
+
+> **Údaje vždy zkontroluj.** Pocházejí z knihovních katalogů a mohou být chybné, neúplné nebo v jiném jazyce. Anglické knihy dorazí s anglickými klíčovými slovy a popisem: přelož je, nebo je nech. Předmět, kategorie, budova, obálka a fotky obsahu jsou vždy **tvoje** práce.
+
+### c) Skenování telefonem
+
+Užitečné, když máš knihu v ruce a počítač na stole:
+
+1. **V počítači**: ve formuláři zvol „Zadání podle ISBN“ a klikni na **📱 Skenovat telefonem**. Objeví se QR kód.
+2. **V telefonu**: otevři web, klepni na **📱 Připojit k počítači** a namiř kameru na QR kód (jde to i běžnou aplikací Fotoaparát).
+3. Namiř telefon na čárový kód knihy. ISBN se pošle do počítače, který formulář vyplní.
+4. Telefon zůstává připojený, takže můžeš skenovat dál. Když počítač založí **nové** párování (ukáže nový QR kód), stačí na něj namířit kameru telefonu. Stránku opouštět nemusíš.
+
+Párování platí 2 hodiny a přenáší jen čísla ISBN. Telefon nikdy nemůže nic uložit, upravit ani smazat.
 
 ### Fotky
-Všechny knihy mají možnost přidání fotek obalu knihy a jejího obsahu, což zjednodušuje vyhledávání a uživatel si může i předem ověřit, zda kniha obsahuje informace co právě hledá a tím si ušetřit čas a lépe naplánovat jakou knihu potřebuje. Plně podporované formáty souborů fotek jsou .png a .jpg/.jpeg.
 
-### Upload knihy
-Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže zda kniha bude uložena nebo ne (a tím pádem ztracena). Náš web stáhne soubor a pošle ho na Cloudflare, odtam Cloudflare převezme složku s knihou a fotkami a uloží to na GitHub. GitHub bude obsahovat složku se jménem knihy, ve kterém se vyskytuje soubor ve formátu .json a fotky, které jste nahrály. Po chvilce strpení by se kniha měla objevit na webu.
+- **Obálka**: jedna fotka.
+- **Obsah**: až **10 fotek**, pořadí se mění tlačítky ▲ ▼.
+- Povolené formáty: `.jpg`, `.jpeg`, `.png`.
+- Velké fotky se před nahráním **automaticky zmenší** v prohlížeči (obsah na nejvýše 2000 px, obálky na 1200 px), takže klidně nahrávej přímo fotky z telefonu.
 
-### Ukázka souboru knihy (Half-Life 2_ Raising the Bar.json)
+### Duplicity
+
+Formulář při psaní upozorní, když už kniha v knihovně je:
+
+- ⛔ **stejný název ve stejném předmětu**: uložit nejde (přepsalo by to existující knihu),
+- ⚠️ **stejné ISBN**, nebo **stejný název a autor**: budeš požádán o potvrzení.
+
+### Uložení
+
+Klikni na **„Zaznamenat knihu!“** a počkej na zelené potvrzení (viz [varování výše](#varování-ukládání-může-selhat)). Ostatním návštěvníkům se nová kniha zobrazí zhruba do minuty (fotky až za několik minut kvůli ukládání do mezipaměti na GitHubu).
+
+---
+
+## Úprava a mazání knih
+
+V detailu knihy jsou dole tlačítka. Obě vyžadují heslo.
+
+**✏️ Upravit knihu** otevře stejný formulář s uloženými údaji. Změnit lze cokoli: texty, předmět a kategorii, obálku, fotky obsahu (odebrat, přeuspořádat, přidat). Pozor:
+
+- Změna **názvu** automaticky přejmenuje složku knihy.
+- Změna **předmětu nebo kategorie** změní první části kódu STK (poslední čtyři písmena zůstávají, protože jsou nalepená na knize, případně knihu přeznač).
+- Aktualizuje se datum poslední změny.
+
+**Každá úprava i smazání se zapíše do [historie změn](#jak-používat-knihovnu)**, aby bylo vidět, co se s knihou dělo.
+
+**🗑 Smazat knihu** smaže knihu **i všechny její fotky**. Aby se to nestalo omylem, musíš **název knihy ručně opsat** (kopírování a vkládání je záměrně vypnuté, na velikosti písmen a diakritice nezáleží).
+
+> Nic není navždy ztraceno: každá úprava i smazání je commit v historii repozitáře. Starší verzi najdeš v historii složky `BOOK_FILES/…` na GitHubu.
+
+---
+
+## STK a soubor knihy
+
+### Kód STK
+
+Každá kniha má jedinečný kód ve tvaru **`XX-YY-ZZZZ`**, např. `01-03-QWXZ`:
+
+| Část | Význam | Příklad |
+|---|---|---|
+| `XX` | předmět (01 Čeština, 02 Angličtina, 03 Němčina, 04 Španělština, 05 Matematika, 06 Ekonomie, 07 Fyzika, 08 Chemie, 09 Biologie, 10 Zeměpis, 11 Historie, 12 IT, 13 Hudebka, 14 Tělocvik, 15 Výtvarka, 16 Vaření) | `01` = Čeština |
+| `YY` | kategorie v předmětu (např. u češtiny: 01 Učebnice, 02 Pracovní sešit, 03 Epika, 04 Lyrika, 05 Drama, 06 Ostatní) | `03` = Epika |
+| `ZZZZ` | čtyři náhodná velká písmena, jedinečná v celé knihovně | `QWXZ` |
+
+STK je napsané na knize a podle něj se kniha najde v regálu.
+
+### Kde jsou data uložená
+
+Každá kniha má v repozitáři vlastní složku:
+
 ```
+BOOK_FILES/
+└── 01-Cestina/                  ← složka předmětu (plný seznam viz „Nastavení“)
+    └── Babička/                 ← složka pojmenovaná podle názvu knihy
+        ├── Babička.json         ← záznam knihy (všechna data)
+        ├── obalka.jpg           ← obálka
+        ├── obsah-1.jpg          ← obsah, strana 1
+        └── obsah-2.jpg          ← obsah, strana 2
+```
+
+Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FILES/`. **To je celá „databáze“.** Není nic dalšího, co by se muselo udržovat v souladu.
+
+### Příklad souboru knihy
+
+```json
 {
   "stk": "11-03-GMAN",
   "title": "Half-Life 2: Raising the Bar",
@@ -88,7 +197,7 @@ Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže z
   "year": "2004",
   "description": "Dílo pojednává o zvedání laťky a posouvání limitů počítačových her a fyziky a příběhu v nich",
   "location": {
-    "Budova": "Perlička (Hlaváčova)"
+    "Budova": "Křížovice"
   },
   "keywords": [
     "Fyzika",
@@ -99,37 +208,125 @@ Jakmile knihu uložíte, tak by se mělo objevit nové okénko, kde se ukáže z
   "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/11-Historie/Half-Life 2: Raising the Bar/IMG30260506092229.jpg",
   "contents": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/11-Historie/Half-Life 2: Raising the Bar/IMG30260506092235.jpg"
 }
+
 ```
 
-> [!WARNING]
-> ## Úprava a smazaní knihy
-Pokud víte, že jste buď něco špatně napsali, nebo dali knihu do špatného předmětu nebo kategorie, tak jediný způsob jak knihu opravit nebo smazat je mít plný přístup k tomuto repositáři "AK-Database". Pokud přístup nemáte, tak stačí kontaktovat člena repositáře, který by mohl buď knihu upravit nebo případně smazat.
+| Pole | Poznámka |
+|---|---|
+| `stk` | viz výše |
+| `matura` | používá se jen u češtiny (maturitní četba) |
+| `contents` | seznam odkazů na fotky (starší knihy mohou mít jediný textový odkaz, funguje obojí) |
+| `added` / `updated` | nastavují se automaticky; starší knihy nemají data, dokud je někdo neupraví |
 
-> [!WARNING]
-> ## Poslední informace
-Celá knihovna je volně přístupná jak z hlediska webu, tak i celého kódu co jej tvoří! Tedy kód si může kdokoliv stáhnout a použít k vlastním účelům, s čímž nemůžu nic dělat. Dále by bylo dobré zmínit pro ty, kteří mají k tomuto repositáři přístup a mohou tedy upravovat i kód a samotné soubory knih, tak NIC NEUPRAVUJTE A NEMĚŇTE, DOKUĎ JSTE SI VY A OSTATNÍ JISTÍ, ŽE TO OPRAVDU ZPŮSOBUJE PROBLEMY!
+> Upravovat tyto soubory **ručně na GitHubu jde, ale nedoporučuje se**: překlep v odkazu nebo v názvu složky knihu rozbije. Použij raději tlačítko pro úpravu na webu.
 
+---
 
-## (Níže je starý popis) :)
+## Nastavení a údržba
 
-### Zjednodušený postup pro přidání knihy
-Aby jste mohli přidat knihu, tak musíte kliknout na tlačítko *`+ Chci přidat knihu!`*
+### Co kde je
 
-![til](Assets/GIFs/ClickItToAddIt.gif)
+| Část | Kde | K čemu |
+|---|---|---|
+| Web | `index.html` v tomto repozitáři, zveřejněný přes **GitHub Pages** | vše, co uživatel vidí |
+| Worker | `worker/worker.js` v tomto repozitáři, **nasazený v Cloudflare** (Workers & Pages) | ukládá, upravuje a maže knihy, hledá ISBN, páruje telefon |
+| Databáze | `worker/database.sql` → **Cloudflare D1** | krátkodobé párovací kódy pro skener v telefonu a **historie změn** knih |
+| Data | `BOOK_FILES/` v tomto repozitáři | všechny knihy a fotky |
 
-Poté by se mělo objevit okénko, kde **zadáte heslo** :)
+> Soubory `worker/worker.js` a `worker/database.sql` drž v repozitáři jako **zálohu a dokumentaci**. Cloudflare se z nich samo neaktualizuje (pokud nenastavíš propojení s Gitem): po úpravě souboru vlož nový kód do Workeru v administraci Cloudflare a klikni na **Deploy**.
 
-![til](Assets/GIFs/WriteItToOpenIt.gif)
+### Nastavení Workeru (Cloudflare → Worker → Settings)
 
-Jakmile zadáte kód, tak můžete začít přidávat informace o knize, kterou chcete přidat.
+| Název | Typ | Hodnota |
+|---|---|---|
+| `ADD_BOOK_PASSWORD` | Secret | heslo editoru (lze kdykoli změnit) |
+| `GITHUB_TOKEN` | Secret | token GitHubu, který smí zapisovat do tohoto repozitáře (viz níže) |
+| `GITHUB_REPO` | Text | `uživatel/repozitář`, např. `jemolotrab/AK-Database` |
+| `GITHUB_BRANCH` | Text, nepovinné | název větve, výchozí je `main` |
+| `DB` | **vazba** na D1 databázi | databáze pro párování telefonu a historii změn (nepovinné: bez ní nefunguje skenování telefonem a historie, ukládání knih ano) |
 
-Když už jste zadaly všechny nutné informace o knize, tak by se měl naistalovat soubor typu *`Název knihy.zip`*
+**Vytvoření tokenu na GitHubu:** GitHub → Settings → Developer settings → Fine-grained personal tokens → *Generate new token* → jen tento repozitář → oprávnění **Contents: Read and write**. Tokeny **vyprší** (nejdéle po roce), datum expirace si dej do kalendáře.
 
-![til](Assets/GIFs/RaiseItToCompleteIt.gif)
+**Vytvoření databáze (párování a historie):** Cloudflare → Storage & databases → D1 → vytvoř databázi → Console → spusť obsah souboru `worker/database.sql` → ve Workeru: Settings → Bindings → přidej *D1 database* s názvem proměnné přesně `DB`.
 
-*`(v ukázce je naistalován soubor .json kromě .zip)`*
+### Nastavení webu
 
-### Finální kroky...
-Jelikož je projekt stále ve vývoji, tak ukládání knihy není automatické. Pokud soubor **knihy** nedáte na GitHub, tak kniha se po obnovení webu ztratí a tak musíte na webu kliknout na tlačítko *`GitHub`* a soubor extrahovat a přidat do *`BOOK_FILES`* a dále do vybraného předmětu. Celý soubor **knihy** obsahuje *`název_knihy.json`* a fotky, které jste nahráli *`(pro přidání souborů je potřeba mít povolení úpráv tohoto repozitáře)`*.
+Na začátku skriptu v `index.html`:
 
-Po uložení a chvilce strpení by se všechno mělo objevit na webu ;)
+- `GITHUB_REPO`: repozitář (`uživatel/repozitář`),
+- `WORKER_URL`: adresa Workeru, `https://<název-workeru>.<účet>.workers.dev`.
+
+Když se repozitář přejmenuje nebo Worker přestěhuje, aktualizuj tyto dva řádky. Seznam předmětů (`SUBJECTS`) je ve stejném souboru; odpovídající názvy složek (`FOLDER_MAP`) jsou ve `worker.js`, **musí být stejné**.
+
+### Zveřejnění
+
+GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Deploy from a branch* → `main`, kořenová složka). Po nahrání nového `index.html` se web aktualizuje do minuty nebo dvou (ve vlastním prohlížeči obnov stránku pomocí Ctrl+Shift+R).
+
+---
+
+## Známá omezení
+
+- **České knihy se podle ISBN hledají hůř než anglické.** Národní knihovna ČR blokuje adresy serverů Cloudflare, proto se české údaje berou z **Knihovny.cz přímo v prohlížeči návštěvníka** (to dovoluje). Když je Knihovny.cz zrovna nedostupné, musí se kniha vyplnit ručně.
+- **Popisy českých knih jsou vzácné**, katalogy je většinou nemají.
+- **Neúspěšné uložení smaže zadaná data** (viz [varování](#varování-ukládání-může-selhat)).
+- **GitHub omezuje, jak často se stránka smí ptát na seznam knih** (60 dotazů za hodinu z jedné IP adresy bez přihlášení). Ve škole sdílí adresu hodně zařízení, takže se ve špičce může stát, že se knihovna nenačte, dokud se limit neobnoví.
+- **Změny nejsou živé.** Kdo má stránku už otevřenou, uvidí nové knihy až po obnovení.
+- **Jedno společné heslo.** Nejsou osobní účty, takže se neví, *kdo* změnu provedl (historie ukáže *co* a *kdy*).
+- **Historie změn** zachycuje jen změny provedené přes web a jen od chvíle, kdy byla zapnutá. Změny provedené přímo na GitHubu v ní nejsou (ty najdeš v historii commitů).
+- **Datum přidání a poslední úpravy** mají jen knihy přidané nebo upravené od zavedení dat.
+- **Žádné půjčování.** Knihovna knihy eviduje, ale nesleduje, kdo je má.
+
+---
+
+## Řešení problémů
+
+| Problém | Pravděpodobná příčina a řešení |
+|---|---|
+| Knihovna se nenačte („Chyba při načítání knih“) | chybí internet, nebo hodinový limit GitHubu: chvíli počkej a obnov stránku |
+| ❌ *Unauthorized* při ukládání | špatné nebo chybějící `ADD_BOOK_PASSWORD`, nebo se po změně hesla Worker znovu nenasadil (**Deploy**) |
+| ❌ *GitHub 401 / 403* | `GITHUB_TOKEN` vypršel nebo nemá oprávnění *Contents: Read and write* → vytvoř nový token a změň secret |
+| ❌ *GitHub 404* | špatné `GITHUB_REPO` (nebo `GITHUB_BRANCH`), nebo token nemá k repozitáři přístup |
+| ❌ *Kniha se stejným názvem už … existuje* | v tomto předmětu už kniha se stejným názvem je: změň název nebo předmět |
+| „Párování telefonu není nastavené“ nebo „Historie změn není zapnutá“ | databáze D1 není připojená jako `DB` (viz Nastavení) |
+| „Tabulka historie neexistuje“ | v databázi D1 chybí tabulky: spusť znovu soubor `worker/database.sql` |
+| Skener v telefonu hlásí, že kód vypršel | počítač založil nové párování: naskenuj nový QR kód |
+| Kamera se nespustí | web musí běžet na `https://` a v prohlížeči musí být povolená kamera |
+| Česká kniha: „Kniha nenalezena“ | Knihovny.cz bylo nedostupné nebo blokované: zkus to později, nebo vyplň ručně |
+| Vyměněná fotka se pořád zobrazuje stará | GitHub soubory pár minut ukládá do mezipaměti: počkej, nebo obnov stránku (Ctrl+Shift+R) |
+
+---
+
+## Našel jsi chybu? Majitelé a předání projektu
+
+**Chyby a nápady:** otevři *Issue* v tomto repozitáři (záložka Issues) a popiš, co jsi dělal, co jsi čekal a co se stalo. Hodně pomůžou snímky obrazovky a text červené chyby. Případně kontaktuj současného majitele:
+
+- **Současný majitel / správce:** *(jméno, školní e-mail)* <!-- TODO: doplnit -->
+- **Účet Cloudflare patří:** *(jméno, e-mail)* <!-- TODO: doplnit -->
+
+**Při předání projektu** (maturita!) udělej všechno z toho. Jinak knihovna tiše přestane fungovat, nebo zůstane svázaná s někým, kdo už ve škole není:
+
+- [ ] převeď repozitář (Settings → *Transfer ownership*), nebo přidej nového správce jako administrátora,
+- [ ] ujisti se, že **účet Cloudflare** (a jeho obnovovací e-mail) patří škole nebo novému správci, ne jen soukromé osobě,
+- [ ] **změň heslo editoru** (`ADD_BOOK_PASSWORD`) a řekni ho jen těm, kdo ho potřebují,
+- [ ] vytvoř **nový token GitHubu** pod novým majitelem, změň `GITHUB_TOKEN` a starý token smaž,
+- [ ] pokud se změnil název repozitáře nebo adresa Workeru, aktualizuj `GITHUB_REPO` / `WORKER_URL` v `index.html` a v nastavení Workeru,
+- [ ] doplň do tohoto návodu nové kontakty.
+
+---
+
+## Autoři a použité nástroje
+
+Projekt vznikl jako maturitní práce. **jemolotrab_314** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
+
+Při vývoji spolupracoval s AI asistentem **Claude (Anthropic)**, který napsal většinu kódu a dokumentace, navrhoval technická řešení a pomáhal s hledáním chyb. Za výsledek a jeho provoz odpovídá autor.
+
+| Autor | AI asistent (Claude) |
+|---|---|
+| nápad a požadavky | většina kódu (Worker, hledání, skenování, statistiky, export do Excelu…) |
+| rozhodování, co a jak má aplikace dělat | návrhy technických řešení (párování telefonu přes QR kód, úprava a mazání jedním commitem, kontrola duplicit…) |
+| nastavení GitHubu a Cloudflare | hledání příčin chyb a psaní testů |
+| testování na skutečných zařízeních, hledání problémů | psaní návodu a technické dokumentace |
+
+---
+
+<sub>Vytvořeno pomocí: GitHub Pages · Cloudflare Workers a D1 · údaje o knihách z Knihovny.cz, Open Library, K10plus a Německé národní knihovny (DNB) · [ZXing](https://github.com/zxing-js/library) pro čtení čárových a QR kódů · [SheetJS](https://sheetjs.com/) pro export do Excelu.</sub>
