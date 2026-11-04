@@ -97,6 +97,118 @@
     /* ── HERO STRIP ── */
     .hero {
       background: var(--ink);
+      color: var(--cream);<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AK — Adolescentní Knihovna</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    :root {
+      --cream: #f0f2f5;
+      --parchment: #e4e8ed;
+      --ink: #1a2030;
+      --brown: #4a5568;
+      --rust: #b5451b;
+      --gold: #c9a84c;
+      --muted: #7a8595;
+      --card-bg: #f8f9fb;
+      --border: #cdd4dc;
+    }
+ 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    html { overflow-x: clip; }
+    body {
+      background-color: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+ 
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      /* A SQUARE centred on the screen and larger than the screen's diagonal: it covers every corner
+         at ANY rotation angle (a rectangle leaves gaps when it is turned). 145vmax >= the diagonal
+         of any screen, so the noise can be rotated freely. */
+      top: 50%;
+      left: 50%;
+      width: 145vmax;
+      height: 145vmax;
+      background-image: url('Assets/images/noise.png');
+      background-repeat: repeat;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.314;
+      mix-blend-mode: multiply;
+      transform: translate(-50%, -50%) rotate(var(--noise-rotation, 17deg));
+    }
+    /* newer browsers: exactly the screen's diagonal (smaller layer, still covers every angle) */
+    @supports (width: hypot(3px, 4px)) {
+      body::before {
+        width: calc(hypot(100vw, 100vh) + 2px);
+        height: calc(hypot(100vw, 100vh) + 2px);
+      }
+    }
+ 
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--ink);
+      color: var(--cream);
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      border-bottom: 2px solid var(--gold);
+    }
+ 
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+ 
+    .logo-ak {
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+ 
+    .logo-full {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+ 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+ 
+    .book-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+ 
+    /* ── HERO STRIP ── */
+    .hero {
+      background: var(--ink);
       color: var(--cream);
       padding: 3rem 2.5rem 2.5rem;
       border-bottom: 1px solid #333;
