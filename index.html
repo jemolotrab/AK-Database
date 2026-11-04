@@ -296,6 +296,29 @@
     .stat-num small { font-size: 0.7rem; color: var(--muted); }
     .stats-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
     .stats-actions .pw-submit, .stats-actions .pw-cancel { width: 100%; margin: 0; }
+    .stats-downloads { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .stats-tabs { display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1rem; }
+    .stats-tab {
+      padding: 0.4rem 0.9rem; border: 1.5px solid var(--border); border-radius: 4px; background: transparent;
+      font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--ink); cursor: pointer;
+    }
+    .stats-tab.active { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+
+    /* ── history of changes ── */
+    .log-item { padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; }
+    .log-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem; }
+    .log-head a { color: var(--ink); }
+    .log-stk { font-size: 0.68rem; color: var(--muted); }
+    .log-time { margin-left: auto; font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+    .log-item ul { margin: 0.3rem 0 0 1.2rem; padding: 0; font-size: 0.74rem; color: var(--ink); }
+    .log-empty { font-size: 0.8rem; color: var(--muted); text-align: center; padding: 0.75rem 0; }
+    .modal-history { margin-top: 1rem; }
+    .modal-link-btn {
+      background: transparent; border: none; padding: 0; cursor: pointer; text-decoration: underline;
+      font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--brown);
+    }
+    #logBody .pair-cancel { display: block; margin: 0.75rem auto 0; }
  
     .matura-filter { display: flex; align-items: center; gap: 0.4rem; color: var(--ink); white-space: nowrap; }
     .filter-select:disabled {
@@ -1388,11 +1411,18 @@
   <!-- STATISTICS + EXCEL EXPORT -->
   <div class="overlay" id="statsOverlay">
     <div class="pw-box stats-box">
-      <h2>📊 Statistiky knihovny</h2>
+      <h2>📊 Statistiky a historie</h2>
+      <div class="stats-tabs">
+        <button type="button" class="stats-tab active" id="tabOverview">Přehled</button>
+        <button type="button" class="stats-tab" id="tabLog">🕘 Poslední změny</button>
+      </div>
       <div id="statsBody"></div>
+      <div id="logBody" style="display:none;"></div>
       <div class="stats-actions">
-        <button class="pw-submit" id="statsDownloadAll">⬇ Stáhnout Excel (všechny knihy + statistiky)</button>
-        <button class="pw-submit" id="statsDownloadShown">⬇ Stáhnout Excel (jen právě zobrazené knihy)</button>
+        <div class="stats-downloads" id="statsDownloads">
+          <button class="pw-submit" id="statsDownloadAll">⬇ Stáhnout Excel (všechny knihy + statistiky)</button>
+          <button class="pw-submit" id="statsDownloadShown">⬇ Stáhnout Excel (jen právě zobrazené knihy)</button>
+        </div>
         <button class="pw-cancel" id="statsClose">Zavřít</button>
       </div>
     </div>
@@ -2019,7 +2049,93 @@
     }
   }
 
+  // ── HISTORY OF CHANGES (read from the Worker, which keeps a log of every add / edit / delete) ──
+  const fmtLogTime = (ts) => new Date(ts).toLocaleString('cs-CZ',
+    { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  function logEntryHTML(e, showTitle) {
+    const icon = { add: '➕', edit: '✏️', delete: '🗑' }[e.action] || '•';
+    const verb = { add: 'Přidáno', edit: 'Upraveno', delete: 'Smazáno' }[e.action] || e.action;
+    const live = BOOKS.find(b => b.stk.split('-')[2] === e.book_key);   // the book may be gone or renamed
+    let what = '';
+    if (showTitle) {
+      const t = escHtml(e.title);
+      what = (live && e.action !== 'delete')
+        ? ` <a href="#" onclick="openBookFromLog('${live.stk}'); return false;">„${t}“</a>`
+        : ` <b>„${t}“</b>`;
+      what += ` <span class="log-stk">${escHtml(e.stk)}</span>`;
+    }
+    const changes = ((e.details && e.details.changes) || []).map(c => c.note
+      ? `${escHtml(c.f)}: ${escHtml(c.note)}`
+      : `${escHtml(c.f)}: ${escHtml(c.from || '(prázdné)')} → ${escHtml(c.to || '(prázdné)')}`);
+    return `<div class="log-item"><div class="log-head">${icon} ${verb}${what}<span class="log-time">${escHtml(fmtLogTime(e.ts))}</span></div>` +
+           (changes.length ? `<ul>${changes.map(c => `<li>${c}</li>`).join('')}</ul>` : '') + `</div>`;
+  }
+
+  // bookKey '' = the whole library, otherwise only that book (last 4 letters of the STK)
+  async function fillLog(box, bookKey, showTitle) {
+    box.innerHTML = '<p class="log-empty">Načítám…</p>';
+    let before = 0, list = null, moreBtn = null;
+
+    const showError = (e) => {
+      box.innerHTML = `<p class="log-empty">${escHtml(e.status ? e.message : 'Historii se nepodařilo načíst. Zkontroluj připojení.')}</p>`;
+    };
+    const loadPage = async () => {
+      const r = await pairApi('get-log', { book_key: bookKey || '', before, limit: 30 });
+      if (!list) {
+        if (!r.entries.length) {
+          box.innerHTML = '<p class="log-empty">Zatím tu nejsou žádné záznamy. Historie se zapisuje jen od chvíle, kdy byla zapnutá.</p>';
+          return;
+        }
+        box.innerHTML = '';
+        list = document.createElement('div');
+        box.appendChild(list);
+      }
+      list.insertAdjacentHTML('beforeend', r.entries.map(e => logEntryHTML(e, showTitle)).join(''));
+      if (r.entries.length) before = r.entries[r.entries.length - 1].id;
+      if (moreBtn) { moreBtn.remove(); moreBtn = null; }
+      if (r.more) {
+        moreBtn = document.createElement('button');
+        moreBtn.type = 'button';
+        moreBtn.className = 'pair-cancel';
+        moreBtn.textContent = 'Načíst starší';
+        moreBtn.addEventListener('click', () => { moreBtn.disabled = true; loadPage().catch(showError); });
+        box.appendChild(moreBtn);
+      }
+    };
+    try { await loadPage(); } catch (e) { showError(e); }
+  }
+
+  function toggleBookHistory(key, btn) {
+    const box = document.getElementById('bookHistory');
+    if (box.dataset.open === '1') {
+      box.innerHTML = ''; box.dataset.open = '0'; btn.textContent = '🕘 Historie knihy';
+      return;
+    }
+    box.dataset.open = '1';
+    btn.textContent = '🕘 Skrýt historii';
+    fillLog(box, key, false);
+  }
+
+  function openBookFromLog(stk) {
+    document.getElementById('statsOverlay').classList.remove('open');
+    openModal(stk);
+  }
+
+  function showStatsTab(tab) {
+    const isLog = tab === 'log';
+    document.getElementById('tabOverview').classList.toggle('active', !isLog);
+    document.getElementById('tabLog').classList.toggle('active', isLog);
+    document.getElementById('statsBody').style.display = isLog ? 'none' : '';
+    document.getElementById('statsDownloads').style.display = isLog ? 'none' : '';
+    document.getElementById('logBody').style.display = isLog ? '' : 'none';
+    if (isLog) fillLog(document.getElementById('logBody'), '', true);
+  }
+  document.getElementById('tabOverview').addEventListener('click', () => showStatsTab('overview'));
+  document.getElementById('tabLog').addEventListener('click', () => showStatsTab('log'));
+
   document.getElementById('statsBtn').addEventListener('click', () => {
+    showStatsTab('overview');
     renderStats();
     document.getElementById('statsOverlay').classList.add('open');
   });
@@ -2223,6 +2339,10 @@
         if (fmt(book.updated) && fmt(book.updated) !== fmt(book.added)) parts.push('Naposledy upraveno ' + fmt(book.updated));
         return parts.length ? `<div class="modal-dates">${parts.join(' · ')}</div>` : '';
       })()}
+      <div class="modal-history">
+        <button type="button" class="modal-link-btn" onclick="toggleBookHistory('${book.stk.split('-')[2]}', this)">🕘 Historie knihy</button>
+        <div id="bookHistory"></div>
+      </div>
       <div class="modal-admin">
         <button type="button" onclick="startEdit('${book.stk}')">✏️ Upravit knihu</button>
         <button type="button" class="danger" onclick="startDelete('${book.stk}')">🗑 Smazat knihu</button>
