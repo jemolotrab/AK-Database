@@ -1327,7 +1327,7 @@
     </div>
     <div class="header-right">
       <span class="book-count" id="headerCount">— knih</span>
-      <button class="add-btn" id="addBookBtn">＋ <span class="add-long">Chci přidat knihu!</span><span class="add-short">Přidat knihu</span></button>
+      <button class="add-btn" id="addBookBtn"><span class="add-long">Chci přidat knihu!</span><span class="add-short">Přidat knihu</span></button>
       <a href="https://github.com/jemolotrab/AK-Database" target="_blank" class="gh-btn" aria-label="GitHub" title="GitHub">
         <svg height="16" viewBox="0 0 16 16" width="16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         <span class="gh-text">GitHub</span>
@@ -1348,7 +1348,7 @@
       <input class="search-input" id="searchInput" type="text" placeholder="Hledat podle názvu, autora, klíčových slov, STK nebo ISBN..." />
       <button type="button" class="search-scan-btn" id="searchScanBtn" title="Najít knihu naskenováním ISBN" aria-label="Skenovat ISBN">📷</button>
     </div>
-    <button type="button" class="phone-connect-btn" id="phoneConnectBtn">📱 Připojit k počítači</button>
+    <button type="button" class="phone-connect-btn" id="phoneConnectBtn">Připojit k počítači</button>
     <select class="filter-select" id="subjectFilter">
       <option value="">Všechny předměty</option>
     </select>
@@ -1365,8 +1365,8 @@
       <input type="checkbox" id="maturaFilter" style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;" />
       <span style="font-size:0.8rem;cursor:pointer;">Maturitní četba</span>
     </label>
-    <button type="button" class="random-btn" id="statsBtn" title="Statistiky knihovny a export do Excelu">📊 Statistiky</button>
-    <button type="button" class="random-btn" id="randomBtn" title="Otevře náhodnou knihu z těch, které jsou zrovna zobrazené">🎲 Náhodná kniha</button>
+    <button type="button" class="random-btn" id="statsBtn" title="Statistiky knihovny a export do Excelu">Statistiky</button>
+    <button type="button" class="random-btn" id="randomBtn" title="Otevře náhodnou knihu z těch, které jsou zrovna zobrazené">Náhodná kniha</button>
     <div class="view-toggle">
       <button class="view-btn active" id="gridBtn" title="Mřížka">⊞</button>
       <button class="view-btn" id="listBtn" title="Seznam">☰</button>
@@ -1414,14 +1414,14 @@
       <h2>📊 Statistiky a historie</h2>
       <div class="stats-tabs">
         <button type="button" class="stats-tab active" id="tabOverview">Přehled</button>
-        <button type="button" class="stats-tab" id="tabLog">🕘 Poslední změny</button>
+        <button type="button" class="stats-tab" id="tabLog">Poslední změny</button>
       </div>
       <div id="statsBody"></div>
       <div id="logBody" style="display:none;"></div>
       <div class="stats-actions">
         <div class="stats-downloads" id="statsDownloads">
-          <button class="pw-submit" id="statsDownloadAll">⬇ Stáhnout Excel (všechny knihy + statistiky)</button>
-          <button class="pw-submit" id="statsDownloadShown">⬇ Stáhnout Excel (jen právě zobrazené knihy)</button>
+          <button class="pw-submit" id="statsDownloadAll">Stáhnout Excel (všechny knihy + statistiky)</button>
+          <button class="pw-submit" id="statsDownloadShown">Stáhnout Excel (jen právě zobrazené knihy)</button>
         </div>
         <button class="pw-cancel" id="statsClose">Zavřít</button>
       </div>
@@ -1437,7 +1437,7 @@
         <video id="phoneVideo" playsinline muted></video>
         <div class="scan-frame"></div>
       </div>
-      <button class="pw-submit" id="phoneStart">📷 Spustit kameru</button>
+      <button class="pw-submit" id="phoneStart">Spustit kameru</button>
       <div class="phone-sent" id="phoneSent"></div>
       <button class="pw-cancel" id="phoneDisconnect">Odpojit</button>
     </div>
@@ -1502,8 +1502,8 @@
             </div>
             <button class="isbn-fetch-btn" id="isbnFetchBtn">Načíst informace</button>
           </div>
-          <button type="button" class="isbn-scan-btn" id="isbnScanBtn">📷 Skenovat čárový kód kamerou</button>
-          <button type="button" class="isbn-scan-btn" id="pairStartBtn">📱 Skenovat telefonem</button>
+          <button type="button" class="isbn-scan-btn" id="isbnScanBtn">Skenovat čárový kód kamerou</button>
+          <button type="button" class="isbn-scan-btn" id="pairStartBtn">Skenovat telefonem</button>
           <div class="pair-box" id="pairBox" style="display:none;">
             <div class="pair-qr" id="pairQr"></div>
             <div class="pair-text">
@@ -1517,7 +1517,7 @@
           <div class="scan-box" id="scanBox" style="display:none;">
             <video id="scanVideo" playsinline muted></video>
             <div class="scan-frame"></div>
-            <button type="button" class="scan-cancel" id="scanCancel">✕ Zrušit</button>
+            <button type="button" class="scan-cancel" id="scanCancel">Zrušit</button>
             <div class="scan-hint" id="scanHint">Namiř kameru na čárový kód (ISBN) na zadní straně knihy</div>
           </div>
           <div id="isbnStatus" style="font-size:0.75rem;margin-bottom:0.75rem;min-height:1.2rem;"></div>
@@ -2109,11 +2109,11 @@
   function toggleBookHistory(key, btn) {
     const box = document.getElementById('bookHistory');
     if (box.dataset.open === '1') {
-      box.innerHTML = ''; box.dataset.open = '0'; btn.textContent = '🕘 Historie knihy';
+      box.innerHTML = ''; box.dataset.open = '0'; btn.textContent = 'Historie knihy';
       return;
     }
     box.dataset.open = '1';
-    btn.textContent = '🕘 Skrýt historii';
+    btn.textContent = 'Skrýt historii';
     fillLog(box, key, false);
   }
 
@@ -2340,12 +2340,12 @@
         return parts.length ? `<div class="modal-dates">${parts.join(' · ')}</div>` : '';
       })()}
       <div class="modal-history">
-        <button type="button" class="modal-link-btn" onclick="toggleBookHistory('${book.stk.split('-')[2]}', this)">🕘 Historie knihy</button>
+        <button type="button" class="modal-link-btn" onclick="toggleBookHistory('${book.stk.split('-')[2]}', this)">Historie knihy</button>
         <div id="bookHistory"></div>
       </div>
       <div class="modal-admin">
-        <button type="button" onclick="startEdit('${book.stk}')">✏️ Upravit knihu</button>
-        <button type="button" class="danger" onclick="startDelete('${book.stk}')">🗑 Smazat knihu</button>
+        <button type="button" onclick="startEdit('${book.stk}')">Upravit knihu</button>
+        <button type="button" class="danger" onclick="startDelete('${book.stk}')">Smazat knihu</button>
       </div>
     `;
  
