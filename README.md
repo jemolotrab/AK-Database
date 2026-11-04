@@ -49,7 +49,7 @@ Tuhle práci dělá **Cloudflare Worker**, malý program na straně serveru (`wo
 - propojuje **telefon s počítačem** při skenování (viz [Skenování telefonem](#c-skenování-telefonem)).
 
 ```mermaid
-graph TD;
+flowchart LR
     V[ Prohlížeč<br/>index.html z GitHub Pages ]
     W[ Cloudflare Worker<br/>heslo + klíč k GitHubu ]
     G[( GitHub repozitář<br/>BOOK_FILES/ )]
