@@ -4,7 +4,7 @@
   "author": "Frank Herbert",
   "isbn": "",
   "year": "1965",
-  "description": "Tahle kniha je už testována už asi dvacetkrát!! :( ... EDIT: Já se fakt překlepl s tím až a proč to je rozbitý?!!\nTahle kniha je už podruhé testována z důvodu záznamu historie!",
+  "description": "",
   "location": {
     "Budova": "Dukelská"
   },
@@ -18,5 +18,5 @@
   "contents": [
     "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Duna/IMG20260506092235.jpg"
   ],
-  "updated": "2026-11-04T11:32:20.881Z"
+  "updated": "2026-11-04T11:38:01.230Z"
 }
