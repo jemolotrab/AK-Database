@@ -1,11 +1,10 @@
-# 📚 AK – Adolescentní Knihovna
+# AK – Adolescentní Knihovna
 
 Malá webová aplikace, která eviduje knihy školní knihovny. Každá kniha má svůj záznam (název, autor, ISBN, předmět, klíčová slova, obálka, fotky obsahu…) a kdokoli v něm může hledat a procházet.
 
-**🌐 Web: <https://jemolotrab.github.io/AK-Database/>**
+**Web: <https://jemolotrab.github.io/AK-Database/>**
 
-🇬🇧 *English version: [README.en.md](README.en.md)*
-
+> [!NOTE]
 > **Pro koho je tento návod?**
 > *Uživatelé* (učitelé, studenti): kapitoly [Jak používat knihovnu](#jak-používat-knihovnu) a [Jak přidat knihu](#jak-přidat-knihu).
 > *Budoucí správci a majitelé repozitáře*: kapitoly [Jak to funguje](#jak-to-funguje) a [Nastavení a údržba](#nastavení-a-údržba). Jsou psané tak, aby podle nich projekt udržel i někdo, kdo ho nikdy neviděl.
@@ -93,8 +92,6 @@ Kliknutím na knihu otevřeš její detail (fotky obsahu, popis, umístění, da
 
 ## Jak přidat knihu
 
-> 🎞️ *GIFy jsou ve složce [`docs/`](docs/), seznam nahrávek je na konci této kapitoly.*
-
 1. Klikni na **„Chci přidat knihu!“** a zadej **heslo editoru** (zeptej se správce knihovny). Heslo se zadává při každém přidání, úpravě i smazání.
 2. Vyber, jak knihu vyplnit (**„Ruční zadání informací“** nebo **„Zadání podle ISBN“**):
 
@@ -110,7 +107,8 @@ Přepni na **„Zadání podle ISBN“** (je označené *Experimentální*, auto
 - kliknout na *Skenovat čárový kód kamerou* a naskenovat kód kamerou zařízení (na telefonu to jde skvěle), nebo
 - kliknout na *Skenovat telefonem*, viz dále.
 
-> ⚠️ **Údaje vždy zkontroluj.** Pocházejí z knihovních katalogů a mohou být chybné, neúplné nebo v jiném jazyce. Anglické knihy dorazí s anglickými klíčovými slovy a popisem: přelož je, nebo je nech. Předmět, kategorie, budova, obálka a fotky obsahu jsou vždy **tvoje** práce.
+> [!WARNING]
+> **Údaje vždy zkontroluj.** Pocházejí z knihovních katalogů a mohou být chybné, neúplné nebo v jiném jazyce. Anglické knihy dorazí s anglickými klíčovými slovy a popisem: přelož je, nebo je nech. Předmět, kategorie, budova, obálka a fotky obsahu jsou vždy **tvoje** práce.
 
 ### c) Skenování telefonem
 
@@ -141,9 +139,6 @@ Formulář při psaní upozorní, když už kniha v knihovně je:
 
 Klikni na **„Zaznamenat knihu!“** a počkej na zelené potvrzení (viz [varování výše](#varování-ukládání-může-selhat)). Ostatním návštěvníkům se nová kniha zobrazí zhruba do minuty (fotky až za několik minut kvůli ukládání do mezipaměti na GitHubu).
 
-**Doporučené GIFy** (ulož do `docs/` a odkaž je sem):
-`docs/pridani-rucne.gif`, `docs/pridani-isbn.gif`, `docs/skenovani-telefonem.gif`, `docs/uprava-knihy.gif`, `docs/smazani-knihy.gif`, `docs/statistiky-excel.gif`
-
 ---
 
 ## Úprava a mazání knih
@@ -160,7 +155,8 @@ V detailu knihy jsou dole tlačítka. Obě vyžadují heslo.
 
 **Smazat knihu** smaže knihu **i všechny její fotky**. Aby se to nestalo omylem, musíš **název knihy ručně opsat** (kopírování a vkládání je záměrně vypnuté, na velikosti písmen a diakritice nezáleží).
 
-> 💡 Nic není navždy ztraceno: každá úprava i smazání je commit v historii repozitáře. Starší verzi najdeš v historii složky `BOOK_FILES/…` na GitHubu.
+> [!TIP]
+> Nic není navždy ztraceno: každá úprava i smazání je commit v historii repozitáře. Starší verzi najdeš v historii složky `BOOK_FILES/…` na GitHubu.
 
 ---
 
@@ -226,7 +222,8 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 | `contents` | seznam odkazů na fotky (starší knihy mohou mít jediný textový odkaz, funguje obojí) |
 | `added` / `updated` | nastavují se automaticky; starší knihy nemají data, dokud je někdo neupraví |
 
-> ✋ Upravovat tyto soubory **ručně na GitHubu jde, ale nedoporučuje se**: překlep v odkazu nebo v názvu složky knihu rozbije. Použij raději tlačítko pro úpravu na webu.
+> [!CAUTION]
+> Upravovat tyto soubory **ručně na GitHubu jde, ale nedoporučuje se**: překlep v odkazu nebo v názvu složky knihu rozbije. Použij raději tlačítko pro úpravu na webu.
 
 ---
 
@@ -243,7 +240,8 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 | Databáze | `worker/database.sql` → **Cloudflare D1** | krátkodobé párovací kódy pro skener v telefonu a **historie změn** knih |
 | Data | `BOOK_FILES/` v tomto repozitáři | všechny knihy a fotky |
 
-> 📌 Soubory `worker/worker.js` a `worker/database.sql` drž v repozitáři jako **zálohu a dokumentaci**. Cloudflare se z nich samo neaktualizuje (pokud nenastavíš propojení s Gitem): po úpravě souboru vlož nový kód do Workeru v administraci Cloudflare a klikni na **Deploy**.
+> [!NOTE]
+> Soubory `worker/worker.js` a `worker/database.sql` drž v repozitáři jako **zálohu a dokumentaci**. Cloudflare se z nich samo neaktualizuje (pokud nenastavíš propojení s Gitem): po úpravě souboru vlož nový kód do Workeru v administraci Cloudflare a klikni na **Deploy**.
 
 ### Nastavení Workeru (Cloudflare → Worker → Settings)
 
