@@ -59,6 +59,10 @@ export default {
 
       // ── Phone <-> computer pairing (QR code); needs the D1 database bound as DB ──
       const action = request.headers.get('X-Action') || '';
+      if (action === 'get-log') {
+        const body = await request.json().catch(() => ({}));
+        return new Response(JSON.stringify(await handleGetLog(body, env)), { status: 200, headers: JSON_HEADERS });
+      }
       if (action.startsWith('pair-')) {
         const body = await request.json().catch(() => ({}));
         return new Response(JSON.stringify(await handlePair(action, body, env)), { status: 200, headers: JSON_HEADERS });
@@ -137,6 +141,8 @@ export default {
           status: 500, headers: JSON_HEADERS
         });
       }
+
+      await logAction(env, 'add', book, null);
 
       return new Response(JSON.stringify({ success: true, stk, folder: bookFolder }), {
         status: 200, headers: JSON_HEADERS
@@ -252,7 +258,7 @@ async function verifiedBookFiles(env, stk, title) {
   try { stored = JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { stored = null; }
   if (!stored || stored.stk !== stk) throw new HttpError(409, 'Kód STK ve složce nesouhlasí, nic jsem nezměnil.');
 
-  return { folder, files };
+  return { folder, files, stored };
 }
 
 // One commit containing all tree changes. entries: [{path, mode, type, sha | content}], sha:null = delete
@@ -275,9 +281,10 @@ async function commitTree(env, message, entries) {
 
 async function handleDelete(body, env) {
   const { stk, title } = body;
-  const { files } = await verifiedBookFiles(env, stk, title);
+  const { files, stored } = await verifiedBookFiles(env, stk, title);
   const entries = files.map((f) => ({ path: f.path, mode: '100644', type: 'blob', sha: null }));
   await commitTree(env, `Smazána kniha: ${title}`, entries);
+  await logAction(env, 'delete', stored || { stk, title }, null);
   return { success: true, deleted: files.length };
 }
 
@@ -294,7 +301,7 @@ async function handleUpdate(formData, env) {
   if (!book || !Array.isArray(keep) || !keep.every(safeName)) throw new HttpError(400, 'Neplatná data knihy.');
 
   const newFolder = bookFolderPath(book.stk, book.title);
-  const { folder: oldFolder, files: oldFiles } = await verifiedBookFiles(env, oldStk, oldTitle);
+  const { folder: oldFolder, files: oldFiles, stored: oldBook } = await verifiedBookFiles(env, oldStk, oldTitle);
 
   // A different folder (new title or subject) must not already exist - it would be overwritten
   if (newFolder !== oldFolder) {
@@ -341,6 +348,8 @@ async function handleUpdate(formData, env) {
 
   const tree = [...entries.values()].filter(Boolean);
   await commitTree(env, `Upravena kniha: ${book.title}`, tree);
+  const changes = diffBooks(oldBook, book);
+  if (changes.length) await logAction(env, 'edit', book, { changes });
   return { success: true, stk: book.stk, folder: newFolder };
 }
 
@@ -682,4 +691,93 @@ async function handlePair(action, body, env) {
   }
 
   throw new HttpError(400, 'Neznámá akce.');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CHANGE LOG (history)
+//  One row per add / edit / delete, kept in the D1 database (table book_log).
+//  The last four letters of the STK identify a book for its whole life, even when
+//  the subject or category (the first parts of the STK) change.
+//  Logging is best effort: if the database is missing or fails, saving a book still works.
+// ════════════════════════════════════════════════════════════════
+const fileNameOf = (u) => { try { return decodeURIComponent(String(u).split('/').pop()); } catch (e) { return String(u); } };
+const pagesOf = (c) => (Array.isArray(c) ? c : c ? [c] : []).filter(Boolean);
+
+function shortText(v) {
+  const s = Array.isArray(v) ? v.join(', ')
+    : (v && typeof v === 'object') ? Object.values(v).join(', ')
+    : String(v ?? '');
+  return s.length > 80 ? s.slice(0, 77) + '…' : s;
+}
+
+// What is different between the saved book (a) and the new version (b), in plain words for people
+function diffBooks(a, b) {
+  a = a || {};
+  const out = [];
+  const fields = [['title', 'Název'], ['author', 'Autor'], ['year', 'Rok'], ['isbn', 'ISBN'],
+                  ['keywords', 'Klíčová slova'], ['location', 'Budova'], ['stk', 'STK']];
+  for (const [key, label] of fields) {
+    const from = shortText(a[key]), to = shortText(b[key]);
+    if (from !== to) out.push({ f: label, from, to });
+  }
+  if (Boolean(a.matura) !== Boolean(b.matura)) {
+    out.push({ f: 'Maturitní četba', from: a.matura ? 'ano' : 'ne', to: b.matura ? 'ano' : 'ne' });
+  }
+  if (String(a.description || '').trim() !== String(b.description || '').trim()) {
+    out.push({ f: 'Popis', note: 'změněn' });
+  }
+  const coverA = a.cover ? fileNameOf(a.cover) : '', coverB = b.cover ? fileNameOf(b.cover) : '';
+  if (coverA !== coverB) out.push({ f: 'Obálka', note: !coverA ? 'přidána' : !coverB ? 'odebrána' : 'vyměněna' });
+
+  const pa = pagesOf(a.contents).map(fileNameOf), pb = pagesOf(b.contents).map(fileNameOf);
+  const added = pb.filter((x) => !pa.includes(x)).length;
+  const removed = pa.filter((x) => !pb.includes(x)).length;
+  if (added || removed) {
+    const parts = [];
+    if (added) parts.push(`přidáno ${added}`);
+    if (removed) parts.push(`odebráno ${removed}`);
+    out.push({ f: 'Fotky obsahu', note: parts.join(', ') });
+  } else if (JSON.stringify(pa) !== JSON.stringify(pb)) {
+    out.push({ f: 'Fotky obsahu', note: 'změněno pořadí' });
+  }
+  return out;
+}
+
+async function logAction(env, action, book, details) {
+  try {
+    if (!env.DB || !book || !book.stk) return;
+    const key = String(book.stk).split('-')[2] || '';
+    await env.DB.prepare(
+      'INSERT INTO book_log (ts, action, book_key, stk, title, details) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(Date.now(), action, key.toUpperCase(), String(book.stk), String(book.title || ''),
+           details ? JSON.stringify(details) : null).run();
+  } catch (e) { /* the log must never break saving */ }
+}
+
+async function handleGetLog(body, env) {
+  if (!env.DB) throw new HttpError(503, 'Historie změn není zapnutá (chybí databáze D1 s názvem DB).');
+  const limit = Math.min(Math.max(Number(body.limit) || 30, 1), 100);
+  const before = Number(body.before) || 0;
+  const key = String(body.book_key || '').toUpperCase();
+  if (key && !/^[A-Z0-9]{4}$/.test(key)) throw new HttpError(400, 'Neplatný kód knihy.');
+
+  const where = [], args = [];
+  if (key) { where.push('book_key = ?'); args.push(key); }
+  if (before) { where.push('id < ?'); args.push(before); }
+  const sql = 'SELECT id, ts, action, book_key, stk, title, details FROM book_log' +
+    (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY id DESC LIMIT ?';
+  args.push(limit + 1);                                  // one extra row tells us if there is more
+
+  let rows;
+  try {
+    rows = (await env.DB.prepare(sql).bind(...args).all()).results;
+  } catch (e) {
+    throw new HttpError(500, 'Tabulka historie neexistuje. Spusť soubor database.sql v databázi D1.');
+  }
+  const entries = rows.slice(0, limit).map((r) => {
+    let details = null;
+    try { details = r.details ? JSON.parse(r.details) : null; } catch (e) { /* ignore */ }
+    return { ...r, details };
+  });
+  return { entries, more: rows.length > limit };
 }
