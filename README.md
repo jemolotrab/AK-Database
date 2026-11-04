@@ -50,16 +50,17 @@ Tuhle práci dělá **Cloudflare Worker**, malý program na straně serveru (`wo
 
 ```mermaid
 graph TD;
-    V["Prohlížeč<br/>index.html z GitHub Pages"]
-    W["Cloudflare Worker<br/>heslo + klíč k GitHubu"]
-    G[("GitHub repozitář<br/>BOOK_FILES/")]
-    C["Knihovní katalogy<br/>Knihovny.cz, Open Library,<br/>K10plus, DNB"]
-    D[("Cloudflare D1<br/>párování a historie změn")]
-    V -->|"čte knihy"| G
-    V -->|"přidat, upravit, smazat"| W
-    W -->|"commity"| G
-    V -->|"ISBN, české knihy"| C
-    W -->|"ISBN"| C
+    V[ Prohlížeč<br/>index.html z GitHub Pages ]
+    W[ Cloudflare Worker<br/>heslo + klíč k GitHubu ]
+    G[( GitHub repozitář<br/>BOOK_FILES/ )]
+    C[ Knihovní katalogy<br/>Knihovny.cz, Open Library,<br/>K10plus, DNB ]
+    D[( Cloudflare D1<br/>párování a historie změn )]
+
+    V -->| čte knihy | G
+    V -->| přidat, upravit, smazat | W
+    W -->| commity | G
+    V -->| ISBN, české knihy | C
+    W -->| ISBN | C
     W <--> D
 ```
 
