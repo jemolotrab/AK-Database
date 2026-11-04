@@ -50,18 +50,18 @@ Tuhle práci dělá **Cloudflare Worker**, malý program na straně serveru (`wo
 
 ```mermaid
 graph TD;
-    V[ Prohlížeč<br/>index.html z GitHub Pages ];
-    W[ Cloudflare Worker<br/>heslo + klíč k GitHubu ];
-    G[( GitHub repozitář<br/>BOOK_FILES/ );]
-    C[ Knihovní katalogy<br/>Knihovny.cz, Open Library,<br/>K10plus, DNB ];
-    D[( Cloudflare D1<br/>párování a historie změn )];
+    A[ Prohlížeč<br/>index.html z GitHub Pages ];
+    B[ Cloudflare Worker<br/>heslo + klíč k GitHubu ];
+    C[( GitHub repozitář<br/>BOOK_FILES/ );]
+    D[ Knihovní katalogy<br/>Knihovny.cz, Open Library,<br/>K10plus, DNB ];
+    E[( Cloudflare D1<br/>párování a historie změn )];
 
-    V -->| čte knihy | G;
-    V -->| přidat, upravit, smazat | W;
-    W -->| commity | G;
-    V -->| ISBN, české knihy | C;
-    W -->| ISBN | C;
-    W <--> D;
+    A -->| čte knihy | C;
+    A -->| přidat, upravit, smazat | B;
+    B -->| commity | C;
+    A -->| ISBN, české knihy | D;
+    B -->| ISBN | D;
+    B <--> E;
 ```
 
 Čtení knihovny **nepotřebuje ani heslo, ani Worker**: stránka si knihy načítá přímo z GitHubu. Přes Worker procházejí jen změny.
