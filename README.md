@@ -62,8 +62,6 @@ flowchart LR
     W <--> D
 ```
 
-*Pokud se diagram nezobrazí (např. v prohlížeči nebo programu, který Mermaid nepodporuje), je stejný diagram jako obrázek v [docs/prehled.png](docs/prehled.png).*
-
 Čtení knihovny **nepotřebuje ani heslo, ani Worker**: stránka si knihy načítá přímo z GitHubu. Přes Worker procházejí jen změny.
 
 ### Varování: ukládání může selhat
@@ -308,11 +306,9 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 ## Našel jsi chybu? Majitelé a předání projektu
 
 **Chyby a nápady:** otevři *Issue* v tomto repozitáři (záložka Issues) a popiš, co jsi dělal, co jsi čekal a co se stalo. Hodně pomůžou snímky obrazovky a text červené chyby. Případně kontaktuj současného majitele:
-
-- **Současný majitel / správce:** *(jméno, školní e-mail)* <!-- TODO: doplnit -->
-- **Účet Cloudflare patří:** *(jméno, e-mail)* <!-- TODO: doplnit -->
-
-**Při předání projektu** (maturita!) udělej všechno z toho. Jinak knihovna tiše přestane fungovat, nebo zůstane svázaná s někým, kdo už ve škole není:
+<!-- Toto se holt musí měnit ručně, jinak to nejde :( -->
+- **Současný majitel / správce:** *(jméno zde, email zde)*
+- **Majitel / správce účtu Cloudflare:** *(jméno zde, email zde)*
 
 - [ ] převeď repozitář (Settings → *Transfer ownership*), nebo přidej nového správce jako administrátora,
 - [ ] ujisti se, že **účet Cloudflare** (a jeho obnovovací e-mail) patří škole nebo novému správci, ne jen soukromé osobě,
@@ -325,7 +321,7 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 
 ## Autoři a použité nástroje
 
-Projekt vznikl jako maturitní práce. **[tvoje jméno]** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
+Projekt vznikl jako maturitní práce. **Bartoloměj Profant (@jemolotrab_314)** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
 
 Při vývoji spolupracoval s AI asistentem **Claude (Anthropic)**, který napsal většinu kódu a dokumentace, navrhoval technická řešení a pomáhal s hledáním chyb. Za výsledek a jeho provoz odpovídá autor.
 
