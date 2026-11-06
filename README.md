@@ -321,7 +321,7 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 > [!IMPORTANT]
 > ## Autoři a použité nástroje
 
-Projekt vznikl jako maturitní práce. **Bartoloměj Profant (@jemolotrab)** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
+Projekt vznikl jako maturitní práce. **Bartoloměj Profant** (@jemolotrab_314) vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
 
 Při vývoji spolupracoval s AI asistentem **Claude (Anthropic)**, který napsal většinu kódu a dokumentace, navrhoval technická řešení a pomáhal s hledáním chyb. Za výsledek a jeho provoz odpovídá autor.
 
