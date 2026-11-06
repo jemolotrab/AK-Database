@@ -154,7 +154,7 @@ V detailu knihy jsou dole tlačítka. Obě vyžadují heslo.
 
 **Smazat knihu** smaže knihu **i všechny její fotky**. Aby se to nestalo omylem, musíš **název knihy ručně opsat** (kopírování a vkládání je záměrně vypnuté, na velikosti písmen a diakritice nezáleží).
 
-> [!NOTE]
+> [!TIP]
 > Nic není navždy ztraceno: každá úprava i smazání je commit v historii repozitáře. Starší verzi najdeš v historii složky `BOOK_FILES/…` na GitHubu.
 
 ---
@@ -195,14 +195,14 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 
 ```json
 {
-  "stk": "01-03-QWXZ",
-  "title": "Babička",
-  "author": "Božena Němcová",
+  "stk": "03-14-GMAN",
+  "title": "Half-Life 2: Raising the Bar",
+  "author": "David Hodgson",
   "isbn": "9788000000008",
-  "year": "1855",
+  "year": "2004",
   "description": "Příběh o životě na vsi a o babičce, která svou moudrostí spojuje celou rodinu.",
-  "location": { "Budova": "Vojtova" },
-  "keywords": ["próza", "venkov", "rodina"],
+  "location": { "Křížovice" },
+  "keywords": ["Fyzika", "venkov", "rodina"],
   "matura": true,
   "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Babi%C4%8Dka/obalka.jpg",
   "contents": [
@@ -318,8 +318,8 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 - [ ] doplň do tohoto návodu nové kontakty.
 
 ---
-
-## Autoři a použité nástroje
+> [!IMPORTANT]
+> ## Autoři a použité nástroje
 
 Projekt vznikl jako maturitní práce. **Bartoloměj Profant (@jemolotrab_314)** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
 
