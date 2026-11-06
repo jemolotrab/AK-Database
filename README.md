@@ -4,7 +4,6 @@ Malá webová aplikace, která eviduje knihy školní knihovny. Každá kniha m�
 
 **Web: <https://jemolotrab.github.io/AK-Database/>**
 
-> [!NOTE]
 > **Pro koho je tento návod?**
 > *Uživatelé* (učitelé, studenti): kapitoly [Jak používat knihovnu](#jak-používat-knihovnu) a [Jak přidat knihu](#jak-přidat-knihu).
 > *Budoucí správci a majitelé repozitáře*: kapitoly [Jak to funguje](#jak-to-funguje) a [Nastavení a údržba](#nastavení-a-údržba). Jsou psané tak, aby podle nich projekt udržel i někdo, kdo ho nikdy neviděl.
@@ -49,20 +48,21 @@ Tuhle práci dělá **Cloudflare Worker**, malý program na straně serveru (`wo
 - propojuje **telefon s počítačem** při skenování (viz [Skenování telefonem](#c-skenování-telefonem)).
 
 ```mermaid
-graph TD;
-    A[ Prohlížeč<br/>index.html z GitHub Pages ];
-    B[ Cloudflare Worker<br/>heslo + klíč k GitHubu ];
-    C[( GitHub repozitář<br/>BOOK_FILES/ );]
-    D[ Knihovní katalogy<br/>Knihovny.cz, Open Library,<br/>K10plus, DNB ];
-    E[( Cloudflare D1<br/>párování a historie změn )];
-
-    A -->| čte knihy | C;
-    A -->| přidat, upravit, smazat | B;
-    B -->| commity | C;
-    A -->| ISBN, české knihy | D;
-    B -->| ISBN | D;
-    B <--> E;
+flowchart LR
+    V["Prohlížeč<br/>index.html z GitHub Pages"]
+    W["Cloudflare Worker<br/>heslo + klíč k GitHubu"]
+    G[("GitHub repozitář<br/>BOOK_FILES/")]
+    C["Knihovní katalogy<br/>Knihovny.cz, Open Library,<br/>K10plus, DNB"]
+    D[("Cloudflare D1<br/>párování a historie změn")]
+    V -->|"čte knihy"| G
+    V -->|"přidat, upravit, smazat"| W
+    W -->|"commity"| G
+    V -->|"ISBN, české knihy"| C
+    W -->|"ISBN"| C
+    W <--> D
 ```
+
+*Pokud se diagram nezobrazí (např. v prohlížeči nebo programu, který Mermaid nepodporuje), je stejný diagram jako obrázek v [docs/prehled.png](docs/prehled.png).*
 
 Čtení knihovny **nepotřebuje ani heslo, ani Worker**: stránka si knihy načítá přímo z GitHubu. Přes Worker procházejí jen změny.
 
@@ -156,7 +156,7 @@ V detailu knihy jsou dole tlačítka. Obě vyžadují heslo.
 
 **Smazat knihu** smaže knihu **i všechny její fotky**. Aby se to nestalo omylem, musíš **název knihy ručně opsat** (kopírování a vkládání je záměrně vypnuté, na velikosti písmen a diakritice nezáleží).
 
-> [!TIP]
+> [!NOTE]
 > Nic není navždy ztraceno: každá úprava i smazání je commit v historii repozitáře. Starší verzi najdeš v historii složky `BOOK_FILES/…` na GitHubu.
 
 ---
@@ -165,7 +165,7 @@ V detailu knihy jsou dole tlačítka. Obě vyžadují heslo.
 
 ### Kód STK
 
-Každá kniha má jedinečný kód ve tvaru **`XX-YY-ZZZZ`**, např. `01-03-QWXZ`:
+Každá kniha má jedinečný kód **STK** (*Systémově Tříděný Kód*) ve tvaru **`XX-YY-ZZZZ`**, např. `01-03-QWXZ`:
 
 | Část | Význam | Příklad |
 |---|---|---|
@@ -241,8 +241,8 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 | Databáze | `worker/database.sql` → **Cloudflare D1** | krátkodobé párovací kódy pro skener v telefonu a **historie změn** knih |
 | Data | `BOOK_FILES/` v tomto repozitáři | všechny knihy a fotky |
 
-> [!NOTE]
-> Soubory `worker/worker.js` a `worker/database.sql` drž v repozitáři jako **zálohu a dokumentaci**. Cloudflare se z nich samo neaktualizuje (pokud nenastavíš propojení s Gitem): po úpravě souboru vlož nový kód do Workeru v administraci Cloudflare a klikni na **Deploy**.
+> [!IMPORTANT]
+> Soubory `worker/worker.js` a `worker/database.sql` drž v repozitáři jako **zálohu a dokumentaci**. Cloudflare se z nich samo neaktualizuje (pokud nenastavíš propojení s GitHubem): po úpravě souboru vlož nový kód do Workeru v administraci Cloudflare a klikni na **Deploy**.
 
 ### Nastavení Workeru (Cloudflare → Worker → Settings)
 
@@ -325,7 +325,7 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 
 ## Autoři a použité nástroje
 
-Projekt vznikl jako maturitní práce. **jemolotrab_314** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
+Projekt vznikl jako maturitní práce. **[tvoje jméno]** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
 
 Při vývoji spolupracoval s AI asistentem **Claude (Anthropic)**, který napsal většinu kódu a dokumentace, navrhoval technická řešení a pomáhal s hledáním chyb. Za výsledek a jeho provoz odpovídá autor.
 
