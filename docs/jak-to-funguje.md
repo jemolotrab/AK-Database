@@ -1,6 +1,6 @@
 # Jak AK knihovna funguje – technický popis
 
-Tento dokument popisuje **z čeho se projekt skládá a jak jsou jednotlivé části propojené**. Je psaný tak, aby se podle něj dal rovnou nakreslit diagram (kapitoly 1 a 2 jsou „krabičky“ a „šipky“) a aby se v něm vyznal i budoucí správce, který projekt nikdy neviděl.
+Tento dokument popisuje **z čeho se projekt skládá a jak jsou jednotlivé části propojené**. Je psaný tak, aby se v něm vyznal i budoucí správce, který projekt nikdy neviděl.
 
 > Stručný návod pro uživatele najdeš v [README](../README.md). Tady je to, co je „pod kapotou“.
 
@@ -14,7 +14,6 @@ Tento dokument popisuje **z čeho se projekt skládá a jak jsou jednotlivé č�
 6. [Bezpečnost: co je chráněno a co ne](#6-bezpečnost-co-je-chráněno-a-co-ne)
 7. [Co se může pokazit a kde](#7-co-se-může-pokazit-a-kde)
 8. [Použité technologie a externí služby](#8-použité-technologie-a-externí-služby)
-9. [Tipy pro nakreslení diagramu](#9-tipy-pro-nakreslení-diagramu)
 
 ---
 
@@ -339,14 +338,3 @@ Do systému se **neukládají žádné osobní údaje** (žádní čtenáři, ž
 | Čtení čárových kódů a QR | `BarcodeDetector` v prohlížeči, jinak ZXing (jsDelivr) |
 | Excel | SheetJS (cdnjs) |
 | Písma | Google Fonts |
-
----
-
-## 9. Tipy pro nakreslení diagramu
-
-Chceš-li diagram nakreslit ručně (draw.io, PowerPoint…):
-
-- **Krabičky** vezmi z kapitoly 1 a použij **barvy podle místa, kde součást běží**: zařízení uživatele (A, A2), GitHub (B, C, D), Cloudflare (E, F), cizí služby (G, H).
-- **Šipky** vezmi z kapitoly 2 a **popiš každou tím, co po ní putuje** (heslo, data knihy, ISBN…). Šipku „čtení“ (2) nakresli jinak (např. čárkovaně) než šipky „zápis“ (3 a 4), protože čtení nepotřebuje heslo ani Worker.
-- Pro přednášku udělej **dva diagramy**: velký obrázek (A, C, E a jejich spojení) a samostatný postup „přidání knihy“ podle kapitoly 4.4.
-- Hotový diagram ulož jako `docs/architektura.png` a editovatelný soubor `docs/architektura.drawio`.
