@@ -1,0 +1,26 @@
+{
+  "added": "2026-11-10T12:34:04.975Z",
+  "updated": "2026-11-10T12:34:04.975Z",
+  "stk": "05-01-GQAI",
+  "title": "Matematika pro střední školy : učebnice. 10, Komplexní čísla, polynomy, matice, základy diferenciálního a integrálního počtu",
+  "author": "Didaktis",
+  "isbn": "9788073583149",
+  "year": "2019",
+  "description": "Desátý díl učebnicové řady Matematika pro střední školy navazuje na předchozí díly a zaměřuje se na rozšiřující učivo, které je součástí výběrové maturitní zkoušky Matematika+, vyskytuje se v matematických seminářích středních škol a je obvykle vyžadováno v prvních ročnících vysokých škol technickéh",
+  "location": {
+    "Budova": "Vojtova"
+  },
+  "keywords": [
+    "Komplexní čísla",
+    "Matice",
+    "Polynomy"
+  ],
+  "matura": false,
+  "entry": "isbn",
+  "sources": [
+    "Knihovny.cz"
+  ],
+  "reviewed": true,
+  "cover": "",
+  "contents": []
+}
