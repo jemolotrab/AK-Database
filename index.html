@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AK — Adolescentní Knihovna</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,500;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <style>
+    <style>
     :root {
       --cream: #f0f2f5;
       --parchment: #e4e8ed;
@@ -327,6 +326,7 @@
     .log-item ul { margin: 0.3rem 0 0 1.2rem; padding: 0; font-size: 0.74rem; color: var(--ink); }
     .log-empty { font-size: 0.8rem; color: var(--muted); text-align: center; padding: 0.75rem 0; }
     .modal-history { margin-top: 1rem; }
+    .modal-history .modal-link-btn + .modal-link-btn { margin-left: 1.1rem; }
     .modal-link-btn {
       background: transparent; border: none; padding: 0; cursor: pointer; text-decoration: underline;
       font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--brown);
@@ -1093,6 +1093,7 @@
     .success-stk { background: var(--ink); color: var(--gold); font-family: 'Rubik', sans-serif; font-size: 1.3rem; letter-spacing: 0.2em; padding: 0.85rem; border-radius: 4px; margin-bottom: 1rem; }
     .success-entry { background: var(--parchment); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; font-size: 0.82rem; text-align: left; color: var(--brown); margin-bottom: 1rem; line-height: 1.7; }
     .success-close { width: 100%; padding: 0.65rem; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
+    .success-close.success-retry { background: var(--gold); color: var(--ink); margin-bottom: 0.5rem; }
 
     .radio-egg {
       display: flex;
@@ -1461,7 +1462,7 @@
     <div class="pw-box" style="max-width:420px;">
       <h2>Najít knihu podle ISBN</h2>
       <p>Namiř kameru na čárový kód na zadní straně knihy.</p>
-      <div class="scan-box search-scan-box" id="searchScanBox">
+      <div class="scan-box search-scan-box">
         <video id="searchScanVideo" playsinline muted></video>
         <div class="scan-frame"></div>
       </div>
@@ -1531,7 +1532,7 @@
             <video id="scanVideo" playsinline muted></video>
             <div class="scan-frame"></div>
             <button type="button" class="scan-cancel" id="scanCancel">Zrušit</button>
-            <div class="scan-hint" id="scanHint">Namiř kameru na čárový kód (ISBN) na zadní straně knihy</div>
+            <div class="scan-hint">Namiř kameru na čárový kód (ISBN) na zadní straně knihy</div>
           </div>
           <div id="isbnStatus" style="font-size:0.75rem;margin-bottom:0.75rem;min-height:1.2rem;"></div>
         </div>
@@ -1638,6 +1639,7 @@
       <p id="successText"></p>
       <div class="success-stk" id="successStk"></div>
       <div class="success-entry" id="successEntry"></div>
+      <button class="success-close success-retry" id="successRetry" style="display:none;">Zpět do formuláře</button>
       <button class="success-close" id="successClose">Zavřít</button>
     </div>
   </div>
@@ -1714,24 +1716,7 @@
     render();
   }
 
-  // ── BUILD & DOWNLOAD A .ZIP CONTAINING THE BOOK FOLDER ──
-  async function downloadBookZip(book, coverFile, contentsFile) {
-    const zip = new JSZip();
-
-    zip.file(`${book.title}.json`, JSON.stringify(book, null, 2));
-    if (coverFile)    zip.file(coverFile.name, coverFile);
-    if (contentsFile) zip.file(contentsFile.name, contentsFile);
-
-    const blob = await zip.generateAsync({ type: 'blob' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `${book.title}.zip`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  // ── GET FOLDER PATH FOR SUBJECT ── //Wtf?
+  // ── FOLDER NAME FOR A SUBJECT CODE (must stay identical to FOLDER_MAP in worker.js) ──
   function getFolderPath(xx) {
     const folders = {
       "01":"01-Cestina","02":"02-Anglictina","03":"03-Nemcina",
@@ -2354,6 +2339,7 @@
       })()}
       <div class="modal-history">
         <button type="button" class="modal-link-btn" onclick="toggleBookHistory('${book.stk.split('-')[2]}', this)">Historie knihy</button>
+        <button type="button" class="modal-link-btn" onclick="copyBookLink('${book.stk}', this)">Kopírovat odkaz</button>
         <div id="bookHistory"></div>
       </div>
       <div class="modal-admin">
@@ -2363,7 +2349,56 @@
     `;
  
     document.getElementById('modalOverlay').classList.add('open');
+    setBookHash(book.stk);
   }
+
+  // ── LINKS TO A BOOK: the address ends with #STK (e.g. .../#01-03-QWXZ) ──
+  // The part after # never leaves the browser: no server is involved.
+  const bookHashRe = /^#(\d{2}-\d{2}-)?[A-Za-z0-9]{4}$/;
+
+  function setBookHash(stk) {
+    history.replaceState(null, '', '#' + stk);
+  }
+
+  // Finds the book for #01-03-QWXZ. If the subject/category changed since the link was made, the
+  // first parts of the STK differ but the last four letters stay the same, so those are used as a fallback.
+  function openBookFromHash() {
+    if (!bookHashRe.test(location.hash)) return;
+    const code = location.hash.slice(1).toUpperCase();
+    const key = code.split('-').pop();
+    const book = BOOKS.find(b => b.stk.toUpperCase() === code) || BOOKS.find(b => b.stk.split('-')[2].toUpperCase() === key);
+    if (book) openModal(book.stk);
+    else alert(`Kniha s kódem ${code} už v knihovně není (nebo ještě nebyla přidána).`);
+  }
+
+  async function copyBookLink(stk, btn) {
+    const url = location.origin + location.pathname + '#' + stk;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (e) {                                           // older browsers / no permission
+      const t = document.createElement('textarea');
+      t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); } catch (err) { /* nothing more to try */ }
+      t.remove();
+    }
+    const label = btn.textContent;
+    btn.textContent = 'Odkaz zkopírován';
+    setTimeout(() => { btn.textContent = label; }, 1800);
+  }
+
+  // closing the detail (any way: ✕, click outside, edit, delete...) removes #STK from the address
+  new MutationObserver(() => {
+    if (!document.getElementById('modalOverlay').classList.contains('open') && bookHashRe.test(location.hash)) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  }).observe(document.getElementById('modalOverlay'), { attributes: true, attributeFilter: ['class'] });
+
+  // someone pastes another link / edits the address while the page is open
+  window.addEventListener('hashchange', () => {
+    if (bookHashRe.test(location.hash)) openBookFromHash();
+    else document.getElementById('modalOverlay').classList.remove('open');
+  });
  
   document.getElementById('modalClose').addEventListener('click', () => {
     document.getElementById('modalOverlay').classList.remove('open');
@@ -2376,14 +2411,11 @@
   });
  
   // ── INIT ──
-  loadBooks();
+  loadBooks().then(openBookFromHash);       // a link like ...#01-03-QWXZ opens that book once the books are loaded
 
   // ════════════════════════════════════════
   // ADD BOOK SYSTEM
   // ════════════════════════════════════════
-
-  // ── PASSWORD (Zatím velmi skryté) ──
-  const ADD_BOOK_PASSWORD = "";
 
   // ── LOCATION CONFIG ─────────────────────────────────────────────────────────
   // Celkově by se zde měly vyskytovat čtyři lokace budov
@@ -2561,8 +2593,6 @@
   document.getElementById('modeISBN').addEventListener('click',   () => setMode('isbn'));
 
   // ── ISBN FETCH (via Cloudflare Worker: Open Library + K10plus + DNB) ──
-
-  // Smart subject/category mapping from Google Books categories to STK codes
 
   // ── KNIHOVNY.CZ LOOKUP (runs in the browser; the service allows cross-origin reads) ──
   async function lookupKnihovny(isbn) {
@@ -3333,7 +3363,9 @@
       ${label}
     </div>`;
 
-  function showResult({ emoji = '✅', title, text = '', stk = '', entry = '' }) {
+  // retry: true shows the "Zpět do formuláře" button (used when saving failed, the form still holds everything)
+  function showResult({ emoji = '✅', title, text = '', stk = '', entry = '', retry = false }) {
+    document.getElementById('successRetry').style.display = retry ? '' : 'none';
     document.getElementById('successEmoji').textContent = emoji;
     document.getElementById('successTitle').textContent = title;
     document.getElementById('successText').textContent = text;
@@ -3619,18 +3651,25 @@
             ? { title: 'Kniha byla upravena!', stk, entry: '✅ Změny jsou uloženy v databázi.' }
             : { title: 'Kniha byla úspěšně zaznamenána!', stk, entry: '✅ Kniha byla úspěšně uložena do databáze!' });
         } else {
-          showResult({ emoji: '❌', title: editing ? 'Změny se nepovedlo uložit' : 'Knihu se nepovedlo uložit', stk,
-            entry: `❌ Chyba: ${result.error}<br><br>Zkus to znovu nebo kontaktuj správce.` });
+          showResult({ emoji: '❌', title: editing ? 'Změny se nepovedlo uložit' : 'Knihu se nepovedlo uložit', stk, retry: true,
+            entry: `❌ Chyba: ${escHtml(result.error)}<br><br>Nic jsi neztratil: vyplněné údaje i fotky zůstaly ve formuláři. Klikni na „Zpět do formuláře“ a zkus to znovu.` });
         }
       })
       .catch(e => {
-        showResult({ emoji: '❌', title: 'Chyba připojení', stk,
-          entry: `❌ ${e.message}<br><br>Zkontroluj připojení k internetu a zkus to znovu.` });
+        showResult({ emoji: '❌', title: 'Chyba připojení', stk, retry: true,
+          entry: `❌ ${escHtml(e.message)}<br><br>Nic jsi neztratil: vyplněné údaje i fotky zůstaly ve formuláři. Zkontroluj připojení k internetu, klikni na „Zpět do formuláře“ a zkus to znovu.` });
       });
   });
 
   document.getElementById('successClose').addEventListener('click', () => {
     document.getElementById('successOverlay').classList.remove('open');
+  });
+
+  // After a failed save: back to the form with everything still filled in (nothing was reset)
+  document.getElementById('successRetry').addEventListener('click', () => {
+    document.getElementById('successOverlay').classList.remove('open');
+    renderContentsList();                                  // photos may have been shrunk meanwhile
+    document.getElementById('formOverlay').classList.add('open');
   });
 
   const radioOff   = 'Assets/images/PortalRadioOff.png';
