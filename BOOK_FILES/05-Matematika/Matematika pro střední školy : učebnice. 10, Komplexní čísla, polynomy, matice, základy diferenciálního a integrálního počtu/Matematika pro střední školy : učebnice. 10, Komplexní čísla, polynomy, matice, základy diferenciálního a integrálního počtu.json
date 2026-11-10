@@ -1,6 +1,6 @@
 {
   "added": "2026-11-10T12:34:04.975Z",
-  "updated": "2026-11-10T12:34:04.975Z",
+  "updated": "2026-11-10T12:34:25.658Z",
   "stk": "05-01-GQAI",
   "title": "Matematika pro střední školy : učebnice. 10, Komplexní čísla, polynomy, matice, základy diferenciálního a integrálního počtu",
   "author": "Didaktis",
@@ -20,7 +20,7 @@
   "sources": [
     "Knihovny.cz"
   ],
-  "reviewed": true,
+  "reviewed": false,
   "cover": "",
   "contents": []
 }
