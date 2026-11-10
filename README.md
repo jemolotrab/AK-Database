@@ -4,6 +4,7 @@ Malá webová aplikace, která eviduje knihy školní knihovny. Každá kniha m�
 
 **Web: <https://jemolotrab.github.io/AK-Database/>**
 
+> [!NOTE]
 > **Pro koho je tento návod?**
 > *Uživatelé* (učitelé, studenti): kapitoly [Jak používat knihovnu](#jak-používat-knihovnu) a [Jak přidat knihu](#jak-přidat-knihu).
 > *Budoucí správci a majitelé repozitáře*: kapitoly [Jak to funguje](#jak-to-funguje) a [Nastavení a údržba](#nastavení-a-údržba). Jsou psané tak, aby podle nich projekt udržel i někdo, kdo ho nikdy neviděl.
@@ -62,13 +63,17 @@ flowchart LR
     W <--> D
 ```
 
+*Pokud se diagram nezobrazí (např. v prohlížeči nebo programu, který Mermaid nepodporuje), je stejný diagram jako obrázek v [docs/prehled.png](docs/prehled.png).*
+
 Čtení knihovny **nepotřebuje ani heslo, ani Worker**: stránka si knihy načítá přímo z GitHubu. Přes Worker procházejí jen změny.
 
 ### Varování: ukládání může selhat
-
 Spojení mezi webem, Cloudflare a GitHubem může občas selhat (výpadek internetu, výpadek GitHubu nebo Cloudflare, vypršelý klíč…). Pak se místo zelené zprávy o uložení objeví **červená zpráva ❌**.
 
-**Když vidíš ❌, kniha uložená není a to, co jsi vyplnil, je pryč**, protože formulář se už zavřel. Knihu je nutné zadat znovu (i s fotkami). Počkej proto vždy na zelené potvrzení, než stránku zavřeš nebo knihu odložíš.
+**Kniha v tom případě uložená není, ale tvoje práce se neztratí:** vyplněné údaje i fotky zůstávají ve formuláři. Klikni na **„Zpět do formuláře“** a zkus uložení znovu (třeba po chvíli, nebo po kontrole internetu).
+
+> [!WARNING]
+> Dávej pozor, abys místo toho nezavřel okno zprávy a nezačal znovu tlačítkem „Chci přidat knihu!“, protože to **vždy otevře prázdný formulář**. A počkej vždy na zelené potvrzení, než stránku zavřeš nebo knihu odložíš.
 
 ---
 
@@ -82,6 +87,7 @@ Otevři [web](https://jemolotrab.github.io/AK-Database/). Pro procházení není
 - **Řazení**: výchozí, nejnovější nahoře, A → Z, Z → A. (Knihy přidané před zavedením dat nemají datum a v řazení „nejnovější“ jsou na konci.)
 - **Náhodná kniha**: otevře náhodnou knihu z těch, které jsou zrovna zobrazené (chceš-li náhodnou *dějepisnou*, nejdřív vyfiltruj historii).
 - **Mřížka / seznam**: přepíná se tlačítky vedle hledání.
+- **Odkaz na knihu**: v detailu knihy je tlačítko **Kopírovat odkaz**. Adresa webu zakončená kódem knihy, např. `https://jemolotrab.github.io/AK-Database/#01-03-QWXZ`, otevře rovnou detail té knihy (hodí se pro sdílení, záložky nebo QR kód na knize). Odkaz funguje i po změně předmětu či kategorie, protože se kniha hledá také podle posledních čtyř písmen STK.
 - **🕘 Historie změn**: v detailu knihy je odkaz **Historie knihy** (co se s ní dělo a kdy). Přehled celé knihovny je v okně **Statistiky → Poslední změny**. U úprav se píše, co přesně se změnilo (např. „Autor: Němcová → Božena Němcová“).
 - **Statistiky**: přehled knihovny (knihy podle předmětů a budov, nejčastější autoři, nejnovější knihy) a **export do Excelu**: všechny knihy + statistiky, nebo jen právě zobrazené knihy.
 
@@ -195,14 +201,14 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 
 ```json
 {
-  "stk": "03-14-GMAN",
-  "title": "Half-Life 2: Raising the Bar",
-  "author": "David Hodgson",
+  "stk": "01-03-QWXZ",
+  "title": "Babička",
+  "author": "Božena Němcová",
   "isbn": "9788000000008",
-  "year": "2004",
+  "year": "1855",
   "description": "Příběh o životě na vsi a o babičce, která svou moudrostí spojuje celou rodinu.",
-  "location": { "Křížovice" },
-  "keywords": ["Fyzika", "venkov", "rodina"],
+  "location": { "Budova": "Vojtova" },
+  "keywords": ["próza", "venkov", "rodina"],
   "matura": true,
   "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Babi%C4%8Dka/obalka.jpg",
   "contents": [
@@ -239,8 +245,8 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 | Databáze | `worker/database.sql` → **Cloudflare D1** | krátkodobé párovací kódy pro skener v telefonu a **historie změn** knih |
 | Data | `BOOK_FILES/` v tomto repozitáři | všechny knihy a fotky |
 
-> [!IMPORTANT]
-> Soubory `worker/worker.js` a `worker/database.sql` drž v repozitáři jako **zálohu a dokumentaci**. Cloudflare se z nich samo neaktualizuje (pokud nenastavíš propojení s GitHubem): po úpravě souboru vlož nový kód do Workeru v administraci Cloudflare a klikni na **Deploy**.
+> [!NOTE]
+> Soubory `worker/worker.js` a `worker/database.sql` drž v repozitáři jako **zálohu a dokumentaci**. Cloudflare se z nich samo neaktualizuje (pokud nenastavíš propojení s Gitem): po úpravě souboru vlož nový kód do Workeru v administraci Cloudflare a klikni na **Deploy**.
 
 ### Nastavení Workeru (Cloudflare → Worker → Settings)
 
@@ -275,7 +281,7 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 
 - **České knihy se podle ISBN hledají hůř než anglické.** Národní knihovna ČR blokuje adresy serverů Cloudflare, proto se české údaje berou z **Knihovny.cz přímo v prohlížeči návštěvníka** (to dovoluje). Když je Knihovny.cz zrovna nedostupné, musí se kniha vyplnit ručně.
 - **Popisy českých knih jsou vzácné**, katalogy je většinou nemají.
-- **Neúspěšné uložení smaže zadaná data** (viz [varování](#varování-ukládání-může-selhat)).
+- **Po neúspěšném uložení** zůstanou údaje ve formuláři jen do chvíle, než formulář zavřeš a otevřeš nový (viz [varování](#varování-ukládání-může-selhat)).
 - **GitHub omezuje, jak často se stránka smí ptát na seznam knih** (60 dotazů za hodinu z jedné IP adresy bez přihlášení). Ve škole sdílí adresu hodně zařízení, takže se ve špičce může stát, že se knihovna nenačte, dokud se limit neobnoví.
 - **Změny nejsou živé.** Kdo má stránku už otevřenou, uvidí nové knihy až po obnovení.
 - **Jedno společné heslo.** Nejsou osobní účty, takže se neví, *kdo* změnu provedl (historie ukáže *co* a *kdy*).
@@ -306,9 +312,11 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 ## Našel jsi chybu? Majitelé a předání projektu
 
 **Chyby a nápady:** otevři *Issue* v tomto repozitáři (záložka Issues) a popiš, co jsi dělal, co jsi čekal a co se stalo. Hodně pomůžou snímky obrazovky a text červené chyby. Případně kontaktuj současného majitele:
-<!-- Toto se holt musí měnit ručně, jinak to nejde :( -->
-- **Současný majitel / správce:** *(jméno zde, email zde)*
-- **Majitel / správce účtu Cloudflare:** *(jméno zde, email zde)*
+
+- **Současný majitel / správce:** *(jméno, školní e-mail)* <!-- Jinak to holt nepůjde než ručně -->
+- **Účet Cloudflare patří:** *(jméno, e-mail)*
+
+**Při předání projektu** (maturita!) udělej všechno z toho. Jinak knihovna tiše přestane fungovat, nebo zůstane svázaná s někým, kdo už ve škole není:
 
 - [ ] převeď repozitář (Settings → *Transfer ownership*), nebo přidej nového správce jako administrátora,
 - [ ] ujisti se, že **účet Cloudflare** (a jeho obnovovací e-mail) patří škole nebo novému správci, ne jen soukromé osobě,
@@ -318,10 +326,10 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 - [ ] doplň do tohoto návodu nové kontakty.
 
 ---
-> [!IMPORTANT]
-> ## Autoři a použité nástroje
 
-Projekt vznikl jako maturitní práce. **Bartoloměj Profant (jemolotrab_314)** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
+## Autoři a použité nástroje
+
+Projekt vznikl jako maturitní práce. **[Bartoloměj Profant (jemolotrab_314)]** vymyslel koncept a požadavky (evidence knih školní knihovny, editor knih, systém kódů STK), rozhodoval o tom, jak má aplikace fungovat, a vše testoval na skutečných zařízeních.
 
 Při vývoji spolupracoval s AI asistentem **Claude (Anthropic)**, který napsal většinu kódu a dokumentace, navrhoval technická řešení a pomáhal s hledáním chyb. Za výsledek a jeho provoz odpovídá autor.
 
