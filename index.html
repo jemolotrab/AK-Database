@@ -290,6 +290,20 @@
     .random-btn:hover { background: var(--ink); color: var(--gold); border-color: var(--ink); }
     .modal-dates { font-size: 0.7rem; color: var(--muted); margin-top: 1.25rem; }
 
+    /* ── how the data was filled in (manually / automatically by ISBN) ── */
+    .modal-source { font-size: 0.78rem; line-height: 1.55; margin-top: 1.1rem; padding: 0.6rem 0.8rem; border-radius: 4px; background: var(--parchment); border-left: 3px solid var(--border); }
+    .modal-source.unchecked { border-left-color: var(--gold); }
+    .modal-source .modal-link-btn { display: block; margin-top: 0.3rem; }
+    .auto-tag {
+      display: inline-block; margin-left: 0.35rem; padding: 0.1rem 0.4rem; font-size: 0.6rem; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--brown); border: 1px solid var(--gold); border-radius: 3px; vertical-align: middle;
+    }
+    .filter-chip {
+      margin-left: 0.75rem; padding: 0.2rem 0.65rem; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; cursor: pointer;
+      color: var(--ink); background: var(--parchment); border: 1px solid var(--gold); border-radius: 999px;
+    }
+    .filter-chip:hover { background: var(--ink); color: var(--gold); }
+
     /* ── statistics ── */
     .pw-box.stats-box { max-width: 560px; max-height: 90vh; overflow-y: auto; text-align: left; }
     .stats-box h2 { text-align: center; }
@@ -1391,6 +1405,7 @@
   <main>
     <div class="results-bar">
       <span class="results-label" id="resultsLabel">Načítání...</span>
+      <button type="button" class="filter-chip" id="reviewChip" style="display:none;" title="Zrušit filtr">Jen neověřené knihy (zrušit filtr)</button>
     </div>
     <div class="books-grid" id="booksContainer"></div>
   </main>
@@ -1626,6 +1641,13 @@
           </div>
         </div>
 
+        <div id="reviewRow" style="display:none;">
+          <div class="checkbox-row">
+            <input type="checkbox" id="f-reviewed" />
+            <label for="f-reviewed">Údaje jsem zkontroloval (byly vyplněny automaticky podle ISBN)</label>
+          </div>
+        </div>
+
         <button class="form-submit" id="formSubmit">Zaznamenat knihu!</button>
       </div>
     </div>
@@ -1750,6 +1772,10 @@
   let activeSubcat = '';
   let searchQuery = '';
   let sortMode = '';              // '' (default) | 'new' | 'az' | 'za'
+  let onlyUnreviewed = false;     // filter: automatically filled books nobody has checked yet
+
+  // entry: 'manual' | 'isbn' (filled in automatically); reviewed: a person checked the automatic data
+  const needsReview = (b) => b.entry === 'isbn' && !b.reviewed;
  
   // ── POPULATE SUBJECT FILTER ──
   const subjectFilter = document.getElementById('subjectFilter');
@@ -1861,6 +1887,7 @@
   function filteredBooks() {
     const maturaOnly = document.getElementById('maturaFilter').checked;
     const result = BOOKS.filter(b => {
+      if (onlyUnreviewed && !needsReview(b)) return false;
       const { xx, yy } = parseSTK(b.stk);
       if (activeSubject && xx !== activeSubject) return false;
       if (activeSubcat  && yy !== activeSubcat)  return false;
@@ -1915,6 +1942,9 @@
     return {
       total: books.length,
       matura: count(b => b.matura),
+      auto: count(b => b.entry === 'isbn'),
+      manual: count(b => b.entry === 'manual'),
+      unreviewed: count(needsReview),
       withIsbn: count(b => String(b.isbn || '').trim()),
       withCover: count(b => b.cover),
       withContents: count(b => pagesList(b).length),
@@ -1956,7 +1986,10 @@
         ${card(st.withContents, 's obsahem')}
         ${card(st.withIsbn, 's ISBN')}
         ${card(st.withDescription, 's popisem')}
+        ${card(st.auto, 'vyplněno automaticky')}
+        ${card(st.unreviewed, 'neověřeno')}
       </div>
+      ${st.unreviewed ? '<div style="text-align:center;margin:-0.2rem 0 0.8rem;"><button type="button" class="pair-cancel" id="showUnreviewed">Zobrazit neověřené knihy</button></div>' : ''}
       <div class="stats-note">Procenta jsou z celkového počtu knih.</div>
       <div class="stat-title">Knihy podle předmětů</div>
       ${barRows(st.bySubject, k => subjectName(k), maxSub, st.total)}
@@ -1966,6 +1999,15 @@
         `<div class="stat-row"><span class="stat-label" style="flex:1">${escHtml(b.title)}</span><span class="stat-num" style="flex:0 0 auto">${escHtml(new Date(b.updated || b.added).toLocaleDateString('cs-CZ'))}</span></div>`).join('')}` : ''}
     `;
   }
+
+  document.getElementById('statsBody').addEventListener('click', (e) => {
+    if (e.target.id !== 'showUnreviewed') return;
+    onlyUnreviewed = true;
+    document.getElementById('statsOverlay').classList.remove('open');
+    render();
+    document.querySelector('.results-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  document.getElementById('reviewChip').addEventListener('click', () => { onlyUnreviewed = false; render(); });
 
   let xlsxPromise = null;
   function loadXLSX() {
@@ -1989,7 +2031,8 @@
     const wb = XLSX.utils.book_new();
 
     const header = ['STK', 'Název', 'Autor', 'Rok', 'ISBN', 'Předmět', 'Podkategorie', 'Maturitní četba',
-                    'Klíčová slova', 'Budova', 'Popis', 'Obálka (odkaz)', 'Obsah (odkazy)', 'Přidáno', 'Naposledy upraveno'];
+                    'Klíčová slova', 'Budova', 'Popis', 'Obálka (odkaz)', 'Obsah (odkazy)', 'Přidáno', 'Naposledy upraveno',
+                    'Vyplnění údajů', 'Zkontrolováno'];
     const rows = list.map(b => {
       const { xx, yy } = parseSTK(b.stk);
       const year = Number(b.year);
@@ -1997,11 +2040,13 @@
         b.stk, b.title || '', b.author || '', Number.isFinite(year) && b.year !== '' ? year : (b.year || ''),
         b.isbn || '', subjectName(xx), SUBJECTS[xx]?.subs?.[yy] || yy, b.matura ? 'Ano' : 'Ne',
         (b.keywords || []).join('; '), buildingOf(b), b.description || '', b.cover || '', pagesList(b).join('\n'),
-        fmtDateTime(b.added), fmtDateTime(b.updated)
+        fmtDateTime(b.added), fmtDateTime(b.updated),
+        b.entry === 'isbn' ? 'automaticky podle ISBN' : b.entry === 'manual' ? 'ručně' : '',
+        b.entry === 'isbn' ? (b.reviewed ? 'ano' : 'ne') : ''
       ];
     });
     const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
-    ws['!cols'] = [14, 34, 24, 7, 17, 14, 18, 10, 30, 18, 50, 40, 40, 18, 18].map(wch => ({ wch }));
+    ws['!cols'] = [14, 34, 24, 7, 17, 14, 18, 10, 30, 18, 50, 40, 40, 18, 18, 22, 14].map(wch => ({ wch }));
     ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: header.length - 1 } }) };
     XLSX.utils.book_append_sheet(wb, ws, 'Knihy');
 
@@ -2018,6 +2063,8 @@
       ['S obsahem', st.withContents, P(st.withContents)],
       ['S ISBN', st.withIsbn, P(st.withIsbn)],
       ['S popisem', st.withDescription, P(st.withDescription)],
+      ['Vyplněno automaticky podle ISBN', st.auto, P(st.auto)],
+      ['z toho zatím neověřeno', st.unreviewed, P(st.unreviewed)],
       [],
       ['Knihy podle předmětů', 'Počet', 'Podíl z knih'],
       ...st.bySubject.map(([k, n]) => [subjectName(k), n, P(n)]),
@@ -2160,6 +2207,7 @@
  
     document.getElementById('headerCount').textContent = `${BOOKS.length} knih`;
     label.innerHTML = `Zobrazeno <span>${books.length}</span> z ${BOOKS.length} knih`;
+    document.getElementById('reviewChip').style.display = onlyUnreviewed ? '' : 'none';
  
     container.className = viewMode === 'grid' ? 'books-grid' : 'books-list';
  
@@ -2270,7 +2318,7 @@
           <div class="book-info">
             <div class="book-title">${book.title}</div>
             <div class="book-author">${book.author}</div>
-            <span class="stk-tag">${book.stk}</span>
+            <span class="stk-tag">${book.stk}</span>${needsReview(book) ? '<span class="auto-tag" title="Vyplněno automaticky, zatím nezkontrolováno">auto</span>' : ''}
           </div>
         </div>`;
       } else {
@@ -2281,7 +2329,7 @@
             <div class="list-author">${book.author} · ${book.year}</div>
           </div>
           <div class="list-meta">
-            <span class="stk-tag">${book.stk}</span>
+            <span class="stk-tag">${book.stk}</span>${needsReview(book) ? '<span class="auto-tag" title="Vyplněno automaticky, zatím nezkontrolováno">auto</span>' : ''}
             <span class="list-subject">${subjectName(xx)} / ${subcatName(xx,yy)}</span>
           </div>
         </div>`;
@@ -2329,6 +2377,15 @@
           <div class="modal-contents-list">${pages.map((u, i) =>
             `<a href="${u}" target="_blank" rel="noopener"><img class="modal-contents" loading="lazy" src="${u}" alt="Obsah ${i + 1}"/></a>`
           ).join('')}</div>`;
+      })()}
+      ${(() => {
+        if (book.entry === 'manual') return '<div class="modal-source">Údaje byly zadány ručně.</div>';
+        if (book.entry !== 'isbn') return '';                              // older books: unknown
+        const from = (book.sources && book.sources.length) ? ` (${escHtml(book.sources.join(', '))})` : '';
+        return book.reviewed
+          ? `<div class="modal-source">Údaje byly vyplněny automaticky podle ISBN${from} a poté zkontrolovány.</div>`
+          : `<div class="modal-source unchecked">Údaje byly vyplněny automaticky podle ISBN${from} a zatím je nikdo nezkontroloval. Mohou obsahovat chyby.
+               <button type="button" class="modal-link-btn" onclick="startEdit('${book.stk}')">Zkontrolovat a upravit</button></div>`;
       })()}
       ${(() => {
         const fmt = (iso) => { const t = new Date(iso); return isNaN(t) ? '' : t.toLocaleDateString('cs-CZ'); };
@@ -2569,6 +2626,9 @@
     renderContentsList();
     document.getElementById('f-loc1').selectedIndex = 0;
     document.getElementById('f-matura').checked = false;
+    formAutoSources = null;
+    document.getElementById('f-reviewed').checked = false;
+    updateReviewRow();
     fSubject.value = '';
     fSubcat.innerHTML = '<option value="">— vyber kategorii —</option>';
     fSubcat.disabled = true;
@@ -2712,6 +2772,8 @@
 
       status.style.color = 'var(--brown)';
       status.textContent = `✅ Nalezeno (${book.sources.join(', ')})! Vyplněno: ${filled.join(', ')}. Zbytek dopiš ručně.`;
+      formAutoSources = (book.sources || []).slice();       // remember that this book was filled in automatically
+      updateReviewRow();
       updateDupWarning();
 
       setMode('manual');
@@ -3171,6 +3233,13 @@
   // ── STATE FOR THE FORM (null = adding a new book) ──
   let editingBook = null;
   let existingCover = null;      // {url, filename} of the cover that is already saved (edit mode)
+  let formAutoSources = null;    // catalogues that filled in the new book automatically (null = typed by hand)
+
+  // The "I checked the data" box only makes sense for books that were filled in automatically
+  function updateReviewRow() {
+    const auto = editingBook ? editingBook.entry === 'isbn' : !!formAutoSources;
+    document.getElementById('reviewRow').style.display = auto ? '' : 'none';
+  }
   const MAX_CONTENTS = 10;
   let contentsFiles = [];        // items: {file} (new photo) or {url, filename} (already saved photo)
 
@@ -3401,6 +3470,9 @@
     fSubject.dispatchEvent(new Event('change'));      // fills the category list
     fSubcat.value = yy;
     document.getElementById('f-matura').checked = !!book.matura;
+    formAutoSources = null;
+    document.getElementById('f-reviewed').checked = !!book.reviewed;
+    updateReviewRow();
     updateSTKPreview();
 
     document.getElementById('f-cover').value = '';
@@ -3592,6 +3664,12 @@
     const coverName = coverFile ? coverFile.name : (editing && existingCover ? existingCover.filename : '');
 
     const stk = `${xx}-${yy}-${currentZZZZ}`;
+    // How the data got there: manual, or automatically by ISBN (+ whether a person checked it)
+    const reviewed = document.getElementById('f-reviewed').checked;
+    const entryInfo = editing
+      ? (editing.entry === 'isbn' ? { reviewed } : {})                 // manual and older books keep what they have
+      : (formAutoSources ? { entry: 'isbn', sources: formAutoSources, reviewed } : { entry: 'manual' });
+
     const nowIso = new Date().toISOString();
     const newBook = {
       ...(editing || {}),
@@ -3608,6 +3686,7 @@
       },
       keywords: [kw1, kw2, kw3],
       matura:   document.getElementById('f-matura').checked,
+      ...entryInfo,
       cover:    buildFileURL(xx, title, coverName),
       contents: contentsPlan.map(c => buildFileURL(xx, title, c.filename)),
     };
