@@ -1,0 +1,26 @@
+{
+  "added": "2026-11-12T11:28:02.696Z",
+  "updated": "2026-11-12T11:28:02.696Z",
+  "stk": "01-06-TQXB",
+  "title": "Malý princ",
+  "author": "Antoine de Saint-Exupéry",
+  "isbn": "9788000073590",
+  "year": "2024",
+  "description": "Pohádkové vyprávění o vysněném malém princi, který přichází z neznámé planety a snaží se pochopit lidský svět. Kouzelná pohádková bytost přichází na naši Zemi, aby autorovi příběhu sdělila tajemství své životní pouti, tajemství čistého srdce, dobra a krásy.",
+  "location": {
+    "Budova": "Vojtova"
+  },
+  "keywords": [
+    "francouzské pohádky",
+    "publikace pro děti",
+    "M/II"
+  ],
+  "matura": true,
+  "entry": "isbn",
+  "sources": [
+    "Knihovny.cz"
+  ],
+  "reviewed": true,
+  "cover": "",
+  "contents": []
+}
