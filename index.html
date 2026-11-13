@@ -1035,58 +1035,123 @@
       position: relative;
     }
     .overlay.open .form-box { transform: translateY(0); }
+    /* header of the form: always visible while scrolling */
     .form-header {
-      padding: 1.25rem 1.75rem 1rem;
+      padding: 1rem 1.5rem;
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      background: var(--card-bg);
-      z-index: 1;
+      background: #fff;
+      z-index: 3;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 1rem;
     }
-    .form-header h2 { font-family: 'Rubik', sans-serif; font-size: 1.2rem; }
-    .form-close { background: var(--ink); color: var(--cream); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
-    .form-body { padding: 1.25rem 1.75rem 1.75rem; }
-    .form-section { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin: 1.25rem 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
-    .form-section:first-child { margin-top: 0; }
+    .form-header h2 { font-family: 'Rubik', sans-serif; font-size: 1.15rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .form-close { background: var(--ink); color: var(--cream); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .form-body { padding: 1.1rem 1.5rem 0; counter-reset: sec; }
+    .form-legend { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.9rem; }
+    .req { color: var(--rust); font-weight: 600; }
+    .opt { color: var(--muted); font-weight: 400; font-size: 0.76rem; }
+
+    /* choose how to fill in the book: a switch with two sides (dark = the selected one) */
+    .mode-toggle-wrap { display: flex; margin-bottom: 1.1rem; border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; background: #fff; }
+    .mode-btn {
+      flex: 1; padding: 0.65rem 0.5rem; background: #fff; border: none; border-radius: 0;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--ink); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.2rem 0.45rem; text-align: center;
+    }
+    .mode-btn + .mode-btn { border-left: 1.5px solid var(--ink); }
+    .mode-btn:hover { background: var(--parchment); }
+    .mode-btn.active { background: var(--ink); color: var(--gold); }
+
+    /* every part of the form is its own white card with a numbered heading */
+    .form-card, .isbn-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.15rem 0.3rem; margin-bottom: 1rem; }
+    .form-section {
+      display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.9rem; padding: 0; border: none;
+      font-family: 'Rubik', sans-serif; font-size: 0.98rem; font-weight: 500; color: var(--ink);
+      text-transform: none; letter-spacing: 0;
+    }
+    .form-section::before {
+      counter-increment: sec; content: counter(sec); flex-shrink: 0; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center; background: var(--ink); color: var(--gold);
+      font-family: 'DM Sans', sans-serif; font-size: 0.75rem;
+    }
+    .panel-title { font-family: 'Rubik', sans-serif; font-size: 0.98rem; font-weight: 500; margin-bottom: 0.6rem; }
+
     .form-row { display: flex; gap: 0.75rem; }
-    .form-field { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; margin-bottom: 0.75rem; }
-    .form-field label { font-size: 0.72rem; color: var(--muted); }
-    .form-field label span { color: var(--rust); margin-left: 2px; }
+    .form-field { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 0; margin-bottom: 0.85rem; }
+    .form-field label, .field-label { font-size: 0.84rem; font-weight: 500; color: var(--ink); }
+    .field-hint { font-size: 0.74rem; color: var(--muted); line-height: 1.45; font-weight: 400; }
     .form-input, .form-select {
-      padding: 0.55rem 0.85rem;
-      border: 1.5px solid var(--border);
-      border-radius: 4px;
-      background: var(--cream);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.875rem;
-      color: var(--ink);
-      outline: none;
-      transition: border-color 0.2s;
-      width: 100%;
+      padding: 0.62rem 0.85rem; border: 1.5px solid #9aa6b5; border-radius: 6px; background: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: 0.92rem; color: var(--ink); outline: none; width: 100%; min-width: 0;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .form-input:focus, .form-select:focus { border-color: var(--brown); }
-    .form-select:disabled { opacity: 0.4; cursor: not-allowed; }
-    .stk-preview {
-      background: var(--ink);
-      color: var(--gold);
-      font-family: 'Rubik', sans-serif;
-      font-size: 1.1rem;
-      letter-spacing: 0.2em;
-      padding: 0.75rem 1rem;
-      border-radius: 4px;
-      text-align: center;
-      margin-bottom: 0.75rem;
+    .form-input::placeholder { color: #9aa4b2; }
+    .form-input:focus, .form-select:focus { border-color: var(--brown); box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.35); }
+    .form-select:disabled { opacity: 0.55; cursor: not-allowed; background: var(--cream); border-color: var(--border); }
+    .kw-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 0.85rem; }
+
+    /* the book code: an information box, not a button */
+    .stk-box { background: var(--parchment); border-left: 4px solid var(--gold); border-radius: 6px; padding: 0.7rem 1rem; margin: 0.15rem 0 1rem; }
+    .stk-box-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .stk-preview { font-family: 'Rubik', sans-serif; font-size: 1.35rem; letter-spacing: 0.14em; color: var(--ink); padding: 0.1rem 0; }
+    .stk-box-hint { font-size: 0.74rem; color: var(--muted); line-height: 1.45; margin: 0.15rem 0 0.35rem; }
+    .stk-regen { background: none; border: none; padding: 0; font-family: 'DM Sans', sans-serif; font-size: 0.76rem; color: var(--brown); text-decoration: underline; cursor: pointer; }
+    .stk-regen:hover { color: var(--ink); }
+
+    /* photo upload areas instead of the browser's own "Choose file" box */
+    .file-field { position: relative; }
+    .file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+    .file-drop {
+      display: block; text-align: center; padding: 0.75rem 1rem; border: 2px dashed #9aa6b5; border-radius: 6px;
+      background: var(--card-bg); color: var(--ink); font-size: 0.88rem; font-weight: 500; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
     }
-    .stk-regen { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 0.4rem 0.75rem; font-size: 0.72rem; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; margin-bottom: 0.75rem; }
-    .stk-regen:hover { border-color: var(--brown); color: var(--brown); }
-    .checkbox-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; cursor: pointer; }
-    .checkbox-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--brown); cursor: pointer; flex-shrink: 0; }
-    .checkbox-row label { font-size: 0.875rem; cursor: pointer; }
-    .form-submit { width: 100%; padding: 0.7rem; background: var(--ink); color: var(--gold); border: none; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; letter-spacing: 0.06em; margin-top: 0.5rem; transition: background 0.15s; }
-    .form-submit:hover { background: var(--brown); }
+    .file-drop small { display: block; margin-top: 0.1rem; font-weight: 400; font-size: 0.72rem; color: var(--muted); }
+    .file-drop:hover, .file-input:focus-visible + .file-drop { background: var(--parchment); border-color: var(--brown); }
+
+    .checkbox-row { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.85rem; cursor: pointer; }
+    .checkbox-row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--ink); cursor: pointer; flex-shrink: 0; }
+    .checkbox-row label { font-size: 0.88rem; cursor: pointer; line-height: 1.4; }
+    .review-box { background: rgba(201, 168, 76, 0.16); border: 1.5px solid var(--gold); border-radius: 6px; padding: 0.75rem 1rem 0.1rem; margin-bottom: 1rem; }
+
+    /* the save button stays visible at the bottom while the form scrolls: gold = the main action */
+    .form-footer { position: sticky; bottom: 0; z-index: 2; margin: 0 -1.5rem; padding: 0.85rem 1.5rem; background: #fff; border-top: 1px solid var(--border); }
+    .form-submit {
+      width: 100%; padding: 0.85rem; background: var(--gold); color: var(--ink); border: none; border-radius: 6px;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; cursor: pointer; transition: filter 0.15s;
+    }
+    .form-submit:hover { filter: brightness(0.93); }
+
+    /* ISBN panel */
+    .isbn-note { font-size: 0.76rem; line-height: 1.55; background: var(--parchment); padding: 0.6rem 0.8rem; border-radius: 6px; border-left: 3px solid var(--rust); margin-bottom: 0.9rem; }
+    .isbn-fetch-btn {
+      flex-shrink: 0; height: 2.6rem; margin-bottom: 0.85rem; padding: 0 1.1rem; background: var(--gold); color: var(--ink);
+      border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: filter 0.15s;
+    }
+    .isbn-fetch-btn:hover { filter: brightness(0.93); }
+    .isbn-fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .isbn-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6rem; margin-bottom: 0.9rem; }
+    .isbn-scan-btn {
+      padding: 0.62rem 0.5rem; background: #fff; color: var(--ink); border: 1.5px solid var(--ink); border-radius: 6px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.84rem; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .isbn-scan-btn:hover { background: var(--ink); color: var(--gold); }
+
+    @media (max-width: 560px) {
+      .form-header { padding: 0.85rem 1rem; }
+      .form-body { padding: 1rem 1rem 0; }
+      .form-footer { margin: 0 -1rem; padding: 0.75rem 1rem; }
+      .form-card, .isbn-card { padding: 0.9rem 0.9rem 0.25rem; }
+      .form-row:not(.keep) { flex-direction: column; gap: 0; }   /* one field per line: nothing gets cut off */
+      .form-row.keep { flex-wrap: wrap; gap: 0; }                 /* ISBN box on its own line, the button below it */
+      .form-row.keep .form-field { flex: 1 1 100%; }
+      .isbn-fetch-btn { width: 100%; }
+      .kw-row { grid-template-columns: 1fr; }
+    }
 
     /* ── SUCCESS SCREEN ── */
     .success-box {
@@ -1221,33 +1286,7 @@
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* ── MODE TOGGLE ── */
-    .mode-toggle-wrap {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.25rem;
-    }
-    .mode-btn {
-      flex: 1;
-      padding: 0.6rem 0.75rem;
-      background: var(--parchment);
-      border: 1.5px solid var(--border);
-      border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.78rem;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-    }
-    .mode-btn.active {
-      background: var(--ink);
-      color: var(--gold);
-      border-color: var(--ink);
-    }
+    /* ── mode toggle badge ── */
     .experimental-badge {
       font-size: 0.6rem;
       background: var(--rust);
@@ -1258,40 +1297,8 @@
       text-transform: uppercase;
     }
     .mode-btn.active .experimental-badge { background: rgba(255,255,255,0.2); }
-    .isbn-fetch-btn {
-      padding: 0.55rem 1rem;
-      background: var(--ink);
-      color: var(--gold);
-      border: none;
-      border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      margin-bottom: 0.75rem;
-      transition: background 0.15s;
-      flex-shrink: 0;
-    }
-    .isbn-fetch-btn:hover { background: var(--brown); }
-    .isbn-fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* ── BARCODE SCANNER ── */
-    .isbn-scan-btn {
-      width: 100%;
-      padding: 0.6rem 1rem;
-      margin-bottom: 0.75rem;
-      background: transparent;
-      color: var(--ink);
-      border: 1.5px dashed var(--brown);
-      border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-    .isbn-scan-btn:hover { background: var(--ink); color: var(--gold); border-style: solid; }
     .scan-box {
       position: relative;
       margin-bottom: 0.75rem;
@@ -1503,7 +1510,7 @@
     <div class="form-box">
       <div class="form-header">
         <h2 id="formTitle">Editor nové knihy...</h2>
-        <button class="form-close" id="formClose">✕</button>
+        <button type="button" class="form-close" id="formClose" aria-label="Zavřít">✕</button>
       </div>
       <div class="form-body">
 
@@ -1512,31 +1519,35 @@
           <button type="button" class="pair-cancel" id="pairDisconnect">Odpojit</button>
         </div>
 
+        <p class="form-legend"><span class="req">*</span> označuje povinné údaje</p>
+
         <!-- MODE TOGGLE -->
         <div class="mode-toggle-wrap">
-          <button class="mode-btn active" id="modeManual">Ruční zadání informací</button>
-          <button class="mode-btn" id="modeISBN">Zadání podle ISBN <span class="experimental-badge">Experimentální</span></button>
+          <button type="button" class="mode-btn active" id="modeManual">Ruční zadání informací</button>
+          <button type="button" class="mode-btn" id="modeISBN">Zadání podle ISBN <span class="experimental-badge">Experimentální</span></button>
         </div>
 
         <!-- ISBN FETCH PANEL -->
-        <div id="isbnPanel" style="display:none;">
-          <div class="form-section">Vyhledat knihu podle ISBN</div>
-          <p style="font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.6;background:var(--parchment);padding:0.6rem 0.75rem;border-radius:4px;border-left:3px solid var(--rust);">
+        <div id="isbnPanel" class="isbn-card" style="display:none;">
+          <div class="panel-title">Vyhledat knihu podle ISBN</div>
+          <p class="isbn-note">
             Tato funkce nemusí fungovat pro všechny knihy vydané v České republice. Nejlépe funguje pro anglicky psané knihy a mezinárodně dostupné tituly. Využívá Knihovny.cz, Open Library a další knihovní katalogy. Údaje si vždy zkontroluj.
           </p>
-          <div class="form-row" style="align-items:flex-end;">
+          <div class="form-row keep" style="align-items:flex-end;">
             <div class="form-field">
-              <label>ISBN</label>
+              <label for="f-isbn-fetch">ISBN</label>
               <input class="form-input" id="f-isbn-fetch" type="text" placeholder="978-80-..." />
             </div>
-            <button class="isbn-fetch-btn" id="isbnFetchBtn">Načíst informace</button>
+            <button type="button" class="isbn-fetch-btn" id="isbnFetchBtn">Načíst informace</button>
           </div>
-          <button type="button" class="isbn-scan-btn" id="isbnScanBtn">Skenovat čárový kód kamerou</button>
-          <button type="button" class="isbn-scan-btn" id="pairStartBtn">Skenovat telefonem</button>
+          <div class="isbn-actions">
+            <button type="button" class="isbn-scan-btn" id="isbnScanBtn">Skenovat čárový kód kamerou</button>
+            <button type="button" class="isbn-scan-btn" id="pairStartBtn">Skenovat telefonem</button>
+          </div>
           <div class="pair-box" id="pairBox" style="display:none;">
             <div class="pair-qr" id="pairQr"></div>
             <div class="pair-text">
-              <strong>1.</strong> Na telefonu otevři tento web a klepni na <em>„📱 Připojit k počítači“</em> a namiř kameru na QR kód. (Jde to i běžným Fotoaparátem.)<br>
+              <strong>1.</strong> Na telefonu otevři tento web a klepni na <em>„Připojit k počítači“</em> a namiř kameru na QR kód. (Jde to i běžným Fotoaparátem.)<br>
               <strong>2.</strong> Pak namiř telefon na čárový kód knihy.<br>
               <span style="color:var(--muted);">Kód spojení:</span> <span class="pair-code" id="pairCode"></span>
               <div id="pairStatus"></div>
@@ -1549,106 +1560,116 @@
             <button type="button" class="scan-cancel" id="scanCancel">Zrušit</button>
             <div class="scan-hint">Namiř kameru na čárový kód (ISBN) na zadní straně knihy</div>
           </div>
-          <div id="isbnStatus" style="font-size:0.75rem;margin-bottom:0.75rem;min-height:1.2rem;"></div>
+          <div id="isbnStatus" style="font-size:0.78rem;margin-bottom:0.75rem;min-height:1.2rem;"></div>
+          <p class="field-hint" style="margin-bottom:0.85rem;">Po načtení se údaje vyplní v kartách níže. Zkontroluj je a doplň, co chybí.</p>
         </div>
 
-        <div class="form-section">Základní informace</div>
-        <div class="form-field">
-          <label>Název knihy <span>*</span></label>
-          <input class="form-input" id="f-title" type="text" placeholder="Název knihy" />
-        </div>
-        <div class="form-row">
+        <!-- 1 -->
+        <section class="form-card">
+          <h3 class="form-section">Základní údaje</h3>
           <div class="form-field">
-            <label>Autor <span>*</span></label>
-            <input class="form-input" id="f-author" type="text" placeholder="Jméno Příjmení" />
+            <label for="f-title">Název knihy <span class="req">*</span></label>
+            <input class="form-input" id="f-title" type="text" placeholder="např. Babička" />
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="f-author">Autor <span class="req">*</span></label>
+              <input class="form-input" id="f-author" type="text" placeholder="Jméno Příjmení" />
+            </div>
+            <div class="form-field">
+              <label for="f-year">Rok vydání <span class="req">*</span></label>
+              <input class="form-input" id="f-year" type="number" placeholder="např. 1984" min="0" max="2999" />
+            </div>
           </div>
           <div class="form-field">
-            <label>Rok vydání <span>*</span></label>
-            <input class="form-input" id="f-year" type="number" placeholder="např. 1984" min="0" max="2999" />
+            <label for="f-isbn">ISBN <span class="opt">(nepovinné, doplní se samo při vyplnění podle ISBN)</span></label>
+            <input class="form-input" id="f-isbn" type="text" placeholder="978-80-..." />
           </div>
-        </div>
-        <div class="form-field">
-          <label>ISBN <span style="color:var(--muted)">(nepovinné)</span></label>
-          <input class="form-input" id="f-isbn" type="text" placeholder="978-80-..." />
-        </div>
-        <div class="dup-warning" id="dupWarning"></div>
+          <div class="dup-warning" id="dupWarning"></div>
+        </section>
 
-        <div class="form-section">Umístění knihy</div>
-        <div class="form-field">
-          <label id="loc1-label">Budova</label>
-          <select class="form-select" id="f-loc1"><option value="">— vyber —</option></select>
-        </div>
-
-        <div class="form-section">Klasifikace STK (XX-YY-ZZZZ)</div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Předmět (XX) <span>*</span></label>
-            <select class="form-select" id="f-subject">
-              <option value="">— vyber předmět —</option>
-            </select>
+        <!-- 2 -->
+        <section class="form-card">
+          <h3 class="form-section">Kam kniha patří</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="f-subject">Předmět <span class="req">*</span></label>
+              <select class="form-select" id="f-subject">
+                <option value="">— vyber předmět —</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="f-subcat">Kategorie <span class="req">*</span></label>
+              <select class="form-select" id="f-subcat" disabled>
+                <option value="">— vyber kategorii —</option>
+              </select>
+            </div>
+          </div>
+          <div id="maturaRow" style="display:none;">
+            <div class="checkbox-row">
+              <input type="checkbox" id="f-matura" />
+              <label for="f-matura">Maturitní četba</label>
+            </div>
           </div>
           <div class="form-field">
-            <label>Kategorie (YY) <span>*</span></label>
-            <select class="form-select" id="f-subcat" disabled>
-              <option value="">— vyber kategorii —</option>
-            </select>
+            <label id="loc1-label" for="f-loc1">Budova</label>
+            <select class="form-select" id="f-loc1"><option value="">— vyber —</option></select>
           </div>
-        </div>
-        <div class="stk-preview" id="stkPreview">??-??-????</div>
-        <button class="stk-regen" id="stkRegen">Vygenerovat nový kód (ZZZZ)</button>
+          <div class="stk-box">
+            <div class="stk-box-label">Kód knihy (STK)</div>
+            <div class="stk-preview" id="stkPreview">??-??-????</div>
+            <div class="stk-box-hint">Vytvoří se sám podle předmětu a kategorie (dokud je nevybereš, jsou na jejich místě otazníky). Poslední čtyři písmena jsou náhodná a v knihovně se neopakují.</div>
+            <button type="button" class="stk-regen" id="stkRegen">Vygenerovat jiný kód</button>
+          </div>
+        </section>
 
-        <div class="form-section">Klíčová slova</div>
-        <div class="form-row">
+        <!-- 3 -->
+        <section class="form-card">
+          <h3 class="form-section">Klíčová slova <span class="req">*</span></h3>
+          <p class="field-hint" style="margin:-0.4rem 0 0.6rem;">Tři slova, podle kterých se kniha bude hledat.</p>
+          <div class="kw-row">
+            <input class="form-input" id="f-kw1" type="text" placeholder="např. romance" aria-label="Klíčové slovo 1" />
+            <input class="form-input" id="f-kw2" type="text" placeholder="např. drama" aria-label="Klíčové slovo 2" />
+            <input class="form-input" id="f-kw3" type="text" placeholder="např. 17. století" aria-label="Klíčové slovo 3" />
+          </div>
+        </section>
+
+        <!-- 4 -->
+        <section class="form-card">
+          <h3 class="form-section">Popis <span class="opt">(nepovinné)</span></h3>
           <div class="form-field">
-            <label>Klíčové slovo 1 <span>*</span></label>
-            <input class="form-input" id="f-kw1" type="text" placeholder="např. romance" />
+            <textarea class="form-input" id="f-desc" rows="3" placeholder="Krátký popis knihy..." aria-label="Popis" style="resize:vertical;"></textarea>
           </div>
-          <div class="form-field">
-            <label>Klíčové slovo 2 <span>*</span></label>
-            <input class="form-input" id="f-kw2" type="text" placeholder="např. drama" />
-          </div>
-          <div class="form-field">
-            <label>Klíčové slovo 3 <span>*</span></label>
-            <input class="form-input" id="f-kw3" type="text" placeholder="např. 17. století" />
-          </div>
-        </div>
+        </section>
 
-        <div class="form-section">Fotografie <span style="color:var(--muted);font-size:0.9em;text-transform:none;letter-spacing:0">(nepovinné)</span></div>
-        <div class="form-field">
-          <label>Obálka knihy</label>
-          <input class="form-input" id="f-cover" type="file" accept=".jpg,.jpeg,.png" />
-          <div class="contents-list" id="coverList"></div>
-        </div>
-        <div class="form-field">
-          <label>Strany s obsahem <span style="color:var(--muted);margin-left:0">(můžeš přidat i víc fotek, max. 10)</span></label>
-          <input class="form-input" id="f-contents" type="file" accept=".jpg,.jpeg,.png" multiple />
-          <div class="contents-list" id="contentsList"></div>
-        </div>
-        <p style="font-size:0.7rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.5;">
-          Podporované formáty: <strong>.jpg/.jpeg</strong>, <strong>.png</strong><br>
-          Fotky se po odeslání uloží spolu s údaji o knize přímo do databáze.
-        </p>
-
-        <div class="form-section">Další</div>
-        <div class="form-field">
-          <label>Popis <span style="color:var(--muted)">(nepovinné)</span></label>
-          <textarea class="form-input" id="f-desc" rows="3" placeholder="Krátký popis knihy..." style="resize:vertical;"></textarea>
-        </div>
-        <div id="maturaRow" style="display:none;">
-          <div class="checkbox-row">
-            <input type="checkbox" id="f-matura" />
-            <label for="f-matura">Maturitní četba</label>
+        <!-- 5 -->
+        <section class="form-card">
+          <h3 class="form-section">Fotografie <span class="opt">(nepovinné)</span></h3>
+          <div class="form-field file-field">
+            <span class="field-label">Obálka knihy</span>
+            <input class="file-input" id="f-cover" type="file" accept=".jpg,.jpeg,.png" />
+            <label class="file-drop" for="f-cover">Vybrat fotku obálky <small>jedna fotka, .jpg nebo .png</small></label>
+            <div class="contents-list" id="coverList"></div>
           </div>
-        </div>
+          <div class="form-field file-field">
+            <span class="field-label">Strany s obsahem</span>
+            <input class="file-input" id="f-contents" type="file" accept=".jpg,.jpeg,.png" multiple />
+            <label class="file-drop" for="f-contents">Přidat fotky obsahu <small>až 10 fotek, .jpg nebo .png, jde přidávat postupně</small></label>
+            <div class="contents-list" id="contentsList"></div>
+          </div>
+          <p class="field-hint" style="margin-bottom:0.85rem;">Velké fotky se před nahráním automaticky zmenší.</p>
+        </section>
 
-        <div id="reviewRow" style="display:none;">
+        <div id="reviewRow" class="review-box" style="display:none;">
           <div class="checkbox-row">
             <input type="checkbox" id="f-reviewed" />
-            <label for="f-reviewed">Údaje jsem zkontroloval (byly vyplněny automaticky podle ISBN)</label>
+            <label for="f-reviewed">Údaje jsem zkontroloval <span class="field-hint">(byly vyplněny automaticky podle ISBN)</span></label>
           </div>
         </div>
 
-        <button class="form-submit" id="formSubmit">Zaznamenat knihu!</button>
+        <div class="form-footer">
+          <button type="button" class="form-submit" id="formSubmit">Zaznamenat knihu!</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3455,6 +3476,7 @@
     const { xx, yy, zzzz } = parseSTK(book.stk);
     editingBook = book;
     setEditUI(true);
+    document.getElementById('formTitle').textContent = 'Úprava: ' + book.title;
     currentZZZZ = zzzz;                               // the physical label keeps its last 4 letters
 
     document.getElementById('f-title').value  = book.title || '';
