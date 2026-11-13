@@ -63,8 +63,6 @@ flowchart LR
     W <--> D
 ```
 
-*Pokud se diagram nezobrazí (např. v prohlížeči nebo programu, který Mermaid nepodporuje), je stejný diagram jako obrázek v [docs/prehled.png](docs/prehled.png).*
-
 Čtení knihovny **nepotřebuje ani heslo, ani Worker**: stránka si knihy načítá přímo z GitHubu. Přes Worker procházejí jen změny.
 
 ### Varování: ukládání může selhat
@@ -150,11 +148,12 @@ Klikni na **„Zaznamenat knihu!“** a počkej na zelené potvrzení (viz [varo
 
 V detailu knihy jsou dole tlačítka. Obě vyžadují heslo.
 
-**Upravit knihu** otevře stejný formulář s uloženými údaji. Změnit lze cokoli: texty, předmět a kategorii, obálku, fotky obsahu (odebrat, přeuspořádat, přidat). Pozor:
+**Upravit knihu** otevře stejný formulář s uloženými údaji. Změnit lze cokoli: texty, předmět a kategorii, obálku, fotky obsahu (odebrat, přeuspořádat, přidat).
 
-- Změna **názvu** automaticky přejmenuje složku knihy.
-- Změna **předmětu nebo kategorie** změní první části kódu STK (poslední čtyři písmena zůstávají, protože jsou nalepená na knize, případně knihu přeznač).
-- Aktualizuje se datum poslední změny.
+> [!CAUTION]
+> - Změna **názvu** automaticky přejmenuje složku knihy.
+> - Změna **předmětu nebo kategorie** změní první části kódu STK (poslední čtyři písmena zůstávají, protože jsou nalepená na knize, případně knihu přeznač).
+> - Aktualizuje se datum poslední změny.
 
 **Každá úprava i smazání se zapíše do [historie změn](#jak-používat-knihovnu)**, aby bylo vidět, co se s knihou dělo.
 
@@ -313,10 +312,8 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 
 **Chyby a nápady:** otevři *Issue* v tomto repozitáři (záložka Issues) a popiš, co jsi dělal, co jsi čekal a co se stalo. Hodně pomůžou snímky obrazovky a text červené chyby. Případně kontaktuj současného majitele:
 
-- **Současný majitel / správce:** *(jméno, školní e-mail)* <!-- Jinak to holt nepůjde než ručně -->
+- **Současný majitel / správce:** *(jméno, školní e-mail)* <!-- Jinak to holt nepůjde než měnit ručně -->
 - **Účet Cloudflare patří:** *(jméno, e-mail)*
-
-**Při předání projektu** (maturita!) udělej všechno z toho. Jinak knihovna tiše přestane fungovat, nebo zůstane svázaná s někým, kdo už ve škole není:
 
 - [ ] převeď repozitář (Settings → *Transfer ownership*), nebo přidej nového správce jako administrátora,
 - [ ] ujisti se, že **účet Cloudflare** (a jeho obnovovací e-mail) patří škole nebo novému správci, ne jen soukromé osobě,
