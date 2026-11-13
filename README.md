@@ -37,7 +37,8 @@ Na GitHubu je **uloženo úplně všechno**: samotný web (`index.html`, který 
 - každá změna je *commit*, takže existuje **celá historie** a omylem upravenou nebo smazanou knihu lze vždy vrátit,
 - data jsou obyčejné soubory (jeden malý JSON na knihu), které se snadno čtou, zálohují i přenášejí jinam.
 
-Háček: **web na GitHub Pages je statický.** Umí data zobrazit, ale nic uložit. A klíč, který dovoluje do repozitáře zapisovat (*token*), se nesmí dát do kódu stránky, protože by si ho mohl přečíst každý, kdo stránku otevře. Bez dalšího kroku by se tedy přidání knihy dělalo **ručně na GitHubu**: vytvořit složku, JSON a nahrát fotky.
+> [!NOTE]
+> **Web na GitHub Pages je statický.** Umí data zobrazit, ale nic uložit. A klíč, který dovoluje do repozitáře zapisovat (*token*), se nesmí dát do kódu stránky, protože by si ho mohl přečíst každý, kdo stránku otevře. Bez dalšího kroku by se tedy přidání knihy dělalo **ručně na GitHubu**: vytvořit složku, JSON a nahrát fotky.
 
 ### Proč Cloudflare?
 
@@ -233,7 +234,7 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 
 ## Nastavení a údržba
 
-*Pro toho, kdo projekt vlastní. Dokud všechno funguje, nic z toho nepotřebuješ, ale schovej si to na den, kdy přestane.*
+<!-- Pro toho, kdo projekt vlastní. Dokud všechno funguje, nic z toho nepotřebuješ, ale schovej si to na den, kdy přestane. -->
 
 ### Co kde je
 
