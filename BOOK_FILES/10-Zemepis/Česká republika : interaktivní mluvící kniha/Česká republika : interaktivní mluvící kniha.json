@@ -1,0 +1,28 @@
+{
+  "added": "2026-11-14T11:10:12.211Z",
+  "updated": "2026-11-14T11:10:12.211Z",
+  "stk": "10-05-ZNMW",
+  "title": "Česká republika : interaktivní mluvící kniha",
+  "author": "Ladislava Pechová",
+  "isbn": "9788087958063",
+  "year": "2015",
+  "description": "Zajímavosti nejen o městech, krajích, pohořích a vodstvu naší republiky.",
+  "location": {
+    "Budova": "Vojtova"
+  },
+  "keywords": [
+    "encyklopedie",
+    "Česko",
+    "interaktivní multimédia"
+  ],
+  "matura": false,
+  "entry": "isbn",
+  "sources": [
+    "Knihovny.cz"
+  ],
+  "reviewed": true,
+  "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/10-Zemepis/%C4%8Cesk%C3%A1%20republika%20%3A%20interaktivn%C3%AD%20mluv%C3%ADc%C3%AD%20kniha/1000029679.jpg",
+  "contents": [
+    "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/10-Zemepis/%C4%8Cesk%C3%A1%20republika%20%3A%20interaktivn%C3%AD%20mluv%C3%ADc%C3%AD%20kniha/obsah-1.jpg"
+  ]
+}
