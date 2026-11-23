@@ -519,7 +519,7 @@ async function fromOpenLibrary(isbn) {
       const w = await getJson(`https://openlibrary.org${workKey}.json`).catch(() => null);
       if (w) {
         if (!out.description) out.description = textOf(w.description);
-        if (w.subjects?.length) out.keywords = w.subjects.slice(0, 3);
+        if (w.subjects?.length) out.keywords = w.subjects.slice(0, 8);
       }
     }
     return out;
@@ -536,7 +536,7 @@ async function fromOpenLibrary(isbn) {
     author: (d.author_name || []).slice(0, 3).join(', '),
     year: d.first_publish_year ? String(d.first_publish_year) : '',
     description: '',
-    keywords: (d.subject || []).slice(0, 3),
+    keywords: (d.subject || []).slice(0, 8),
   };
 }
 
@@ -582,7 +582,7 @@ function parseMarc(xml) {
     author: flipName(cleanMarc(authorRaw)),
     year: imprint.match(/\d{4}/)?.[0] || '',
     description: cleanMarc(marcSubfields(xml, '520')[0]?.a),
-    keywords: kw.slice(0, 3),
+    keywords: kw.slice(0, 8),
   };
 }
 
@@ -715,13 +715,16 @@ function diffBooks(a, b) {
   a = a || {};
   const out = [];
   const fields = [['title', 'Název'], ['author', 'Autor'], ['year', 'Rok'], ['isbn', 'ISBN'],
-                  ['keywords', 'Klíčová slova'], ['location', 'Budova'], ['stk', 'STK']];
+                  ['keywords', 'Klíčová slova'], ['location', 'Budova'], ['owner', 'Majitel'], ['stk', 'STK']];
   for (const [key, label] of fields) {
     const from = shortText(a[key]), to = shortText(b[key]);
     if (from !== to) out.push({ f: label, from, to });
   }
   if (Boolean(a.matura) !== Boolean(b.matura)) {
     out.push({ f: 'Maturitní četba', from: a.matura ? 'ano' : 'ne', to: b.matura ? 'ano' : 'ne' });
+  }
+  if ((a.entry === 'isbn' || b.entry === 'isbn') && Boolean(a.reviewed) !== Boolean(b.reviewed)) {
+    out.push({ f: 'Údaje zkontrolovány', from: a.reviewed ? 'ano' : 'ne', to: b.reviewed ? 'ano' : 'ne' });
   }
   if (String(a.description || '').trim() !== String(b.description || '').trim()) {
     out.push({ f: 'Popis', note: 'změněn' });
