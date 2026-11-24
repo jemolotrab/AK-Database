@@ -38,7 +38,7 @@ Na GitHubu je **uloženo úplně všechno**: samotný web (`index.html`, který 
 - data jsou obyčejné soubory (jeden malý JSON na knihu), které se snadno čtou, zálohují i přenášejí jinam.
 
 > [!NOTE]
-> **Web na GitHub Pages je statický.** Umí data zobrazit, ale nic uložit. A klíč, který dovoluje do repozitáře zapisovat (*token*), se nesmí dát do kódu stránky, protože by si ho mohl přečíst každý, kdo stránku otevře. Bez dalšího kroku by se tedy přidání knihy dělalo **ručně na GitHubu**: vytvořit složku, JSON a nahrát fotky.
+> **web na GitHub Pages je statický.** Umí data zobrazit, ale nic uložit. A klíč, který dovoluje do repozitáře zapisovat (*token*), se nesmí dát do kódu stránky, protože by si ho mohl přečíst každý, kdo stránku otevře. Bez dalšího kroku by se tedy přidání knihy dělalo **ručně na GitHubu**: vytvořit složku, JSON a nahrát fotky.
 
 ### Proč Cloudflare?
 
@@ -82,10 +82,11 @@ Otevři [web](https://jemolotrab.github.io/AK-Database/). Pro procházení není
 
 - **Hledání**: podle názvu, autora, klíčových slov, kódu STK nebo **ISBN** (s pomlčkami i bez, ISBN-10 a ISBN-13 téže knihy se najdou obě, funguje i část čísla).
 - **📷 ve vyhledávání**: namiř kameru na čárový kód na zadní straně knihy a knihovna ji najde.
-- **Filtry**: podle předmětu, kategorie a (u češtiny) *maturitní četby*.
+- **Filtry**: podle předmětu, kategorie, **budovy** a (u češtiny) *maturitní četby*.
 - **Řazení**: výchozí, nejnovější nahoře, A → Z, Z → A. (Knihy přidané před zavedením dat nemají datum a v řazení „nejnovější“ jsou na konci.)
 - **Náhodná kniha**: otevře náhodnou knihu z těch, které jsou zrovna zobrazené (chceš-li náhodnou *dějepisnou*, nejdřív vyfiltruj historii).
 - **Mřížka / seznam**: přepíná se tlačítky vedle hledání.
+- **Jak byla kniha vyplněna**: v detailu knihy je napsáno, zda byly údaje zadány **ručně**, nebo **automaticky podle ISBN** (a z jakých katalogů) a zda je někdo zkontroloval. Automaticky vyplněné knihy, které nikdo nezkontroloval, mají v seznamu štítek **auto** a v detailu tlačítko **Zkontrolovat a upravit**. Všechny najdeš tlačítkem **Zobrazit neověřené knihy** v okně Statistiky.
 - **Odkaz na knihu**: v detailu knihy je tlačítko **Kopírovat odkaz**. Adresa webu zakončená kódem knihy, např. `https://jemolotrab.github.io/AK-Database/#01-03-QWXZ`, otevře rovnou detail té knihy (hodí se pro sdílení, záložky nebo QR kód na knize). Odkaz funguje i po změně předmětu či kategorie, protože se kniha hledá také podle posledních čtyř písmen STK.
 - **🕘 Historie změn**: v detailu knihy je odkaz **Historie knihy** (co se s ní dělo a kdy). Přehled celé knihovny je v okně **Statistiky → Poslední změny**. U úprav se píše, co přesně se změnilo (např. „Autor: Němcová → Božena Němcová“).
 - **Statistiky**: přehled knihovny (knihy podle předmětů a budov, nejčastější autoři, nejnovější knihy) a **export do Excelu**: všechny knihy + statistiky, nebo jen právě zobrazené knihy.
@@ -101,7 +102,7 @@ Kliknutím na knihu otevřeš její detail (fotky obsahu, popis, umístění, da
 
 ### a) Ručně
 
-Vyplň pole sám. Povinné jsou název, autor, rok, předmět, kategorie a tři klíčová slova. **Kód STK** se vytvoří automaticky.
+Vyplň pole sám. Povinné jsou název, autor, rok, předmět, kategorie a tři klíčová slova. K třem hlavním klíčovým slovům můžeš přidat **až 7 dalších (nepovinných)**: napiš slovo a stiskni Enter nebo čárku. Usnadní hledání. Nepovinný je i **majitel knihy** (například škola nebo jméno učitele, hodí se u knih, které škole nepatří). **Kód STK** se vytvoří automaticky.
 
 ### b) Podle ISBN (automaticky)
 
@@ -109,10 +110,14 @@ Přepni na **„Zadání podle ISBN“** (je označené *Experimentální*, auto
 
 - **napsat ISBN** a stisknout *Načíst informace*, nebo
 - kliknout na *Skenovat čárový kód kamerou* a naskenovat kód kamerou zařízení (na telefonu to jde skvěle), nebo
-- kliknout na *Skenovat telefonem*, viz dále.
+- kliknout na *Skenovat telefonem*, viz dále, nebo
+- kliknout na *Načíst ISBN z fotky* a vybrat **jednu nebo víc fotek knihy** z počítače či telefonu. Čárový kód se najde na kterékoli z nich (třeba na zadní straně), proto můžeš vybrat všechny fotky jedné knihy najednou. Kód musí být na fotce celý vidět a ostrý. Fotky se nikam neposílají, čtou se přímo v prohlížeči.
 
 > [!WARNING]
 > **Údaje vždy zkontroluj.** Pocházejí z knihovních katalogů a mohou být chybné, neúplné nebo v jiném jazyce. Anglické knihy dorazí s anglickými klíčovými slovy a popisem: přelož je, nebo je nech. Předmět, kategorie, budova, obálka a fotky obsahu jsou vždy **tvoje** práce.
+
+> [!NOTE]
+> Po automatickém vyplnění se ve formuláři objeví políčko **„Údaje jsem zkontroloval“**. Zaškrtni ho, až údaje opravdu projdeš. Jinak zůstane kniha označená jako *neověřená* (v seznamu má štítek **auto**) a kdokoli ji může později zkontrolovat přes **Upravit knihu**.
 
 ### c) Skenování telefonem
 
@@ -149,7 +154,7 @@ Klikni na **„Zaznamenat knihu!“** a počkej na zelené potvrzení (viz [varo
 
 V detailu knihy jsou dole tlačítka. Obě vyžadují heslo.
 
-**Upravit knihu** otevře stejný formulář s uloženými údaji. Změnit lze cokoli: texty, předmět a kategorii, obálku, fotky obsahu (odebrat, přeuspořádat, přidat).
+**Upravit knihu** otevře stejný formulář s uloženými údaji. Změnit lze cokoli: texty, předmět a kategorii, obálku, fotky obsahu (odebrat, přeuspořádat, přidat). Pozor:
 
 > [!CAUTION]
 > - Změna **názvu** automaticky přejmenuje složku knihy.
@@ -208,8 +213,12 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
   "year": "1855",
   "description": "Příběh o životě na vsi a o babičce, která svou moudrostí spojuje celou rodinu.",
   "location": { "Budova": "Vojtova" },
-  "keywords": ["próza", "venkov", "rodina"],
+  "keywords": ["próza", "venkov", "rodina", "babička", "19. století"],
+  "owner": "Škola",
   "matura": true,
+  "entry": "isbn",
+  "sources": ["Knihovny.cz"],
+  "reviewed": true,
   "cover": "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Babi%C4%8Dka/obalka.jpg",
   "contents": [
     "https://raw.githubusercontent.com/jemolotrab/AK-Database/main/BOOK_FILES/01-Cestina/Babi%C4%8Dka/obsah-1.jpg",
@@ -223,7 +232,11 @@ Web sestaví seznam knih tak, že přečte všechny soubory `*.json` v `BOOK_FIL
 | Pole | Poznámka |
 |---|---|
 | `stk` | viz výše |
-| `matura` | používá se jen u češtiny (maturitní četba) |
+| `keywords` | první **tři** jsou hlavní (povinná) klíčová slova, další (nejvýše 7) jsou nepovinná a v detailu mají čárkovaný rámeček |
+| `owner` | majitel knihy (nepovinné), např. `Škola` nebo jméno; když chybí, majitel není uveden |
+| `entry` | jak byla kniha vyplněna: `manual` (ručně) nebo `isbn` (automaticky podle ISBN); starší knihy ho nemají |
+| `sources` | katalogy, ze kterých se údaje vyplnily (jen u `isbn`) |
+| `reviewed` | `true`, když člověk automaticky vyplněné údaje zkontroloval (jen u `isbn`) |
 | `contents` | seznam odkazů na fotky (starší knihy mohou mít jediný textový odkaz, funguje obojí) |
 | `added` / `updated` | nastavují se automaticky; starší knihy nemají data, dokud je někdo neupraví |
 
@@ -281,12 +294,14 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 
 - **České knihy se podle ISBN hledají hůř než anglické.** Národní knihovna ČR blokuje adresy serverů Cloudflare, proto se české údaje berou z **Knihovny.cz přímo v prohlížeči návštěvníka** (to dovoluje). Když je Knihovny.cz zrovna nedostupné, musí se kniha vyplnit ručně.
 - **Popisy českých knih jsou vzácné**, katalogy je většinou nemají.
+- **Čtení ISBN z fotky** závisí na kvalitě fotky: kód musí být celý vidět a ostrý. Hodně rozmazané fotky se nepřečtou, ISBN pak napiš ručně.
 - **Po neúspěšném uložení** zůstanou údaje ve formuláři jen do chvíle, než formulář zavřeš a otevřeš nový (viz [varování](#varování-ukládání-může-selhat)).
 - **GitHub omezuje, jak často se stránka smí ptát na seznam knih** (60 dotazů za hodinu z jedné IP adresy bez přihlášení). Ve škole sdílí adresu hodně zařízení, takže se ve špičce může stát, že se knihovna nenačte, dokud se limit neobnoví.
 - **Změny nejsou živé.** Kdo má stránku už otevřenou, uvidí nové knihy až po obnovení.
 - **Jedno společné heslo.** Nejsou osobní účty, takže se neví, *kdo* změnu provedl (historie ukáže *co* a *kdy*).
 - **Historie změn** zachycuje jen změny provedené přes web a jen od chvíle, kdy byla zapnutá. Změny provedené přímo na GitHubu v ní nejsou (ty najdeš v historii commitů).
 - **Datum přidání a poslední úpravy** mají jen knihy přidané nebo upravené od zavedení dat.
+- **Informaci, jak byla kniha vyplněna** (ručně / automaticky, ověřeno / neověřeno) mají jen knihy přidané nebo upravené od jejího zavedení. U starších knih se nezobrazuje.
 - **Žádné půjčování.** Knihovna knihy eviduje, ale nesleduje, kdo je má.
 
 ---
@@ -304,6 +319,7 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 | „Tabulka historie neexistuje“ | v databázi D1 chybí tabulky: spusť znovu soubor `worker/database.sql` |
 | Skener v telefonu hlásí, že kód vypršel | počítač založil nové párování: naskenuj nový QR kód |
 | Kamera se nespustí | web musí běžet na `https://` a v prohlížeči musí být povolená kamera |
+| „Čárový kód se nepodařilo přečíst“ při načtení z fotky | kód není celý vidět, je rozmazaný nebo moc malý: vyfoť zadní stranu knihy zblízka a ostře, nebo napiš ISBN ručně |
 | Česká kniha: „Kniha nenalezena“ | Knihovny.cz bylo nedostupné nebo blokované: zkus to později, nebo vyplň ručně |
 | Vyměněná fotka se pořád zobrazuje stará | GitHub soubory pár minut ukládá do mezipaměti: počkej, nebo obnov stránku (Ctrl+Shift+R) |
 
@@ -313,8 +329,10 @@ GitHub Pages je zapnuté v nastavení repozitáře (Settings → Pages → *Depl
 
 **Chyby a nápady:** otevři *Issue* v tomto repozitáři (záložka Issues) a popiš, co jsi dělal, co jsi čekal a co se stalo. Hodně pomůžou snímky obrazovky a text červené chyby. Případně kontaktuj současného majitele:
 
-- **Současný majitel / správce:** *(jméno, školní e-mail)* <!-- Jinak to holt nepůjde než měnit ručně -->
-- **Účet Cloudflare patří:** *(jméno, e-mail)*
+- **Současný majitel / správce:** *(jméno, školní e-mail)* <!-- TODO: doplnit -->
+- **Účet Cloudflare patří:** *(jméno, e-mail)* <!-- TODO: doplnit -->
+
+**Při předání projektu** (maturita!) udělej všechno z toho. Jinak knihovna tiše přestane fungovat, nebo zůstane svázaná s někým, kdo už ve škole není:
 
 - [ ] převeď repozitář (Settings → *Transfer ownership*), nebo přidej nového správce jako administrátora,
 - [ ] ujisti se, že **účet Cloudflare** (a jeho obnovovací e-mail) patří škole nebo novému správci, ne jen soukromé osobě,
