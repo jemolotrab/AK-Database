@@ -116,7 +116,7 @@ Přepni na **„Zadání podle ISBN“** (je označené *Experimentální*, auto
 > [!WARNING]
 > **Údaje vždy zkontroluj.** Pocházejí z knihovních katalogů a mohou být chybné, neúplné nebo v jiném jazyce. Anglické knihy dorazí s anglickými klíčovými slovy a popisem: přelož je, nebo je nech. Předmět, kategorie, budova, obálka a fotky obsahu jsou vždy **tvoje** práce.
 
-> [!NOTE]
+> [!IMPORTANT]
 > Po automatickém vyplnění se ve formuláři objeví políčko **„Údaje jsem zkontroloval“**. Zaškrtni ho, až údaje opravdu projdeš. Jinak zůstane kniha označená jako *neověřená* (v seznamu má štítek **auto**) a kdokoli ji může později zkontrolovat přes **Upravit knihu**.
 
 ### c) Skenování telefonem
